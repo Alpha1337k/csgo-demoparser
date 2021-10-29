@@ -1,25 +1,5 @@
 #include <demo.hpp>
 
-DemHeader::DemHeader(FILE *f)
-{
-	size_t read = 0;
-
-	read += fread(&headerDef, sizeof(headerDef), 1, f);
-	read += fread(&demoProtocol, sizeof(demoProtocol), 1, f);
-	read += fread(&networkProtocol, sizeof(networkProtocol), 1, f);
-	read += fread(&serverName, sizeof(serverName), 1, f);
-	read += fread(&clientName, sizeof(clientName), 1, f);
-	read += fread(&mapName, sizeof(mapName), 1, f);
-	read += fread(&gameDir, sizeof(gameDir), 1, f);
-	read += fread(&demoLength, sizeof(demoLength), 1, f);
-	read += fread(&ticks, sizeof(ticks), 1, f);
-	read += fread(&frames, sizeof(frames), 1, f);
-	read += fread(&signOnLength, sizeof(signOnLength), 1, f);
-
-	if (read != 11)
-		throw new std::length_error("header file corrupted");
-}
-
 std::ostream &operator<<(std::ostream &o, const DemHeader &d)
 {
 	o << "DemHeader {\n";
@@ -42,14 +22,23 @@ std::ostream &operator<<(std::ostream &o, const DemHeader &d)
 
 DemoFile::DemoFile(FILE *f)
 {
+	//header = new DemHeader(f);
+	//header = new header();
+	fread(&header, 1, sizeof(DemHeader), f);
+	std::cout << header << std::endl;
 
-	header = new DemHeader(f);
-	std::cout << *header << std::endl;
+	//signOnData.reserve(header->signOnLength);
+	//size_t read = fread(&signOnData[0], sizeof(char) * header->signOnLength, 1, f);
 
-	frames.reserve(header->ticks);
+	//if (read == 0)
+	//{
+	//	std::cout << "error! readsignon" << std::endl;
+	//}
+	//std::cout << "SignOndata: " << signOnData << std::endl;
+	//frames.reserve(header->ticks);
 }
 
 DemoFile::~DemoFile()
 {
-	delete header;
+	//delete header;
 }
