@@ -32,6 +32,22 @@ enum PacketTypes
 	dem_lastcmd		= dem_stringtables
 };
 
+struct Vector
+{
+	float x, y, z;
+	void Init( void )
+	{
+		x = y = z = 0.0f;
+	}
+	void Init( float _x, float _y, float _z )
+	{
+		x = _x;
+		y = _y;
+		z = _z;
+	}
+};
+std::ostream &operator<<(std::ostream &o, const Vector &d);
+
 struct DemHeader
 {
 	char 	headerDef[8];
@@ -51,7 +67,17 @@ std::ostream &operator<<(std::ostream &o, const DemHeader &d);
 
 struct Packet
 {
-	
+	int			flags;
+
+		// original origin/viewangles
+	Vector		viewOrigin;
+	Vector		viewAngles;
+	Vector		localViewAngles;
+
+		// Resampled origin/viewangles
+	Vector		viewOrigin2;
+	Vector		viewAngles2;
+	Vector		localViewAngles2;
 	Packet(FILE *f);
 };
 std::ostream &operator<<(std::ostream &o, const Packet &d);

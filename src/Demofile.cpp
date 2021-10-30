@@ -20,6 +20,11 @@ std::ostream &operator<<(std::ostream &o, const DemHeader &d)
 	return (o);
 }
 
+std::ostream &operator<<(std::ostream &o, const Vector &d)
+{
+	o << "[ " << d.x << ", " << d.y << ", " << d.z << " ]";
+	return o;
+}
 
 DemoFile::DemoFile(FILE *f)
 {
@@ -29,11 +34,13 @@ DemoFile::DemoFile(FILE *f)
 	std::cout << header << std::endl;
 	bool isFinished = false;
 
-	while (!isFinished)
+	size = 0;
+	while (!isFinished && size < 10)
 	{
 		Frame frm(f, isFinished);
 		std::cout << frm << std::endl;
 		frames.push_back(frm);
+		size++;
 	}
 	
 	//signOnData.reserve(header->signOnLength);

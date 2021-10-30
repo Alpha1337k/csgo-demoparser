@@ -1,24 +1,33 @@
 #include <demo.hpp>
 
-Packet handlePacket()
+Packet handlePacket(FILE *f)
 {
-	Packet p(NULL);
+	Packet p(f);
 
+	std::cout << p << std::endl;
+	int sequenceIn = 0, sequenceOut = 0;
 
+	size_t size = fread(&sequenceIn, 1, sizeof(int), f);
+	size = fread(&sequenceOut, 1, sizeof(int), f);
+
+	std::cout << "sequence: " << sequenceIn << ", " << sequenceOut << std::endl;
 	return p;
 }
 
 Frame::Frame(FILE *f, bool &finished)
 {
-	size_t size;
-	size = fread(&cmd, sizeof(cmd), 1, f);
-	size = fread(&tick, sizeof(tick), 1, f);
-	size = fread(&playerslot, sizeof(playerslot), 1, f);
+	cmd = 0;
+	tick = 0;
+	playerslot = 0;
+	fread(this, 1, sizeof(Frame), f);
+
+	assert( cmd >= 1 && cmd <= dem_lastcmd );
+
 	switch (cmd)
 	{
 		case dem_signon:
 		case dem_packet:
-			handlePacket();
+			handlePacket(f);
 		case dem_stop:
 			finished = false;
 			break;
