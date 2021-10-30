@@ -29,7 +29,17 @@ enum PacketTypes
 	dem_stringtables,
 
 	// Last command
-	dem_lastcmd		= dem_stringtables
+	dem_lastcmd		= dem_stringtables,
+
+    MSG_SERVER_INFO = 8,
+	
+    MSG_DATA_TABLE = 9,
+    MSG_CREATE_STRING_TABLE = 12,
+    MSG_UPDATE_STRING_TABLE = 13,
+    MSG_USER_MESSAGE = 23,
+    MSG_GAME_EVENT = 25,
+    MSG_PACKET_ENTITIES = 26,
+    MSG_GAME_EVENTS_LIST = 30
 };
 
 struct Vector
@@ -67,17 +77,21 @@ std::ostream &operator<<(std::ostream &o, const DemHeader &d);
 
 struct Packet
 {
-	int			flags;
+	struct Split_t
+	{
+		int			flags;
 
-		// original origin/viewangles
-	Vector		viewOrigin;
-	Vector		viewAngles;
-	Vector		localViewAngles;
+			// original origin/viewangles
+		Vector		viewOrigin;
+		Vector		viewAngles;
+		Vector		localViewAngles;
 
-		// Resampled origin/viewangles
-	Vector		viewOrigin2;
-	Vector		viewAngles2;
-	Vector		localViewAngles2;
+			// Resampled origin/viewangles
+		Vector		viewOrigin2;
+		Vector		viewAngles2;
+		Vector		localViewAngles2;
+	};
+	Split_t splits[2];
 	Packet(FILE *f);
 };
 std::ostream &operator<<(std::ostream &o, const Packet &d);

@@ -5,12 +5,7 @@ Packet handlePacket(FILE *f)
 	Packet p(f);
 
 	std::cout << p << std::endl;
-	int sequenceIn = 0, sequenceOut = 0;
 
-	size_t size = fread(&sequenceIn, 1, sizeof(int), f);
-	size = fread(&sequenceOut, 1, sizeof(int), f);
-
-	std::cout << "sequence: " << sequenceIn << ", " << sequenceOut << std::endl;
 	return p;
 }
 
@@ -19,8 +14,11 @@ Frame::Frame(FILE *f, bool &finished)
 	cmd = 0;
 	tick = 0;
 	playerslot = 0;
-	fread(this, 1, sizeof(Frame), f);
+	fread(&cmd, 1, sizeof(cmd), f);
+	fread(&tick, 1, sizeof(tick), f);
+	fread(&playerslot, 1, sizeof(playerslot), f);
 
+	std::cout << "cmd: " << (int)cmd << std::endl;
 	assert( cmd >= 1 && cmd <= dem_lastcmd );
 
 	switch (cmd)
