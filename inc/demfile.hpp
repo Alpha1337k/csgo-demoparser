@@ -6,6 +6,7 @@
 #include <exception>
 #include <byteswap.h>
 #include <assert.h>
+#include "../out/packetmessages.pb.h"
 
 enum PacketTypes
 {
@@ -119,6 +120,8 @@ public:
 	~DemoFile();
 };
 
+std::string	readVarString(FILE *f, size_t *iter);
 unsigned int readVarInt(FILE *f, size_t *iter);
+bool	readVarBool(FILE *f, size_t *iter);
 
 #endif

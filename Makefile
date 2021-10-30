@@ -3,8 +3,8 @@ NAME=democheck
 CC=clang++
 FLAGS=-Wall -Werror -Wextra
 DEBUG_FLAGS=-g -fsanitize=address
-SRC=src/*.cpp
-LIBS=-I inc/
+SRC=src/*.cpp out/*.cc
+LIBS=-I inc/ -lprotobuf
 OBJ=
 RM =rm -rf
 

@@ -1,0 +1,26 @@
+syntax = "proto2";
+
+message CSVCMsg_ServerInfo
+{
+	optional int32 protocol = 1;			// protocol version
+	optional int32 server_count = 2;		// number of changelevels since server start
+	optional bool is_dedicated = 3;  		// dedicated server ?	
+	optional bool is_official_valve_server = 4;
+	optional bool is_hltv = 5;				// HLTV server ?
+	optional bool is_replay = 6;			// Replay server ?
+	optional bool is_redirecting_to_proxy_relay = 21;	// // Will be redirecting to proxy relay
+	optional int32 c_os = 7;				// L = linux, W = Win32
+	optional fixed32 map_crc = 8;			// server map CRC
+	optional fixed32 client_crc = 9;		// client.dll CRC server is using
+	optional fixed32 string_table_crc = 10;	// string table CRC server is using
+	optional int32 max_clients = 11;		// max number of clients on server
+	optional int32 max_classes = 12;		// max number of server classes
+	optional int32 player_slot = 13;		// our client slot number
+	optional float tick_interval = 14;		// server tick interval
+	optional string game_dir = 15;			// game directory eg "tf2"
+	optional string map_name = 16;			// name of current map 
+	optional string map_group_name = 17;	// name of current map 
+	optional string sky_name = 18;			// name of current skybox 
+	optional string host_name = 19;			// server name
+	optional uint64 ugc_map_id = 22;	
+}

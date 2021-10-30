@@ -1,4 +1,5 @@
 #include <demo.hpp>
+#include <packetstructs.hpp>
 
 Packet::Packet(FILE *f)
 {
@@ -30,24 +31,30 @@ Packet::Packet(FILE *f)
 		// skip for now
 
 		char tmp[length];
-		iter += fread(&tmp, 1, length, f);
+		//iter += fread(&tmp, 1, length, f);
 		switch (messagetype)
 		{
 		case MSG_SERVER_INFO:
 			{
+				//FILE *tfile = fopen("tmp", "w");
+				//fwrite(tmp, length, 1, tfile);
+				//std::cout << tmp << std::endl;
+				ServerInfo s = ServerInfo(f, length);
+				std::cout << s << std::endl;
+				exit(1);
 				break;
 			}
 		case MSG_CREATE_STRING_TABLE:
-			
+			std::cout << tmp << std::endl;
 			break;
 		case MSG_UPDATE_STRING_TABLE:
-			
+			std::cout << tmp << std::endl;
 			break;
 		case MSG_USER_MESSAGE:
-			
+			std::cout << tmp << std::endl;
 			break;
 		case MSG_GAME_EVENT:
-			
+			std::cout << tmp << std::endl;
 			break;
 		case MSG_PACKET_ENTITIES:
 			
