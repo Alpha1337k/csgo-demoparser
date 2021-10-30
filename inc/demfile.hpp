@@ -5,6 +5,32 @@
 #include <stdio.h>
 #include <exception>
 #include <byteswap.h>
+#include <assert.h>
+
+enum PacketTypes
+{
+	// it's a startup message, process as fast as possible
+	dem_signon	= 1,
+	// it's a normal network packet that we stored off
+	dem_packet,
+	// sync client clock to demo tick
+	dem_synctick,
+	// console command
+	dem_consolecmd,
+	// user input command
+	dem_usercmd,
+	// network data tables
+	dem_datatables,
+	// end of time.
+	dem_stop,
+	// a blob of binary data understood by a callback function
+	dem_customdata,
+
+	dem_stringtables,
+
+	// Last command
+	dem_lastcmd		= dem_stringtables
+};
 
 struct DemHeader
 {
@@ -21,27 +47,33 @@ struct DemHeader
 	int		signOnLength;
 
 };
-
 std::ostream &operator<<(std::ostream &o, const DemHeader &d);
 
-//struct Frame
-//{
-//	int ServerFrame;
-//	int ClientFrame; //ServerFrame and ClientFrame delta probably correspond to client ping.
-//	int SubPacketSize;
-//	*buffer = new char[SubPacketSize]; // State update message?
-//	Packet pkt = (rest of frame as data exists) // All demo commands are strung together in this area, structure below
-//	JunkData data = (unknown) // ex: 0x8f 5a b5 04 94 e6 7c 24 00 00 00 00 00 ... (40 bytes of 0x00 after the 0x24)
-//								// This could either be the end of the frame or the start of the next frame.
+struct Packet
+{
+	
+	Packet(FILE *f);
+};
+std::ostream &operator<<(std::ostream &o, const Packet &d);
 
-//};
+struct Frame
+{
+	unsigned char	cmd;
+	int				tick;
+	char			playerslot;
+
+	Frame(FILE *f, bool &finished);
+};
+std::ostream &operator<<(std::ostream &o, const Frame &d);
 
 class DemoFile
 {
 private:
 	DemHeader header;
 	std::string	signOnData;
-	//std::vector<Frame> frames;
+	std::vector<Frame> frames;
+
+
 public:
 	DemoFile(FILE *f);
 	~DemoFile();

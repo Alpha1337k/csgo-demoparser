@@ -20,13 +20,22 @@ std::ostream &operator<<(std::ostream &o, const DemHeader &d)
 	return (o);
 }
 
+
 DemoFile::DemoFile(FILE *f)
 {
-	//header = new DemHeader(f);
-	//header = new header();
-	fread(&header, 1, sizeof(DemHeader), f);
+	size_t size = fread(&header, 1, sizeof(header), f);
+	if (size != 1072)
+		throw std::exception();
 	std::cout << header << std::endl;
+	bool isFinished = false;
 
+	while (!isFinished)
+	{
+		Frame frm(f, isFinished);
+		std::cout << frm << std::endl;
+		frames.push_back(frm);
+	}
+	
 	//signOnData.reserve(header->signOnLength);
 	//size_t read = fread(&signOnData[0], sizeof(char) * header->signOnLength, 1, f);
 
@@ -40,5 +49,5 @@ DemoFile::DemoFile(FILE *f)
 
 DemoFile::~DemoFile()
 {
-	//delete header;
+
 }

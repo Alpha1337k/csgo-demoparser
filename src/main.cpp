@@ -10,6 +10,7 @@ int main(int argc, char **argv, char **env)
 	FILE *f = fopen(argv[1], "r");
 	DemoFile demo(f);
 
+
 	fclose(f);
 	return (0);
 }
