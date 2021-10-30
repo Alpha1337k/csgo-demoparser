@@ -13,27 +13,53 @@ Packet::Packet(FILE *f)
 
 	int sequenceIn = 0, sequenceOut = 0;
 	size_t size = 0;
-	unsigned int chunckSize = 0;
+	unsigned int chunkSize = 0;
 	size = fread(&sequenceIn, sizeof(int), 1, f);
 	size = fread(&sequenceOut, sizeof(int), 1, f);
-	std::cout << "sequence: " << sequenceIn << ", " << sequenceOut << std::endl;
-	fread(&chunckSize, sizeof(int), 1, f);
-	std::cout << "size: " << chunckSize << std::endl;
+	//std::cout << "sequence: " << sequenceIn << ", " << sequenceOut << std::endl;
+	fread(&chunkSize, sizeof(int), 1, f);
+	std::cout << "size: " << chunkSize << std::endl;
 	size_t iter = 0;
-	while (iter < chunckSize && iter < 100)
+	while (iter < chunkSize)
 	{
-		char messagetype = 0;
-		char tmp[3];
-		int length = 0;
-		iter += fread(&messagetype, 1, sizeof(messagetype), f);
-		iter += fread(&tmp, 1, sizeof(tmp), f);
+		unsigned int	messagetype = readVarInt(f, &iter);
+		unsigned int	length = readVarInt(f, &iter);;
 
-		iter += fread(&length, 1, sizeof(length), f);
-		
 		std::cout << "Iter: " << iter << " messagetype:" << (int)messagetype << std::endl;
 		std::cout << "Length: " << length << std::endl;
+		// skip for now
 
-		break;
+		char tmp[length];
+		iter += fread(&tmp, 1, length, f);
+		switch (messagetype)
+		{
+		case MSG_SERVER_INFO:
+			{
+				break;
+			}
+		case MSG_CREATE_STRING_TABLE:
+			
+			break;
+		case MSG_UPDATE_STRING_TABLE:
+			
+			break;
+		case MSG_USER_MESSAGE:
+			
+			break;
+		case MSG_GAME_EVENT:
+			
+			break;
+		case MSG_PACKET_ENTITIES:
+			
+			break;
+		case MSG_GAME_EVENTS_LIST:
+			
+			break;
+		case MSG_DATA_TABLE:
+		default:
+			break;
+		}
+
 	}
 		
 	 

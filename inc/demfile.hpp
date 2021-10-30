@@ -119,4 +119,6 @@ public:
 	~DemoFile();
 };
 
+unsigned int readVarInt(FILE *f, size_t *iter);
+
 #endif
