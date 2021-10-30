@@ -1,5 +1,4 @@
 #include <demo.hpp>
-#include <packetstructs.hpp>
 
 Packet::Packet(FILE *f)
 {
@@ -19,56 +18,89 @@ Packet::Packet(FILE *f)
 	size = fread(&sequenceOut, sizeof(int), 1, f);
 	//std::cout << "sequence: " << sequenceIn << ", " << sequenceOut << std::endl;
 	fread(&chunkSize, sizeof(int), 1, f);
-	std::cout << "size: " << chunkSize << std::endl;
+	std::cout << "chunkSize: " << chunkSize << std::endl;
 	size_t iter = 0;
 	while (iter < chunkSize)
 	{
 		unsigned int	messagetype = readVarInt(f, &iter);
 		unsigned int	length = readVarInt(f, &iter);;
 
-		std::cout << "Iter: " << iter << " messagetype:" << (int)messagetype << std::endl;
-		std::cout << "Length: " << length << std::endl;
-		// skip for now
+		//std::cout << "Iter: " << iter << " messagetype:" << (int)messagetype << std::endl;
+		//std::cout << "Length: " << length << std::endl;
 
-		char tmp[length];
-		//iter += fread(&tmp, 1, length, f);
+		std::string packetdata;
+		packetdata.resize(length);
+
+		iter += fread(&packetdata[0], 1, length, f);
+
+#define ParseStatement if (svi.ParseFromString(packetdata) == false) {std::cerr << "Error: parsing failed" << std::endl;}
+
 		switch (messagetype)
 		{
 		case MSG_SERVER_INFO:
 			{
-				//FILE *tfile = fopen("tmp", "w");
-				//fwrite(tmp, length, 1, tfile);
-				//std::cout << tmp << std::endl;
-				ServerInfo s = ServerInfo(f, length);
-				std::cout << s << std::endl;
-				exit(1);
+				ServerInfo svi;
+				ParseStatement
+				std::cout << "ServerInfo: {\n" << svi.DebugString() << "\n}\n";
 				break;
 			}
 		case MSG_CREATE_STRING_TABLE:
-			std::cout << tmp << std::endl;
-			break;
+			{
+				CreateStringTable svi;
+				ParseStatement
+				//std::cout << "CreateTable: {\n" << svi.DebugString() << "\n}\n";
+				std::cout << "Created table named " << svi.name() << std::endl;
+				break;
+			}
 		case MSG_UPDATE_STRING_TABLE:
-			std::cout << tmp << std::endl;
-			break;
+			{
+				UpdateStringTable svi;
+				ParseStatement
+				std::cout << "UpdateTable: {\n" << svi.DebugString() << "\n}\n";
+				std::cout << "Updated table with id " << svi.table_id() << std::endl;
+				break;
+			}
 		case MSG_USER_MESSAGE:
-			std::cout << tmp << std::endl;
-			break;
+			{
+				UserMessage svi;
+				ParseStatement
+				std::cout << "UserMessage: {\n" << svi.DebugString() << "\n}\n";
+				break;
+			}
 		case MSG_GAME_EVENT:
-			std::cout << tmp << std::endl;
-			break;
+			{
+				GameEvent svi;
+				ParseStatement
+				std::cout << "GameEvent: {\n" << svi.DebugString() << "\n}\n";
+				break;
+			}
 		case MSG_PACKET_ENTITIES:
-			
-			break;
+			{
+				PacketEntities svi;
+				ParseStatement
+				std::cout << "PacketEntities: {\n" << svi.DebugString() << "\n}\n";
+				break;
+			}
 		case MSG_GAME_EVENTS_LIST:
-			
-			break;
+			{
+				GameEventList svi;
+				ParseStatement
+				std::cout << "GameEventList: {\n" << svi.DebugString() << "\n}\n";
+				break;
+			}
 		case MSG_DATA_TABLE:
+			{
+				SendTable svi;
+				ParseStatement
+				std::cout << "DataTable: {\n" << svi.DebugString() << "\n}\n";
+				break;				
+			}
 		default:
 			break;
 		}
 
 	}
-		
+#undef ParseStatement	
 	 
 }
 

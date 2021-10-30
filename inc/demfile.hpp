@@ -8,6 +8,7 @@
 #include <assert.h>
 #include "../out/packetmessages.pb.h"
 
+
 enum PacketTypes
 {
 	// it's a startup message, process as fast as possible
