@@ -32,7 +32,11 @@ Frame::Frame(FILE *f, bool &finished)
 		case dem_consolecmd:
 			break;
 		case dem_datatables:
+		{
+			DataTable d = DataTable(f);
+			(void)d;
 			break;
+		}
 		case dem_stringtables:
 			break;
 		case dem_usercmd:

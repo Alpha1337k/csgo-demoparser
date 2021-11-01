@@ -8,7 +8,8 @@ MessageVector	getProtoMesssages(FILE *f, int size)
 
 	size_t iter = 0;
 	MessageVector	messages;
-	while (iter < (size_t)size)
+
+	while (iter < (size_t)size || size == -1)
 	{
 		unsigned int	messagetype = readVarInt(f, &iter);
 		unsigned int	length = readVarInt(f, &iter);;
@@ -85,7 +86,9 @@ MessageVector	getProtoMesssages(FILE *f, int size)
 			{
 				SendTable *svi = new SendTable;
 				ParseStatement
-				std::cout << "DataTable: {\n" << svi->DebugString() << "\n}\n";
+				std::cout << "DataTable: { size:" << svi->is_end() << ", " << length << "}\n";
+				if (svi->is_end())
+					return messages;
 				AddStatement(MSG_DATA_TABLE, svi)
 				break;
 			}
