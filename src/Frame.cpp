@@ -26,10 +26,13 @@ Frame::Frame(FILE *f, bool &finished)
 		case dem_signon:
 		case dem_packet:
 			handlePacket(f);
+			break;
 		case dem_stop:
-			finished = false;
+			finished = true;
 			break;
 		case dem_consolecmd:
+			std::cout << "UnIMPLEMENTED!!! cons" << std::endl;
+			exit(0);
 			break;
 		case dem_datatables:
 		{
@@ -38,8 +41,12 @@ Frame::Frame(FILE *f, bool &finished)
 			break;
 		}
 		case dem_stringtables:
+			std::cout << "UnIMPLEMENTED!!! strig" << std::endl;
+			exit(0);
 			break;
 		case dem_usercmd:
+			std::cout << "UnIMPLEMENTED!!! usr" << std::endl;
+			exit(0);
 			break;
 		default:
 			break;

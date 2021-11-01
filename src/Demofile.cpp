@@ -35,10 +35,10 @@ DemoFile::DemoFile(FILE *f)
 	bool isFinished = false;
 
 	size = 0;
-	while (!isFinished && size < 100)
+	while (!isFinished && size < 1000000000)
 	{
 		Frame frm(f, isFinished);
-		std::cout << frm << std::endl;
+		std::cout << frm <<  std::endl;
 		frames.push_back(frm);
 		size++;
 	}
