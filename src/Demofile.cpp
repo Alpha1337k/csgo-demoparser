@@ -35,7 +35,7 @@ DemoFile::DemoFile(FILE *f)
 	bool isFinished = false;
 
 	size = 0;
-	while (!isFinished && size < 1)
+	while (!isFinished && size < 100)
 	{
 		Frame frm(f, isFinished);
 		std::cout << frm << std::endl;

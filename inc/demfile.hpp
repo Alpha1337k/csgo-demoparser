@@ -8,6 +8,7 @@
 #include <assert.h>
 #include "../out/packetmessages.pb.h"
 
+#define MessageVector std::vector<std::pair<PacketTypes, void *>>
 
 enum PacketTypes
 {
@@ -108,6 +109,12 @@ struct Frame
 };
 std::ostream &operator<<(std::ostream &o, const Frame &d);
 
+struct DataTable
+{
+
+	DataTable(FILE *f);
+};
+
 class DemoFile
 {
 private:
@@ -124,5 +131,5 @@ public:
 std::string	readVarString(FILE *f, size_t *iter);
 unsigned int readVarInt(FILE *f, size_t *iter);
 bool	readVarBool(FILE *f, size_t *iter);
-
+MessageVector getProtoMesssages(FILE *f, int size);
 #endif
