@@ -25,8 +25,6 @@ std::string	readVarString(FILE *f, size_t *iter)
 {
 	unsigned int len = readVarInt(f, iter);
 
-	std::cout << "Len: " << len << std::endl;
-	len = 4;
 	if (len == 0)
 		return "";
 	std::string rv;
@@ -45,6 +43,7 @@ std::string	readVarString(FILE *f, size_t *iter)
 	
 	return rv;
 }
+
 
 bool	readVarBool(FILE *f, size_t *iter)
 {
