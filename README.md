@@ -64,14 +64,24 @@ A packet will start with some viewangles. These seem quite useless, and used mor
 
 > A vector is the same as float[3]
 
-| Type   | Field                 
-|--------|-----------------------
-| Int    | Flags                 
-| Vector | viewOrigin            
-| Vector | viewAngles            
-| Vector | localViewAngles       
-| Vector | viewOrigin2           
-| Vector | viewAngles2           
-| Vector | localViewAngles2      
+| Type   | Field                 | Notes
+|--------|-----------------------|------
+| Int    | Flags                 |
+| Vector | viewOrigin            | These are the original viewangles
+| Vector | viewAngles            |
+| Vector | localViewAngles       |
+| Vector | viewOrigin2           | These are the resampled ones
+| Vector | viewAngles2           |
+| Vector | localViewAngles2      |
 
+After that two unsigned ints will be found. these are the sequence info. At last, the messages can be found. The messages use a lot of variable types. A libary to parse these might be useful.
+
+| Type   | Field            | Value                                                     |
+|--------|------------------|-----------------------------------------------------------|
+| VarInt | Messagetype      | The message type to be found                              |
+| VarInt | Length           | The length of the message                                 |
+| Message| Message          | The message to be found                                   |
+
+### Messages
+The messages are the real deal. They are parsed using [protobuf](https://developers.google.com/protocol-buffers). Its not recommended to parse them by hand. The types of messages can be found [here](https://github.com/Alpha1337k/csgo-democheck/blob/main/packetmessages.proto)
 
