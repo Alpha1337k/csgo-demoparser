@@ -10,7 +10,7 @@ int main(int argc, char **argv, char **env)
 	FILE *f = fopen(argv[1], "r");
 	DemoFile demo(f);
 
-
+	demo.create_metrics();
 	fclose(f);
 	return (0);
 }

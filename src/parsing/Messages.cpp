@@ -64,7 +64,7 @@ MessageVector	getProtoMesssages(FILE *f, int size)
 				ParseStatement(GameEvent);
 				// std::cout << "GameEvent: {\n" << svi->DebugString() << "\n}\n";
 				AddStatement(MSG_GAME_EVENT, svi)
-				GameEventParsed e(*svi);
+				// GameEventParsed e(*svi);
 				break;
 			}
 		case MSG_PACKET_ENTITIES:

@@ -122,11 +122,14 @@ private:
 	DemHeader header;
 	std::string	signOnData;
 	std::vector<Frame> frames;
+	std::vector<GameEventList_descriptor_t> gEvents;
 
-
+	void handleGameEventList(GameEventList &ge);
+	void handleGameEvent(GameEvent &ge);
 public:
 	DemoFile(FILE *f);
 	~DemoFile();
+	void	create_metrics();
 };
 
 struct GameEventListParsed
