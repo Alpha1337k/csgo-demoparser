@@ -3,7 +3,7 @@ NAME=democheck
 CC=clang++
 FLAGS=
 DEBUG_FLAGS=-g -fsanitize=address
-SRC=src/*.cpp
+SRC=src/**/*.cpp src/*.cpp
 PROTOF=out/*.cc
 PROTOSRC=packetmessages.proto
 LIBS=-I inc/ -pthread -lprotobuf -lpthread
