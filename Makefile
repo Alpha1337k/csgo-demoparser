@@ -1,9 +1,10 @@
 NAME=democheck
 
 CC=clang++
-FLAGS=-Wall -Werror -Wextra
+FLAGS=
 DEBUG_FLAGS=-g -fsanitize=address
-SRC=src/*.cpp out/*.cc
+SRC=src/*.cpp
+PROTOF=out/*.cc
 PROTOSRC=packetmessages.proto
 LIBS=-I inc/ -pthread -lprotobuf -lpthread
 OBJ=
@@ -13,7 +14,7 @@ all: $(NAME)
 
 $(NAME): $(SRC) $(PROTOSRC)
 	protoc --cpp_out=out packetmessages.proto 
-	$(CC) $(FLAGS) $(LIBS) $(SRC) -o $(NAME)
+	$(CC) $(FLAGS) $(LIBS) $(SRC) $(PROTOF) -o $(NAME) -std=c++11
 
 clean:
 	$(RM) $(OBJ)

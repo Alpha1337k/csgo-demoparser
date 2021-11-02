@@ -4,8 +4,6 @@
 #include <vector>
 #include <stdio.h>
 #include <exception>
-#include <byteswap.h>
-#include <assert.h>
 #include "../out/packetmessages.pb.h"
 
 #define MessageVector std::vector<std::pair<PacketTypes, void *>>
