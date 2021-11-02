@@ -95,6 +95,7 @@ struct Packet
 	Split_t splits[2];
 	MessageVector msg;
 	Packet(FILE *f);
+	Packet() {}
 };
 std::ostream &operator<<(std::ostream &o, const Packet &d);
 
@@ -104,6 +105,7 @@ struct Frame
 	int				tick;
 	char			playerslot;
 
+	Packet			pckt;
 	Frame(FILE *f, bool &finished);
 };
 std::ostream &operator<<(std::ostream &o, const Frame &d);
@@ -125,6 +127,18 @@ private:
 public:
 	DemoFile(FILE *f);
 	~DemoFile();
+};
+
+struct GameEventListParsed
+{
+
+	GameEventListParsed(GameEventList &l);
+};
+
+struct GameEventParsed
+{
+
+	GameEventParsed(GameEvent &l);
 };
 
 std::string	readVarString(FILE *f, size_t *iter);

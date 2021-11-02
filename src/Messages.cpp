@@ -7,7 +7,7 @@ MessageVector	getProtoMesssages(FILE *f, int size)
 	if (svi->ParseFromString(packetdata) == false) \
 	{ \
 		std::cerr << "Error: parsing failed: " << #type << std::endl; \
-		break; \
+		svi = 0; \
 	}
 #define AddStatement(type, data) messages.push_back(std::make_pair(type, data));
 
@@ -64,6 +64,7 @@ MessageVector	getProtoMesssages(FILE *f, int size)
 				ParseStatement(GameEvent);
 				// std::cout << "GameEvent: {\n" << svi->DebugString() << "\n}\n";
 				AddStatement(MSG_GAME_EVENT, svi)
+				GameEventParsed e(*svi);
 				break;
 			}
 		case MSG_PACKET_ENTITIES:
@@ -78,6 +79,7 @@ MessageVector	getProtoMesssages(FILE *f, int size)
 				ParseStatement(GameEventList);
 				// std::cout << "GameEventList: {\n" << svi->DebugString() << "\n}\n";
 				AddStatement(MSG_GAME_EVENTS_LIST, svi)
+				// GameEventListParsed p(*svi);
 				break;
 			}
 		case MSG_DATA_TABLE:
@@ -90,7 +92,11 @@ MessageVector	getProtoMesssages(FILE *f, int size)
 				break;
 			}
 		default:
-			break;
+			{
+				// std::cerr << "Error: Could not find matching type " << messagetype  << "Length: " << length << std::endl;
+			
+				break;
+			}
 		}
 
 	}

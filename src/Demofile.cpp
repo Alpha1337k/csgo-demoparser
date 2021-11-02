@@ -33,27 +33,17 @@ DemoFile::DemoFile(FILE *f)
 	headerSize = fread(&header, 1, sizeof(header), f);
 	if (headerSize != 1072)
 		throw std::exception();
-	std::cout << header << std::endl;
+	// std::cout << header << std::endl;
 	bool isFinished = false;
 
 	std::size_t packetCount = 0;
-	while (!isFinished && packetCount < 100)
+	while (!isFinished && packetCount < 1000000)
 	{
 		Frame frm(f, isFinished);
-		std::cout << frm <<  std::endl;
+		// std::cout << frm <<  std::endl;
 		frames.push_back(frm);
 		packetCount++;
 	}
-	
-	//signOnData.reserve(header->signOnLength);
-	//size_t read = fread(&signOnData[0], sizeof(char) * header->signOnLength, 1, f);
-
-	//if (read == 0)
-	//{
-	//	std::cout << "error! readsignon" << std::endl;
-	//}
-	//std::cout << "SignOndata: " << signOnData << std::endl;
-	//frames.reserve(header->ticks);
 }
 
 DemoFile::~DemoFile()

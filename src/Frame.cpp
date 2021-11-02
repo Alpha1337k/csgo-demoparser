@@ -4,7 +4,7 @@ Packet handlePacket(FILE *f)
 {
 	Packet p(f);
 
-	std::cout << p << std::endl;
+	// std::cout << p << std::endl;
 
 	return p;
 }
@@ -24,13 +24,13 @@ Frame::Frame(FILE *f, bool &finished)
 	{
 		case dem_signon:
 		case dem_packet:
-			handlePacket(f);
+			pckt = handlePacket(f);
 			break;
 		case dem_stop:
 			finished = true;
 			break;
 		case dem_consolecmd:
-			std::cout << "UnIMPLEMENTED!!! cons" << std::endl;
+			std::cerr << "UnIMPLEMENTED!!! cons" << std::endl;
 			exit(0);
 			break;
 		case dem_datatables:
@@ -40,11 +40,11 @@ Frame::Frame(FILE *f, bool &finished)
 			break;
 		}
 		case dem_stringtables:
-			std::cout << "UnIMPLEMENTED!!! strig" << std::endl;
+			std::cerr << "UnIMPLEMENTED!!! strig" << std::endl;
 			exit(0);
 			break;
 		case dem_usercmd:
-			std::cout << "UnIMPLEMENTED!!! usr" << std::endl;
+			std::cerr << "UnIMPLEMENTED!!! usr" << std::endl;
 			exit(0);
 			break;
 		default:
@@ -58,7 +58,8 @@ std::ostream &operator<<(std::ostream &o, const Frame &f)
 	o << "cmd:        " << (int)f.cmd << std::endl;
 	o << "tick:       " << f.tick << std::endl;
 	o << "playerslot: " << (int)f.playerslot << std::endl;
-	o << "}\n";
+	o << "packet: {\n" << f.pckt << std::endl; 
+	o << "} }\n";
 
 	return (o);
 }
