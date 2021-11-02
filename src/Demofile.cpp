@@ -28,19 +28,21 @@ std::ostream &operator<<(std::ostream &o, const Vector &d)
 
 DemoFile::DemoFile(FILE *f)
 {
-	size_t size = fread(&header, 1, sizeof(header), f);
-	if (size != 1072)
+	std::size_t headerSize;
+	
+	headerSize = fread(&header, 1, sizeof(header), f);
+	if (headerSize != 1072)
 		throw std::exception();
 	std::cout << header << std::endl;
 	bool isFinished = false;
 
-	size = 0;
-	while (!isFinished && size < 1000000000)
+	std::size_t packetCount = 0;
+	while (!isFinished && packetCount < 100)
 	{
 		Frame frm(f, isFinished);
 		std::cout << frm <<  std::endl;
 		frames.push_back(frm);
-		size++;
+		packetCount++;
 	}
 	
 	//signOnData.reserve(header->signOnLength);

@@ -93,6 +93,7 @@ struct Packet
 		Vector		localViewAngles2;
 	};
 	Split_t splits[2];
+	MessageVector msg;
 	Packet(FILE *f);
 };
 std::ostream &operator<<(std::ostream &o, const Packet &d);

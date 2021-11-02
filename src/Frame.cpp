@@ -18,7 +18,6 @@ Frame::Frame(FILE *f, bool &finished)
 	fread(&tick, 1, sizeof(tick), f);
 	fread(&playerslot, 1, sizeof(playerslot), f);
 
-	std::cout << "cmd: " << (int)cmd << std::endl;
 	assert( cmd >= 1 && cmd <= dem_lastcmd );
 
 	switch (cmd)
