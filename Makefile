@@ -16,7 +16,9 @@ OBJECTS := $(addprefix $(OBJDIR)/, $(OBJECTS))
 
 VPATH = $(SRC):$(wildcard $(SRC)/*/)
 
-all: $(OBJECTS)
+all: $(OBJECTS) $(NAME)
+
+$(NAME): $(OBJECTS)
 	$(CC) $(LIBS) -lprotobuf -lpthread $(FLAGS) $(OBJECTS) out/*.cc -o $(NAME)
 
 $(OBJDIR)/%.o : %.cpp
