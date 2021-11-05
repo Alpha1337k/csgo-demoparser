@@ -14,6 +14,8 @@ Packet::Packet(FILE *f)
 	msg = getProtoMesssages(f, chunkSize);
 }
 
+Packet::Packet() {}
+
 std::ostream &operator<<(std::ostream &o, const Packet &p)
 {
 	o << "Packet {\n";

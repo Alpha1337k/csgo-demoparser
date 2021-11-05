@@ -46,16 +46,8 @@ enum PacketTypes
 struct Vector
 {
 	float x, y, z;
-	void Init( void )
-	{
-		x = y = z = 0.0f;
-	}
-	void Init( float _x, float _y, float _z )
-	{
-		x = _x;
-		y = _y;
-		z = _z;
-	}
+	void Init( void );
+	void Init( float _x, float _y, float _z );
 };
 std::ostream &operator<<(std::ostream &o, const Vector &d);
 
@@ -95,7 +87,7 @@ struct Packet
 	Split_t splits[2];
 	MessageVector msg;
 	Packet(FILE *f);
-	Packet() {}
+	Packet();
 };
 std::ostream &operator<<(std::ostream &o, const Packet &d);
 
