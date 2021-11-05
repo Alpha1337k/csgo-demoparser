@@ -8,7 +8,9 @@ MessageVector	getProtoMesssages(FILE *f, int size)
 	{ \
 		std::cerr << "Error: parsing failed: " << #type << std::endl; \
 		svi = 0; \
-	}
+	} \
+	else \
+		std::cout << "Parsed "  << #type << std::endl;
 #define AddStatement(type, data) messages.push_back(std::make_pair(type, data));
 
 	size_t iter = 0;

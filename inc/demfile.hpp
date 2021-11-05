@@ -120,12 +120,18 @@ class DemoFile
 {
 private:
 	DemHeader header;
+	ServerInfo *info;
 	std::string	signOnData;
 	std::vector<Frame> frames;
 	std::vector<GameEventList_descriptor_t> gEvents;
+	std::vector<CreateStringTable> sTables;
 
 	void handleGameEventList(GameEventList &ge);
 	void handleGameEvent(GameEvent &ge);
+	void handleServerInfo(ServerInfo &si);
+	void handleCreateStringTable(CreateStringTable &si);
+	void handleUpdateStringTable(UpdateStringTable &si);
+	void handlePacketEntities(PacketEntities &e);
 public:
 	DemoFile(FILE *f);
 	~DemoFile();
