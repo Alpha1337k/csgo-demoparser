@@ -1,23 +1,27 @@
 NAME=democheck
-
 CC=clang++
-FLAGS=
+FLAGS=-pthread -std=c++11
 DEBUG_FLAGS=-g -fsanitize=address
-SRC=src/**/*.cpp src/*.cpp
-PROTOF=out/*.cc
-PROTOSRC=packetmessages.proto
-LIBS=-I inc/ -pthread -lprotobuf -lpthread
-OBJ=
+LIBS=-I inc/
+SRC = src
 RM =rm -rf
+
+SOURCES := $(wildcard $(SRC)/*/*.cpp)
+SOURCES += $(wildcard $(SRC)/*.cpp)
+
+OBJECTS := $(patsubst %.cpp, %.o, $(SOURCES))
+
 
 all: $(NAME)
 
-$(NAME): $(SRC) $(PROTOSRC)
-	protoc --cpp_out=out packetmessages.proto 
-	$(CC) $(FLAGS) $(LIBS) $(SRC) $(PROTOF) -o $(NAME) -std=c++11
+$(NAME): $(OBJECTS)
+	$(CC) $(LIBS) -lprotobuf -lpthread $(FLAGS) $(OBJECTS) out/*.cc -o $(NAME)
+
+$(OBJECTS): %.o : %.cpp
+	$(CC) $(LIBS) $(FLAGS) -c $< -o $@
 
 clean:
-	$(RM) $(OBJ)
+	$(RM) $(OBJECTS)
 
 fclean: clean
 	$(RM) $(NAME)
@@ -25,7 +29,4 @@ fclean: clean
 re: fclean all
 
 run: re
-	./$(NAME)
-
-debug: fclean
-	$(CC) $(FLAGS) $(DEBUG_FLAGS) $(LIBS) $(SRC) -o $(NAME)
+	./$(NAME) samples/wingman.dem
