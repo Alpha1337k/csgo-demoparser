@@ -9,16 +9,24 @@ RM =rm -rf
 SOURCES := $(wildcard $(SRC)/*/*.cpp)
 SOURCES += $(wildcard $(SRC)/*.cpp)
 
+OBJDIR = obj
 OBJECTS := $(patsubst %.cpp, %.o, $(SOURCES))
+OBJECTS := $(notdir $(OBJECTS))
+OBJECTS := $(addprefix $(OBJDIR)/, $(OBJECTS))
 
+VPATH = $(SRC):$(wildcard $(SRC)/*/)
 
-all: $(NAME)
-
-$(NAME): $(OBJECTS)
+all: $(OBJECTS)
 	$(CC) $(LIBS) -lprotobuf -lpthread $(FLAGS) $(OBJECTS) out/*.cc -o $(NAME)
 
-$(OBJECTS): %.o : %.cpp
+$(OBJDIR)/%.o : %.cpp
 	$(CC) $(LIBS) $(FLAGS) -c $< -o $@
+
+$(OBJECTS): | $(OBJDIR)
+
+$(OBJDIR):
+	mkdir $(OBJDIR)
+
 
 clean:
 	$(RM) $(OBJECTS)
