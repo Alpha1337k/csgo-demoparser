@@ -4,7 +4,7 @@
 #include <vector>
 #include <stdio.h>
 #include <exception>
-#include "../out/packetmessages.pb.h"
+#include <packetmessages.pb.h>
 
 #define MessageVector std::vector<std::pair<PacketTypes, void *>>
 
@@ -124,6 +124,7 @@ private:
 	void handleCreateStringTable(CreateStringTable &si);
 	void handleUpdateStringTable(UpdateStringTable &si);
 	void handlePacketEntities(PacketEntities &e);
+	void handleUserMessage(UserMessage &e);
 public:
 	DemoFile(FILE *f);
 	~DemoFile();

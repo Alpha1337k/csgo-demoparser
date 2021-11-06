@@ -1,10 +1,13 @@
 NAME=democheck
 CC=clang++
 FLAGS=-pthread -std=c++11
+LINKFLAGS=-lprotobuf -lpthread
 DEBUG_FLAGS=-g -fsanitize=address
-LIBS=-I inc/ -I startup-parser/src
+LIBS=-I inc/ -I startup-parser/src -I protobuf/
 SRC = src
 RM =rm -rf
+
+PROTOBUF =protobuf
 
 SOURCES := $(wildcard $(SRC)/*/*.cpp)
 SOURCES += $(wildcard $(SRC)/*.cpp)
@@ -16,10 +19,13 @@ OBJECTS := $(addprefix $(OBJDIR)/, $(OBJECTS))
 
 VPATH = $(SRC):$(wildcard $(SRC)/*/)
 
-all: $(OBJECTS) $(NAME)
+all: buildproto $(OBJECTS) $(NAME)
+
+buildproto:
+	@make -C $(PROTOBUF)
 
 $(NAME): $(OBJECTS)
-	$(CC) $(LIBS) -lprotobuf -lpthread $(FLAGS) $(OBJECTS) out/*.cc -o $(NAME)
+	$(CC) $(LIBS) $(LINKFLAGS) $(FLAGS) $(OBJECTS) $(PROTOBUF)/*.cc -o $(NAME)
 
 $(OBJDIR)/%.o : %.cpp
 	$(CC) $(LIBS) $(FLAGS) -c $< -o $@
@@ -32,9 +38,11 @@ $(OBJDIR):
 
 clean:
 	$(RM) $(OBJECTS)
+	make -C $(PROTOBUF) clean
 
 fclean: clean
 	$(RM) $(NAME)
+	make -C $(PROTOBUF) fclean
 
 re: fclean all
 

@@ -45,6 +45,7 @@ void	DemoFile::handleGameEvent(GameEvent &ge)
 		std::cout << ", ";
 	}
 	std::cout << "}\n";
+	exit(0);
 #undef SwitchPrint
 }
 
@@ -58,7 +59,7 @@ void DemoFile::handleServerInfo(ServerInfo &si)
 
 void DemoFile::handleCreateStringTable(CreateStringTable &si)
 {
-	std::cout << "CreateStringTable: { name: " << si.name() << "}" << std::endl;
+	std::cout << "CreateStringTable: { name: " << si.name() << ", stringdata len:" << si.string_data().length() << " }" << std::endl;
 	sTables.push_back(si);
 	// if (si.name() == "userinfo")
 	// {
@@ -77,6 +78,11 @@ void DemoFile::handleUpdateStringTable(UpdateStringTable &si)
 }
 
 void DemoFile::handlePacketEntities(PacketEntities &e)
+{
+
+}
+
+void DemoFile::handleUserMessage(UserMessage &e)
 {
 
 }
@@ -108,6 +114,7 @@ void	DemoFile::create_metrics()
 					HandleCase(MSG_SERVER_INFO, ServerInfo);
 					HandleCase(MSG_CREATE_STRING_TABLE, CreateStringTable);
 					HandleCase(MSG_UPDATE_STRING_TABLE, UpdateStringTable);
+					HandleCase(MSG_USER_MESSAGE, UserMessage);
 				
 				default:
 					break;
