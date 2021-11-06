@@ -1,16 +1,21 @@
 SRC := $(wildcard ./*.proto)
 CFILES := $(patsubst %.proto, %.pb.cc, $(SRC))
 HFILES := $(patsubst %.proto, %.pb.h, $(SRC))
+OFILES := $(patsubst %.proto, %.o, $(SRC))
 RM =rm -rf
 CC = protoc
+CLANG = clang++
 FLAGS = --cpp_out=.
 
 all: build
 
-build: $(CFILES) $(HFILES)
+build: $(CFILES) $(HFILES) $(OFILES)
 
 %.pb.cc : %.proto
 	$(CC) $(FLAGS) $<
+
+%.o : %.pb.cc
+	$(CLANG) -c $< -o $@
 
 
 test:
@@ -19,9 +24,10 @@ test:
 	@echo $(HFILES)
 
 clean:
-	$(RM) $(CFILES) $(HFILES)
+	$(RM) $(OFILES)
 
 fclean: clean
+	$(RM) $(CFILES) $(HFILES)
 
 re: fclean all
 

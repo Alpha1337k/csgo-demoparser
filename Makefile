@@ -6,6 +6,7 @@ DEBUG_FLAGS=-g -fsanitize=address
 LIBS=-I inc/ -I startup-parser/src -I protobuf/
 SRC = src
 RM =rm -rf
+MAKESILENT=make --no-print-directory -C
 
 PROTOBUF =protobuf
 
@@ -22,10 +23,10 @@ VPATH = $(SRC):$(wildcard $(SRC)/*/)
 all: buildproto $(OBJECTS) $(NAME)
 
 buildproto:
-	@make -s -C $(PROTOBUF)
+	@$(MAKESILENT) $(PROTOBUF)
 
 $(NAME): $(OBJECTS)
-	$(CC) $(LIBS) $(LINKFLAGS) $(FLAGS) $(OBJECTS) $(PROTOBUF)/*.cc -o $(NAME)
+	$(CC) $(LIBS) $(LINKFLAGS) $(FLAGS) $(OBJECTS) $(PROTOBUF)/*.o -o $(NAME)
 
 $(OBJDIR)/%.o : %.cpp
 	$(CC) $(LIBS) $(FLAGS) -c $< -o $@
@@ -38,11 +39,11 @@ $(OBJDIR):
 
 clean:
 	$(RM) $(OBJECTS)
-	make -s -C $(PROTOBUF) clean
+	$(MAKESILENT) $(PROTOBUF) clean
 
 fclean: clean
 	$(RM) $(NAME)
-	make -C $(PROTOBUF) fclean
+	$(MAKESILENT) $(PROTOBUF) fclean
 
 re: fclean all
 
