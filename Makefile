@@ -2,7 +2,7 @@ NAME=democheck
 CC=clang++
 FLAGS=-pthread -std=c++11
 DEBUG_FLAGS=-g -fsanitize=address
-LIBS=-I inc/
+LIBS=-I inc/ -I startup-parser/src
 SRC = src
 RM =rm -rf
 

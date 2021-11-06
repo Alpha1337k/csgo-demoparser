@@ -1,7 +1,9 @@
 #include <demo.hpp>
 
+
 MessageVector	getProtoMesssages(FILE *f, int size)
 {
+extern StartupParser startupParameters;
 #define ParseStatement(type) \
 	type *svi = new type; \
 	if (svi->ParseFromString(packetdata) == false) \
@@ -9,7 +11,7 @@ MessageVector	getProtoMesssages(FILE *f, int size)
 		std::cerr << "Error: parsing failed: " << #type << std::endl; \
 		svi = 0; \
 	} \
-	else \
+	else if (startupParameters["--parsemsg"])\
 		std::cout << "Parsed "  << #type << std::endl;
 #define AddStatement(type, data) messages.push_back(std::make_pair(type, data));
 

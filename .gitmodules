@@ -1,0 +1,3 @@
+[submodule "startup-parser"]
+	path = startup-parser
+	url = https://github.com/Alpha1337k/startup-parser.git

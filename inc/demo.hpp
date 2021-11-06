@@ -4,7 +4,8 @@
 #include <iostream>
 #include <stdio.h>
 #include <demfile.hpp>
+#include <startup-parser.hpp>
 
-//extern StartupParser startupParameters;
+extern StartupParser startupParameters;
 
 #endif
