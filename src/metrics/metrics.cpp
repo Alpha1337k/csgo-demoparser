@@ -165,8 +165,8 @@ void DemoFile::handleUserMessage(UserMessage &e)
 
 void	DemoFile::create_metrics()
 {
-#define HandleCase(value, type) \
-	case value: \
+#define HandleCase(type) \
+	case svc_##type: \
 	{			\
 		handle##type(*(type *)pd.second); \
 		break;	\
@@ -180,16 +180,16 @@ void	DemoFile::create_metrics()
 		{
 			for (size_t x = 0; x < frames[i].pckt.msg.size(); x++)
 			{
-				const std::pair<PacketTypes, void *> &pd = frames[i].pckt.msg[x];
+				const std::pair<SVC_Messages, void *> &pd = frames[i].pckt.msg[x];
 
 				switch (pd.first)
 				{
-					HandleCase(MSG_GAME_EVENTS_LIST, GameEventList);
-					HandleCase(MSG_GAME_EVENT, GameEvent);
-					HandleCase(MSG_SERVER_INFO, ServerInfo);
-					HandleCase(MSG_CREATE_STRING_TABLE, CreateStringTable);
-					HandleCase(MSG_UPDATE_STRING_TABLE, UpdateStringTable);
-					HandleCase(MSG_USER_MESSAGE, UserMessage);
+					HandleCase(GameEventList);
+					HandleCase(GameEvent);
+					HandleCase(ServerInfo);
+					HandleCase(CreateStringTable);
+					HandleCase(UpdateStringTable);
+					HandleCase(UserMessage);
 				
 				default:
 					break;

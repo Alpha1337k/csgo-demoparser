@@ -1,5 +1,7 @@
 #include <demo.hpp>
 
+//109269
+
 Packet::Packet(FILE *f)
 {
 
@@ -7,10 +9,13 @@ Packet::Packet(FILE *f)
 
 	int sequenceIn = 0, sequenceOut = 0;
 	size_t size = 0;
-	unsigned int chunkSize = 0;
+	int chunkSize = 0;
 	size = fread(&sequenceIn, sizeof(int), 1, f);
 	size = fread(&sequenceOut, sizeof(int), 1, f);
+
 	fread(&chunkSize, sizeof(int), 1, f);
+	std::cout << "Chunksize: " << chunkSize << std::endl;
+
 	msg = getProtoMesssages(f, chunkSize);
 }
 
@@ -43,21 +48,21 @@ std::ostream &operator<<(std::ostream &o, const Packet &p)
 	{
 		switch (p.msg[i].first)
 		{
-			case MSG_SERVER_INFO:
+			case svc_ServerInfo:
 				MessagePrinter(ServerInfo);
-			case MSG_CREATE_STRING_TABLE:
+			case svc_CreateStringTable:
 				MessagePrinter(CreateStringTable);
-			case MSG_UPDATE_STRING_TABLE:
+			case svc_UpdateStringTable:
 				MessagePrinter(UpdateStringTable);
-			case MSG_USER_MESSAGE:
+			case svc_UserMessage:
 				MessagePrinter(UserMessage);
-			case MSG_GAME_EVENT:
+			case svc_GameEvent:
 				MessagePrinter(GameEvent);
-			case MSG_PACKET_ENTITIES:
+			case svc_PacketEntities:
 				MessagePrinter(PacketEntities);
-			case MSG_GAME_EVENTS_LIST:
+			case svc_GameEventList:
 				MessagePrinter(GameEventList);
-			case MSG_DATA_TABLE:
+			case svc_SendTable:
 				MessagePrinter(SendTable);
 			default:
 				MessagePrinter(NULL);

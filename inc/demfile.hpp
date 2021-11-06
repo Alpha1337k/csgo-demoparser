@@ -4,11 +4,10 @@
 #include <vector>
 #include <stdio.h>
 #include <exception>
-#include <packetmessages.pb.h>
 #include <netmessages.pb.h>
 #include <csgomsg.pb.h>
 
-#define MessageVector std::vector<std::pair<PacketTypes, void *>>
+#define MessageVector std::vector<std::pair<SVC_Messages, void *>>
 
 enum PacketTypes
 {
@@ -33,16 +32,6 @@ enum PacketTypes
 
 	// Last command
 	dem_lastcmd		= dem_stringtables,
-
-    MSG_SERVER_INFO = 8,
-	
-    MSG_DATA_TABLE = 9,
-    MSG_CREATE_STRING_TABLE = 12,
-    MSG_UPDATE_STRING_TABLE = 13,
-    MSG_USER_MESSAGE = 23,
-    MSG_GAME_EVENT = 25,
-    MSG_PACKET_ENTITIES = 26,
-    MSG_GAME_EVENTS_LIST = 30
 };
 
 struct Vector
@@ -146,7 +135,8 @@ struct GameEventParsed
 };
 
 std::string	readVarString(FILE *f, size_t *iter);
-unsigned int readVarInt(FILE *f, size_t *iter);
+int readVarInt(FILE *f, size_t *iter);
 bool	readVarBool(FILE *f, size_t *iter);
 MessageVector getProtoMesssages(FILE *f, int size);
+int readVarInt(char *ar, size_t *iter);
 #endif

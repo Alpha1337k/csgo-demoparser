@@ -22,7 +22,7 @@ VPATH = $(SRC):$(wildcard $(SRC)/*/)
 all: buildproto $(OBJECTS) $(NAME)
 
 buildproto:
-	@make -C $(PROTOBUF)
+	@make -s -C $(PROTOBUF)
 
 $(NAME): $(OBJECTS)
 	$(CC) $(LIBS) $(LINKFLAGS) $(FLAGS) $(OBJECTS) $(PROTOBUF)/*.cc -o $(NAME)
@@ -38,7 +38,7 @@ $(OBJDIR):
 
 clean:
 	$(RM) $(OBJECTS)
-	make -C $(PROTOBUF) clean
+	make -s -C $(PROTOBUF) clean
 
 fclean: clean
 	$(RM) $(NAME)

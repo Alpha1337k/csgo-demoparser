@@ -108,18 +108,11 @@ message CMsgRGBA
 // Bidirectional NET Messages
 //=============================================================================
 
-enum NET_Messages
-{
-	net_NOP = 0;
-	net_Disconnect = 1;				// disconnect, last message in connection
-	net_File = 2;					// file transmission message request/deny
-	net_Tick = 4; 					// s->c world tick, c->s ack world tick
-	net_StringCmd = 5; 				// a string command
-	net_SetConVar = 6;				// sends one/multiple convar/userinfo settings
-	net_SignonState = 7;			// signals or acks current signon state
-}
+//enum NET_Messages
+//{
+//}
 
-message CNETMsg_Tick
+message Tick
 {
 	optional uint32 tick = 1;							// current tick count
 	optional uint32 host_computationtime = 4;			// Host frame computation time in usec (1/1,000,000th sec) - will be say 4 ms when server is running at 25% CPU load for 64-tick server
@@ -127,12 +120,12 @@ message CNETMsg_Tick
 	optional uint32 host_framestarttime_std_deviation = 6; // Host frame start time stddev in usec (1/1,000,000th sec) - measures how precisely we can wake up from sleep when meeting server framerate
 }
 
-message CNETMsg_StringCmd
+message StringCmd
 {
 	optional string command = 1;
 }
 
-message CNETMsg_SignonState
+message SignonState
 {
 	optional uint32 signon_state = 1;				// See SIGNONSTATE_ defines
 	optional uint32 spawn_count = 2;				// server spawn count (session number)
@@ -152,21 +145,21 @@ message CMsg_CVars
 	repeated CVar cvars = 1;
 }
 
-message CNETMsg_SetConVar
+message SetConVar
 {
 	optional CMsg_CVars convars = 1;
 }
 
-message CNETMsg_NOP
+message NOP
 {
 }
 
-message CNETMsg_Disconnect
+message Disconnect
 {
 	optional string text = 1;
 }
 
-message CNETMsg_File
+message File
 {
 	optional int32 transfer_id = 1;
 	optional string file_name = 2;
@@ -180,6 +173,13 @@ message CNETMsg_File
 
 enum SVC_Messages
 {
+	net_NOP = 0;
+	net_Disconnect = 1;				// disconnect, last message in connection
+	net_File = 2;					// file transmission message request/deny
+	net_Tick = 4; 					// s->c world tick, c->s ack world tick
+	net_StringCmd = 5; 				// a string command
+	net_SetConVar = 6;				// sends one/multiple convar/userinfo settings
+	net_SignonState = 7;			// signals or acks current signon state
 	svc_ServerInfo 			= 8;		// first message from server about game; map etc
 	svc_SendTable 			= 9;		// sends a sendtable description for a game class
 	svc_ClassInfo 			= 10;		// Info about classes (first byte is a CLASSINFO_ define).							
@@ -204,7 +204,7 @@ enum SVC_Messages
 	svc_GetCvarValue 		= 31;		// Server wants to know the value of a cvar on the client	
 }
 
-message CSVCMsg_ServerInfo
+message ServerInfo
 {
 	optional int32 protocol = 1;			// protocol version
 	optional int32 server_count = 2;		// number of changelevels since server start
@@ -229,7 +229,7 @@ message CSVCMsg_ServerInfo
 	optional uint64 ugc_map_id = 22;	
 }
 
-message CSVCMsg_ClassInfo
+message ClassInfo
 {
 	message class_t
 	{
@@ -242,7 +242,7 @@ message CSVCMsg_ClassInfo
 	repeated class_t classes = 2;
 }
 
-message CSVCMsg_SendTable
+message SendTable
 {
 	message sendprop_t
 	{
@@ -263,22 +263,22 @@ message CSVCMsg_SendTable
 	repeated sendprop_t props = 4;
 }
 
-message CSVCMsg_Print
+message Print
 {
 	optional string text = 1;
 }
 
-message CSVCMsg_SetPause
+message SetPause
 {
 	optional bool paused = 1;
 }
 
-message CSVCMsg_SetView
+message SetView
 {
 	optional int32 entity_index = 1;
 }
 
-message CSVCMsg_CreateStringTable
+message CreateStringTable
 {
 	optional string name = 1;
 	optional int32 max_entries = 2;
@@ -290,20 +290,20 @@ message CSVCMsg_CreateStringTable
 	optional bytes string_data = 8;
 }
 
-message CSVCMsg_UpdateStringTable
+message UpdateStringTable
 {
 	optional int32 table_id = 1;
 	optional int32 num_changed_entries = 2;
 	optional bytes string_data = 3;
 }
 
-message CSVCMsg_VoiceInit
+message VoiceInit
 {
 	optional int32 quality = 1;
 	optional string codec = 2;
 }
 
-message CSVCMsg_VoiceData
+message VoiceData
 {
 	optional int32 client = 1;
 	optional bool proximity = 2;
@@ -312,23 +312,23 @@ message CSVCMsg_VoiceData
 	optional bytes voice_data = 5;	
 }
 
-message CSVCMsg_FixAngle
+message FixAngle
 {
 	optional bool relative = 1;
 	optional CMsgQAngle angle = 2;
 }
 
-message CSVCMsg_CrosshairAngle
+message CrosshairAngle
 {
 	optional CMsgQAngle angle = 1;
 }
 
-message CSVCMsg_Prefetch
+message Prefetch
 {
 	optional int32 sound_index = 1;
 }
 
-message CSVCMsg_BSPDecal
+message BSPDecal
 {
 	optional CMsgVector pos = 1;
 	optional int32 decal_texture_index = 2;
@@ -337,25 +337,25 @@ message CSVCMsg_BSPDecal
 	optional bool low_priority = 5;
 }
 
-message CSVCMsg_GetCvarValue
+message GetCvarValue
 {
 	optional int32 cookie = 1;		// QueryCvarCookie_t
 	optional string cvar_name = 2;
 }
 
-message CSVCMsg_Menu
+message Menu
 {
 	optional int32 dialog_type = 1;		// DIALOG_TYPE
 	optional bytes menu_key_values = 2; // KeyValues.WriteAsBinary()
 }
 
-message CSVCMsg_UserMessage
+message UserMessage
 {
 	optional int32 msg_type = 1;
 	optional bytes msg_data = 2;	
 }
 
-message CSVCMsg_GameEvent
+message GameEvent
 {
 	message key_t
 	{
@@ -375,7 +375,7 @@ message CSVCMsg_GameEvent
 	repeated key_t keys = 3;
 }
 
-message CSVCMsg_GameEventList
+message GameEventList
 {
 	message key_t
 	{
@@ -393,14 +393,14 @@ message CSVCMsg_GameEventList
 	repeated descriptor_t descriptors = 1;
 }
 
-message CSVCMsg_TempEntities
+message TempEntities
 {
 	optional bool reliable = 1;
 	optional int32 num_entries = 2;
 	optional bytes entity_data = 3;
 }
 
-message CSVCMsg_PacketEntities
+message PacketEntities
 {
 	optional int32 max_entries = 1;
 	optional int32 updated_entries = 2;
@@ -411,7 +411,7 @@ message CSVCMsg_PacketEntities
 	optional bytes entity_data = 7;
 }
 
-message CSVCMsg_Sounds
+message Sounds
 {
 	message sounddata_t
 	{

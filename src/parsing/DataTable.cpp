@@ -5,6 +5,7 @@ DataTable::DataTable(FILE *f)
 	//int size = 0;
 
 	//fread(&size, sizeof(int), 1, f);
+	std::cout << "Starting to read datatable!" << std::endl;
 	MessageVector messages = getProtoMesssages(f, -1);
 
 	// std::cout << "Fully parsed datatable! size was : " << 1 << std::endl;

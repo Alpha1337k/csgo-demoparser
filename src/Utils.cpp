@@ -1,6 +1,6 @@
 #include <demo.hpp>
 
-unsigned int readVarInt(FILE *f, size_t *iter)
+int readVarInt(FILE *f, size_t *iter)
 {
 	unsigned int result = 0;
 	char b = 0;
@@ -20,6 +20,7 @@ unsigned int readVarInt(FILE *f, size_t *iter)
 	} while (b & 128);
 	return result;	
 }
+
 
 std::string	readVarString(FILE *f, size_t *iter)
 {
