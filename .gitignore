@@ -1,3 +1,9 @@
+# Custom
+*tmp*
+*out*
+samples/*
+democheck
+
 # Prerequisites
 *.d
 
