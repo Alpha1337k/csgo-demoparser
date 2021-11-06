@@ -45,7 +45,6 @@ void	DemoFile::handleGameEvent(GameEvent &ge)
 		std::cout << ", ";
 	}
 	std::cout << "}\n";
-	exit(0);
 #undef SwitchPrint
 }
 
@@ -82,9 +81,85 @@ void DemoFile::handlePacketEntities(PacketEntities &e)
 
 }
 
+template < class T >
+void printUserMessage(UserMessage &e, std::string type)
+{
+	T msg;
+
+	if (msg.ParseFromString(e.msg_data()))
+	{
+		std::cout << type << ":{\n" << msg.DebugString() << "}"<< std::endl;
+	}
+	else
+	{
+		std::cerr << "Error: parsing of " << type << " failed" << std::endl;
+		exit(0);
+	}
+}
+
 void DemoFile::handleUserMessage(UserMessage &e)
 {
+#define UserMessageSwitch(type) \
+	case CS_UM_##type: \
+		printUserMessage<CCSUsrMsg_##type>(e, #type); \
+		break;
 
+	switch (e.msg_type())
+	{
+		UserMessageSwitch(VGUIMenu);
+		UserMessageSwitch(Geiger);
+		UserMessageSwitch(Train);
+		UserMessageSwitch(HudText);
+		UserMessageSwitch(SayText);
+		UserMessageSwitch(SayText2);
+		UserMessageSwitch(TextMsg);
+		UserMessageSwitch(HudMsg);
+		UserMessageSwitch(ResetHud);
+		UserMessageSwitch(GameTitle);
+		UserMessageSwitch(Shake);
+		UserMessageSwitch(Fade);
+		UserMessageSwitch(Rumble);
+		UserMessageSwitch(CloseCaption);
+		UserMessageSwitch(CloseCaptionDirect);
+		UserMessageSwitch(SendAudio);
+		UserMessageSwitch(RawAudio);
+		UserMessageSwitch(VoiceMask);
+		UserMessageSwitch(RequestState);
+		UserMessageSwitch(Damage);
+		UserMessageSwitch(RadioText);
+		UserMessageSwitch(HintText);
+		UserMessageSwitch(KeyHintText);
+		UserMessageSwitch(ProcessSpottedEntityUpdate);
+		UserMessageSwitch(ReloadEffect);
+		UserMessageSwitch(AdjustMoney);
+		//UserMessageSwitch(UpdateTeamMoney);
+		UserMessageSwitch(StopSpectatorMode);
+		UserMessageSwitch(KillCam);
+		UserMessageSwitch(DesiredTimescale);
+		UserMessageSwitch(CurrentTimescale);
+		UserMessageSwitch(AchievementEvent);
+		UserMessageSwitch(MatchEndConditions);
+		UserMessageSwitch(DisconnectToLobby);
+		UserMessageSwitch(DisplayInventory);
+		UserMessageSwitch(WarmupHasEnded);
+		UserMessageSwitch(ClientInfo);
+		UserMessageSwitch(CallVoteFailed);
+		UserMessageSwitch(VoteStart);
+		UserMessageSwitch(VotePass);
+		UserMessageSwitch(VoteFailed);
+		UserMessageSwitch(VoteSetup);
+		UserMessageSwitch(SendLastKillerDamageToClient);
+		UserMessageSwitch(ItemPickup);
+		UserMessageSwitch(ShowMenu);
+		UserMessageSwitch(BarTime);
+		UserMessageSwitch(AmmoDenied);
+		UserMessageSwitch(MarkAchievement);
+		UserMessageSwitch(ItemDrop);
+		UserMessageSwitch(GlowPropTurnOff);
+	default:
+		break;
+	}
+#undef UserMessageSwitch
 }
 
 

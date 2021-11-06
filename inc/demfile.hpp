@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <exception>
 #include <packetmessages.pb.h>
+#include <netmessages.pb.h>
+#include <csgomsg.pb.h>
 
 #define MessageVector std::vector<std::pair<PacketTypes, void *>>
 
