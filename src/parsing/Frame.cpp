@@ -47,8 +47,11 @@ Frame::Frame(FILE *f, bool &finished)
 			std::cerr << "UnIMPLEMENTED!!! usr" << std::endl;
 			exit(0);
 			break;
+		case dem_synctick:
 		default:
+		{
 			break;
+		}
 	}
 }
 

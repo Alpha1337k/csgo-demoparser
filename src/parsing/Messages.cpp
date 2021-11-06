@@ -7,7 +7,7 @@ MessageVector	getProtoMesssages(FILE *f, int size)
 	size_t iter = 0;
 	MessageVector	messages;
 
-#define ParseStatement(type) \
+#define ParseStatement(type, extra) \
 	case svc_##type: \
 	{ \
 		type *svi = new type; \
@@ -21,6 +21,7 @@ MessageVector	getProtoMesssages(FILE *f, int size)
 			std::cout << "Parsed "  << #type << ", length: " << length << std::endl; \
 		messages.push_back(std::make_pair(svc_##type, svi)); \
 		std::cout << "{" << svi->DebugString() << "}" << std::endl; \
+		extra \
 		break; \
 	}
 
@@ -37,7 +38,7 @@ MessageVector	getProtoMesssages(FILE *f, int size)
 		else if (startupParameters["--parsemsg"]) \
 			std::cout << "Parsed "  << #type << ", length: " << length << std::endl; \
 		messages.push_back(std::make_pair(net_##type, net)); \
-		std::cout << net->DebugString() << std::endl; \
+		std::cout << "{" << net->DebugString() << "}" << std::endl; \
 		break; \
 	}
 
@@ -62,32 +63,30 @@ MessageVector	getProtoMesssages(FILE *f, int size)
 			ParseNetStatement(StringCmd);
 			ParseNetStatement(SetConVar);
 			ParseNetStatement(SignonState);
-			ParseStatement(ServerInfo);
-			ParseStatement(SendTable);
-			ParseStatement(ClassInfo)
-			ParseStatement(SetPause);
-			ParseStatement(CreateStringTable);
-			ParseStatement(UpdateStringTable);
-			ParseStatement(VoiceInit);
-			ParseStatement(VoiceData);
-			ParseStatement(Print);
-			ParseStatement(Sounds);
-			ParseStatement(SetView);
-			ParseStatement(FixAngle);
-			ParseStatement(CrosshairAngle);
-			ParseStatement(BSPDecal);
-			ParseStatement(UserMessage);
-			ParseStatement(GameEvent);
-			ParseStatement(PacketEntities);
-			ParseStatement(TempEntities);
-			ParseStatement(Prefetch);
-			ParseStatement(Menu);
-			ParseStatement(GameEventList);
-			ParseStatement(GetCvarValue);
+			ParseStatement(ServerInfo, );
+			ParseStatement(SendTable, if (svi->is_end()) {return messages;});
+			ParseStatement(ClassInfo, )
+			ParseStatement(SetPause, );
+			ParseStatement(CreateStringTable, );
+			ParseStatement(UpdateStringTable, );
+			ParseStatement(VoiceInit, );
+			ParseStatement(VoiceData, );
+			ParseStatement(Print, );
+			ParseStatement(Sounds, );
+			ParseStatement(SetView, );
+			ParseStatement(FixAngle, );
+			ParseStatement(CrosshairAngle, );
+			ParseStatement(BSPDecal, );
+			ParseStatement(UserMessage, );
+			ParseStatement(GameEvent, );
+			ParseStatement(PacketEntities, );
+			ParseStatement(TempEntities, );
+			ParseStatement(Prefetch, );
+			ParseStatement(Menu, );
+			ParseStatement(GameEventList, );
+			ParseStatement(GetCvarValue, );
 			default:
 			{
-				if (messagetype == 0)
-					return messages;
 				std::cerr << "Error: Could not find matching type " << messagetype  << " ,length: " << length << std::endl;
 				break;
 			}
