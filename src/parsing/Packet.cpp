@@ -14,7 +14,7 @@ Packet::Packet(FILE *f)
 	size = fread(&sequenceOut, sizeof(int), 1, f);
 
 	fread(&chunkSize, sizeof(int), 1, f);
-	std::cout << "Chunksize: " << chunkSize << std::endl;
+	//std::cout << "Chunksize: " << chunkSize << std::endl;
 
 	msg = getProtoMesssages(f, chunkSize);
 }

@@ -7,7 +7,7 @@
 #include <netmessages.pb.h>
 #include <csgomsg.pb.h>
 
-#define MessageVector std::vector<std::pair<SVC_Messages, void *>>
+#define MessageVector std::vector<std::pair<int, void *>>
 
 enum PacketTypes
 {
@@ -32,6 +32,11 @@ enum PacketTypes
 
 	// Last command
 	dem_lastcmd		= dem_stringtables,
+};
+
+enum PreParsedPackages
+{
+	svc_DataTable = -1
 };
 
 struct Vector
@@ -95,6 +100,14 @@ std::ostream &operator<<(std::ostream &o, const Frame &d);
 
 struct DataTable
 {
+	struct ServiceClass
+	{
+		short id;
+		std::string name;
+		std::string nameDataTable;
+	};
+	std::vector<ServiceClass> services;
+	MessageVector msg;
 
 	DataTable(FILE *f);
 };
@@ -109,6 +122,8 @@ private:
 	std::vector<GameEventList_descriptor_t> gEvents;
 	std::vector<CreateStringTable> sTables;
 
+	std::vector<MessageVector> ParseRounds();
+
 	void handleGameEventList(GameEventList &ge);
 	void handleGameEvent(GameEvent &ge);
 	void handleServerInfo(ServerInfo &si);
@@ -116,6 +131,7 @@ private:
 	void handleUpdateStringTable(UpdateStringTable &si);
 	void handlePacketEntities(PacketEntities &e);
 	void handleUserMessage(UserMessage &e);
+	void handleDataTable(DataTable &dt);
 public:
 	DemoFile(FILE *f);
 	~DemoFile();

@@ -78,7 +78,9 @@ void DemoFile::handleUpdateStringTable(UpdateStringTable &si)
 
 void DemoFile::handlePacketEntities(PacketEntities &e)
 {
+	
 
+	exit(0);
 }
 
 template < class T >
@@ -88,7 +90,7 @@ void printUserMessage(UserMessage &e, std::string type)
 
 	if (msg.ParseFromString(e.msg_data()))
 	{
-		std::cout << type << ":{\n" << msg.DebugString() << "}"<< std::endl;
+		std::cout << "UserMessage: "<< type << ":{\n" << msg.DebugString() << "}"<< std::endl;
 	}
 	else
 	{
@@ -162,6 +164,23 @@ void DemoFile::handleUserMessage(UserMessage &e)
 #undef UserMessageSwitch
 }
 
+void DemoFile::handleDataTable(DataTable &dt)
+{
+	for (size_t i = 0; i < dt.msg.size(); i++)
+	{
+		if (dt.msg[i].first != svc_SendTable)
+			std::cerr << "Error: weird item in datatable: " << dt.msg[i].first << std::endl;
+		else
+		{
+			std::cout << "SendTable: name: " << ((SendTable *)dt.msg[i].second)->net_table_name() << std::endl;
+		}
+	}
+}
+
+std::vector<MessageVector> DemoFile::ParseRounds()
+{
+	
+}
 
 void	DemoFile::create_metrics()
 {
@@ -172,30 +191,26 @@ void	DemoFile::create_metrics()
 		break;	\
 	}			\
 
+	std::cout << "\n\n\n" << std::endl;
 	for (size_t i = 0; i < frames.size(); i++)
 	{
-		if (i > 0 && frames[i].tick > 0 && frames[i-1].tick < 0)
-			std::cout << "\n\n---------- Start of game -------------\n" << std::endl; 
-		if (frames[i].cmd == dem_signon || frames[i].cmd == dem_packet)
+		for (size_t x = 0; x < frames[i].pckt.msg.size(); x++)
 		{
-			for (size_t x = 0; x < frames[i].pckt.msg.size(); x++)
+			const std::pair<int, void *> &pd = frames[i].pckt.msg[x];
+
+			switch (pd.first)
 			{
-				const std::pair<SVC_Messages, void *> &pd = frames[i].pckt.msg[x];
-
-				switch (pd.first)
-				{
-					HandleCase(GameEventList);
-					HandleCase(GameEvent);
-					HandleCase(ServerInfo);
-					HandleCase(CreateStringTable);
-					HandleCase(UpdateStringTable);
-					HandleCase(UserMessage);
-				
-				default:
-					break;
-				}
+				HandleCase(GameEventList);
+				HandleCase(GameEvent);
+				HandleCase(ServerInfo);
+				HandleCase(CreateStringTable);
+				HandleCase(UpdateStringTable);
+				HandleCase(UserMessage);
+				HandleCase(DataTable);
+			
+			default:
+				break;
 			}
-
 		}
 	}
 #undef HandleCase

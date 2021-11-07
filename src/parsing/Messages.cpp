@@ -20,7 +20,7 @@ MessageVector	getProtoMesssages(FILE *f, int size)
 		else if (startupParameters["--parsemsg"]) \
 			std::cout << "Parsed "  << #type << ", length: " << length << std::endl; \
 		messages.push_back(std::make_pair(svc_##type, svi)); \
-		std::cout << "{" << svi->DebugString() << "}" << std::endl; \
+		/* std::cout << "{" << svi->DebugString() << "}" << std::endl; */ \
 		extra \
 		break; \
 	}
@@ -38,7 +38,7 @@ MessageVector	getProtoMesssages(FILE *f, int size)
 		else if (startupParameters["--parsemsg"]) \
 			std::cout << "Parsed "  << #type << ", length: " << length << std::endl; \
 		messages.push_back(std::make_pair(net_##type, net)); \
-		std::cout << "{" << net->DebugString() << "}" << std::endl; \
+		/* std::cout << "{" << net->DebugString() << "}" << std::endl; */ \
 		break; \
 	}
 
@@ -47,7 +47,7 @@ MessageVector	getProtoMesssages(FILE *f, int size)
 		unsigned int	messagetype = readVarInt(f, &iter);
 		unsigned int	length = readVarInt(f, &iter);
 
-		std::cout << "Iter: " << iter << " messagetype:" << (int)messagetype << ", length: " << length << std::endl;
+		//std::cout << "Iter: " << iter << " messagetype:" << (int)messagetype << ", length: " << length << std::endl;
 
 		std::string packetdata;
 		packetdata.resize(length);

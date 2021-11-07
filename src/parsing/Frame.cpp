@@ -35,8 +35,8 @@ Frame::Frame(FILE *f, bool &finished)
 			break;
 		case dem_datatables:
 		{
-			DataTable d = DataTable(f);
-			(void)d;
+			DataTable *d = new DataTable(f);
+			pckt.msg.push_back(std::make_pair(svc_DataTable, d));
 			break;
 		}
 		case dem_stringtables:
