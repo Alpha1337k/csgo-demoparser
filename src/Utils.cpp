@@ -24,14 +24,10 @@ int readVarInt(FILE *f, size_t *iter)
 
 std::string	readVarString(FILE *f, size_t *iter)
 {
-	unsigned int len = readVarInt(f, iter);
-
-	if (len == 0)
-		return "";
 	std::string rv;
 	char tmp;
 
-	for (size_t i = 0; i < len; i++)
+	while (1)
 	{
 		if (iter)
 			(*iter) += fread(&tmp, 1, 1, f);
