@@ -10,7 +10,7 @@ int main(int argc, char **argv, char **env)
 	if (argc < 2)
 	{
 		std::cerr << "Error: filepath required" << std::endl;
-		return (-1);
+		return (-2);
 	}
 
 	FILE *f = fopen(startupParameters.last().first.c_str(), "r");
@@ -21,7 +21,8 @@ int main(int argc, char **argv, char **env)
 	}
 	DemoFile demo(f);
 
-	demo.create_metrics();
+	if (startupParameters["--only-parse"] == 0)
+		demo.create_metrics();
 	fclose(f);
 	return (0);
 }
