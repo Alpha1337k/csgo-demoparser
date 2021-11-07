@@ -184,12 +184,31 @@ std::vector<MessageVector> DemoFile::ParseRounds()
 
 void	DemoFile::create_metrics()
 {
+	extern StartupParser startupParameters;
 #define HandleCase(type) \
 	case svc_##type: \
 	{			\
 		handle##type(*(type *)pd.second); \
 		break;	\
-	}			\
+	}
+#define HandleOther(type) \
+	case svc_##type: \
+	{ \
+		if (startupParameters["-v"]) \
+			std::cout << #type << ": " << ((type *)pd.second)->DebugString() << std::endl; \
+		else if (startupParameters["-d"]) \
+			std::cout << #type << std::endl; \
+		break; \
+	}
+#define HandleOtherNet(type) \
+	case net_##type: \
+	{ \
+		if (startupParameters["-v"]) \
+			std::cout << #type << ": " << ((type *)pd.second)->DebugString() << std::endl; \
+		else if (startupParameters["-d"]) \
+			std::cout << #type << std::endl; \
+		break; \
+	}
 
 	std::cout << "\n\n\n" << std::endl;
 	for (size_t i = 0; i < frames.size(); i++)
@@ -207,11 +226,35 @@ void	DemoFile::create_metrics()
 				HandleCase(UpdateStringTable);
 				HandleCase(UserMessage);
 				HandleCase(DataTable);
-			
+
+				HandleOtherNet(Disconnect);
+				HandleOtherNet(File);
+				HandleOtherNet(Tick);
+				HandleOtherNet(StringCmd);
+				HandleOtherNet(SetConVar);
+				HandleOtherNet(SignonState);
+
+				HandleOther(ClassInfo);
+				HandleOther(SetPause);
+				HandleOther(VoiceInit);
+				HandleOther(VoiceData);
+				HandleOther(Print);
+				HandleOther(Sounds);
+				HandleOther(SetView);
+				HandleOther(FixAngle);
+				HandleOther(CrosshairAngle);
+				HandleOther(BSPDecal);
+				HandleOther(TempEntities);
+				HandleOther(Prefetch);
+				HandleOther(Menu);
+				HandleOther(GetCvarValue);
+
 			default:
 				break;
 			}
 		}
 	}
 #undef HandleCase
+#undef HandleOther
+#undef HandleOtherNet
 }
