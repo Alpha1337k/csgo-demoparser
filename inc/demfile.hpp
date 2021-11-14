@@ -112,6 +112,21 @@ struct DataTable
 	DataTable(FILE *f);
 };
 
+struct Player {
+	long	version;
+	long	xUid;
+	char	userName[128];
+	int		userId;
+	char	gUid[33];
+	int		friendsId;
+	char	friendsName[128];
+	bool	isFake;
+	bool	isHltv;
+
+	int		customFiles[4];
+	char	filesDownloaded;
+};
+
 class DemoFile
 {
 private:
@@ -121,6 +136,7 @@ private:
 	std::vector<Frame> frames;
 	std::vector<GameEventList_descriptor_t> gEvents;
 	std::vector<CreateStringTable> sTables;
+	std::vector<Player>				players;
 
 	std::vector<MessageVector> ParseRounds();
 

@@ -60,20 +60,20 @@ void DemoFile::handleCreateStringTable(CreateStringTable &si)
 {
 	std::cout << "CreateStringTable: { name: " << si.name() << ", stringdata len:" << si.string_data().length() << " }" << std::endl;
 	sTables.push_back(si);
-	// if (si.name() == "userinfo")
-	// {
-
-	// }
 }
 
 void DemoFile::handleUpdateStringTable(UpdateStringTable &si)
 {
 	if (si.table_id() >= sTables.size())
 		return;
-	std::cout << "UpdateStringTable: { id: " << si.table_id() << ", changed: " << si.num_changed_entries() << "}" << std::endl;
+	const std::string &tableName = sTables[si.table_id()].name();
+	std::cout << "UpdateStringTable: { name: " << tableName << ", changed: " << si.num_changed_entries() << "}" << std::endl;
 	CreateStringTable &target = sTables[si.table_id()];
 
-
+	if (tableName == "userinfo" || tableName == "instancebaseline")
+	{
+		// idk parse
+	}
 }
 
 void DemoFile::handlePacketEntities(PacketEntities &e)
