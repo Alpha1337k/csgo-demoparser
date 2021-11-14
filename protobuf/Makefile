@@ -5,6 +5,7 @@ OFILES := $(patsubst %.proto, %.o, $(SRC))
 RM =rm -rf
 CC = protoc
 CLANG = clang++
+CFLAGS = -std=c++11
 FLAGS = --cpp_out=.
 
 all: build
@@ -15,7 +16,7 @@ build: $(CFILES) $(HFILES) $(OFILES)
 	$(CC) $(FLAGS) $<
 
 %.o : %.pb.cc
-	$(CLANG) -c $< -o $@
+	$(CLANG) $(CFLAGS) -c $< -o $@
 
 
 test:
