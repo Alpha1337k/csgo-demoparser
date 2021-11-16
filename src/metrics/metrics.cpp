@@ -30,7 +30,6 @@ void	DemoFile::handleGameEvent(GameEvent &ge)
 		eventKey.val_string();
 		switch (eventKey.type())
 		{
-			
 			SwitchPrint(1, val_string);
 			SwitchPrint(2, val_float);
 			SwitchPrint(3, val_long);
@@ -59,20 +58,23 @@ void DemoFile::handleServerInfo(ServerInfo &si)
 void DemoFile::handleCreateStringTable(CreateStringTable &si)
 {
 	std::cout << "CreateStringTable: { name: " << si.name() << ", stringdata len:" << si.string_data().length() << " }" << std::endl;
-	sTables.push_back(si);
+	sTables.push_back(ParsedStringTable(si));
 }
 
 void DemoFile::handleUpdateStringTable(UpdateStringTable &si)
 {
 	if (si.table_id() >= sTables.size())
 		return;
-	const std::string &tableName = sTables[si.table_id()].name();
-	std::cout << "UpdateStringTable: { name: " << tableName << ", changed: " << si.num_changed_entries() << "}" << std::endl;
-	CreateStringTable &target = sTables[si.table_id()];
+	std::cout << "update" << std::endl;
+	const std::string &tableName = sTables[si.table_id()].origin.name();
+	std::cout << "UpdateStringTable: { name: " << tableName << ", changed: " << si.num_changed_entries() << ", length: " << si.string_data().length() << "}\n\n\n\n" << std::endl;
 
-	if (tableName == "userinfo" || tableName == "instancebaseline")
+	ParsedStringTable &target = sTables[si.table_id()];
+	if (tableName == "userinfo") //|| tableName == "instancebaseline")
 	{
 		// idk parse
+		target.Update(si, true);
+		exit(0);
 	}
 }
 

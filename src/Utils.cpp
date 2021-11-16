@@ -41,6 +41,21 @@ std::string	readVarString(FILE *f, size_t *iter)
 	return rv;
 }
 
+std::string	readVarString(const std::string &str, int &iter)
+{
+	std::string rv;
+	char tmp;
+
+	while (1)
+	{
+		tmp = str[iter++];
+		if (tmp == 0)
+			break;
+		rv += tmp;
+	}
+	
+	return rv;
+}
 
 bool	readVarBool(FILE *f, size_t *iter)
 {
@@ -57,4 +72,23 @@ void Vector::Init( float _x, float _y, float _z )
 	x = _x;
 	y = _y;
 	z = _z;
+}
+
+int		readStringBits(const std::string &str, int count, int &i, char &bitsAvailable)
+{
+	if (count == 8 && bitsAvailable == 0)
+		return str[i++];
+	int rval = 0;
+	char buffer = str[i];
+
+	for (size_t x = 0; x < count; x++)
+	{
+		if (bitsAvailable == 0)
+		{
+			buffer = str[i++];
+			bitsAvailable = 8;
+		}
+		rval |= ((buffer >> (8 - bitsAvailable--)) & 1) << x;
+	}
+	return rval;
 }

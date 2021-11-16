@@ -87,7 +87,8 @@ MessageVector	getProtoMesssages(FILE *f, int size)
 			ParseStatement(GetCvarValue, );
 			default:
 			{
-				std::cerr << "Error: Could not find matching type " << messagetype  << " ,length: " << length << std::endl;
+				if (startupParameters["--parsemsg"])
+					std::cerr << "Error: Could not find matching type " << messagetype  << " ,length: " << length << std::endl;
 				break;
 			}
 		}
