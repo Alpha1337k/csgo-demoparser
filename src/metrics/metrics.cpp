@@ -27,7 +27,6 @@ void	DemoFile::handleGameEvent(GameEvent &ge)
 		const GameEventList_key_t &key = event.keys(i);
 		const GameEvent_key_t &eventKey = ge.keys(i);
 		std::cout << key.name() << ": ";
-		eventKey.val_string();
 		switch (eventKey.type())
 		{
 			SwitchPrint(1, val_string);
@@ -58,31 +57,26 @@ void DemoFile::handleServerInfo(ServerInfo &si)
 void DemoFile::handleCreateStringTable(CreateStringTable &si)
 {
 	std::cout << "CreateStringTable: { name: " << si.name() << ", stringdata len:" << si.string_data().length() << " }" << std::endl;
-	sTables.push_back(ParsedStringTable(si));
+	sTables.push_back(ParsedStringTable(si, *this));
 }
 
 void DemoFile::handleUpdateStringTable(UpdateStringTable &si)
 {
 	if (si.table_id() >= sTables.size())
 		return;
-	std::cout << "update" << std::endl;
 	const std::string &tableName = sTables[si.table_id()].origin.name();
-	std::cout << "UpdateStringTable: { name: " << tableName << ", changed: " << si.num_changed_entries() << ", length: " << si.string_data().length() << "}\n\n\n\n" << std::endl;
+	std::cout << "UpdateStringTable: { name: " << tableName << ", changed: " << si.num_changed_entries() << ", length: " << si.string_data().length() << "}" << std::endl;
 
 	ParsedStringTable &target = sTables[si.table_id()];
-	if (tableName == "userinfo") //|| tableName == "instancebaseline")
+	if (tableName == "userinfo")
 	{
-		// idk parse
-		target.Update(si, true);
-		exit(0);
+		target.Update(si, *this, true);
 	}
 }
 
 void DemoFile::handlePacketEntities(PacketEntities &e)
 {
-	
-
-	exit(0);
+	//std::cout << "PacketEntity: {" << e.DebugString() << "}" << std::endl;
 }
 
 template < class T >
@@ -228,6 +222,7 @@ void	DemoFile::create_metrics()
 				HandleCase(UpdateStringTable);
 				HandleCase(UserMessage);
 				HandleCase(DataTable);
+				HandleCase(PacketEntities);
 
 				HandleOtherNet(Disconnect);
 				HandleOtherNet(File);

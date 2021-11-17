@@ -139,12 +139,12 @@ std::ostream &operator<<(std::ostream &o, const Player &p);
 class ParsedStringTable
 {
 private:
-	void Update(const std::string &data, bool isUserInfo, int num_changed_entries);
+	void Update(const std::string &data, bool isUserInfo, int num_changed_entries, class DemoFile &df);
 public:
 	CreateStringTable &origin;
-	ParsedStringTable(CreateStringTable &st);
-	void	Update(CreateStringTable &st);
-	void	Update(UpdateStringTable &ut, bool isUserInfo = false);
+	ParsedStringTable(CreateStringTable &st, class DemoFile &df);
+	void	Update(CreateStringTable &st, class DemoFile &df);
+	void	Update(UpdateStringTable &ut, class DemoFile &df, bool isUserInfo = false);
 	~ParsedStringTable();
 };
 
@@ -173,6 +173,7 @@ private:
 public:
 	DemoFile(FILE *f);
 	~DemoFile();
+	void AddPlayer(Player &p);
 	void	create_metrics();
 };
 

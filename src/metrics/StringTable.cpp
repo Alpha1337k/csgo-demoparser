@@ -1,28 +1,27 @@
 #include <demo.hpp>
 
-ParsedStringTable::ParsedStringTable(CreateStringTable &st): origin(st)
+ParsedStringTable::ParsedStringTable(CreateStringTable &st, DemoFile &df): origin(st)
 {
 	if (st.name() == "userinfo")
 	{
-		Update(st.string_data(), st.name() == "userinfo", st.num_entries());
-		exit(9);
+		Update(st.string_data(), st.name() == "userinfo", st.num_entries(), df);
 	}
 }
 
 
 ParsedStringTable::~ParsedStringTable() {}
 
-void	ParsedStringTable::Update(CreateStringTable &st)
+void	ParsedStringTable::Update(CreateStringTable &st, DemoFile &df)
 {
-	Update(st.string_data(), st.name() == "userinfo", st.num_entries());
+	Update(st.string_data(), st.name() == "userinfo", st.num_entries(), df);
 }
 
-void	ParsedStringTable::Update(UpdateStringTable &ut, bool isUserInfo)
+void	ParsedStringTable::Update(UpdateStringTable &ut, DemoFile &df, bool isUserInfo)
 {
-	Update(ut.string_data(), isUserInfo, ut.num_changed_entries());
+	Update(ut.string_data(), isUserInfo, ut.num_changed_entries(), df);
 }
 
-void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num_changed_entries)
+void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num_changed_entries, DemoFile &df)
 {
 #define readBits(x) readStringBits(data, x, i, bitsAvailable)
 
@@ -36,8 +35,6 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 	int nEntryBits = 0;
 	while (nTemp >>= 1) ++nEntryBits;
 
-	std::cout << "Entrybits" << nEntryBits << std::endl;
-	//exit(0);
 
 	bool isDictionary = readBits(1) != 0;
 
@@ -48,15 +45,15 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 
 	for (size_t x = 0; x < num_changed_entries; x++)
 	{
-		std::cout << "Start------" << std::endl;
+		//std::cout << "Start------" << std::endl;
 		int entryIndex = lastEntry + 1;
 
 		if (readBits(1) == 0)
 		{
 			entryIndex = readBits(nEntryBits);
-			std::cout << "new index: " << entryIndex << std::endl;
+			//std::cout << "new index: " << entryIndex << std::endl;
 		}
-		std::cout << "Entry index: " << entryIndex << std::endl;
+		//std::cout << "Entry index: " << entryIndex << std::endl;
 		lastEntry = entryIndex;
 		if (entryIndex < 0 || entryIndex >= origin.max_entries())
 			ErrorReturnMessage("Error: ParseStringUpdate Error")
@@ -69,7 +66,7 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 			{
 				int index = readBits(5);
 				int copyHistSize = readBits(5);
-				std::cout << "ReadBits Called! Whoops" << index << " " << copyHistSize << std::endl;
+				//std::cout << "ReadBits Called! Whoops" << index << " " << copyHistSize << std::endl;
 			}
 			char charToAdd = ' ';
 			int count = 0;
@@ -79,7 +76,7 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 				entry += charToAdd;
 				count++;
 			}
-			std::cout << "Entry size: " << entry.length() << " "<< entry << std::endl;
+			//std::cout << "Entry size: " << entry.length() << " "<< entry << std::endl;
 		}
 
 		std::string userData;
@@ -90,28 +87,35 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 			if (origin.user_data_fixed_size())
 			{
 				size = origin.user_data_size();
-				std::cout << "Using fixed!!!!" << std::endl;
+				//std::cout << "Using fixed!!!!" << std::endl;
 			}
 			else
 			{
 				size = readBits(14);
 			}
-			std::cout << "We have a size: " << size <<  std::endl;
+			//std::cout << "We have a size: " << size <<  std::endl;
 			char charToAdd;
 			while (size > userData.size())
 			{
 				charToAdd = readBits(8);
 				userData += charToAdd;
 			}
-			std::cout << "Userdata size: " << userData.size() << "{ " << userData << "}" << std::endl;
+			//std::cout << "Userdata size: " << userData.size() << "{ " << userData << "}" << std::endl;
 		}
 		if (size > 0)
 		{
 			assert(size < 400);
 			Player p(userData);
 			std::cout << p << std::endl;
+			assert(p.version == -4094);
+			df.AddPlayer(p);
 		}
-		std::cout << "End------ total read: " << i << " of " << data.length() << std::endl;
+		assert(i < data.length());
 	}
 #undef readBits
+}
+
+void DemoFile::AddPlayer(Player &p)
+{
+	players.push_back(p);
 }
