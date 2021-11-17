@@ -34,11 +34,7 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 	// perform integer log2() to set nEntryBits
 	int nTemp = origin.max_entries();
 	int nEntryBits = 0;
-	while (nTemp)
-	{
-		nTemp >>= 1;
-		++nEntryBits;
-	}
+	while (nTemp >>= 1) ++nEntryBits;
 
 	std::cout << "Entrybits" << nEntryBits << std::endl;
 	//exit(0);
@@ -57,7 +53,7 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 
 		if (readBits(1) == 0)
 		{
-			entryIndex = readBits(8);
+			entryIndex = readBits(nEntryBits);
 			std::cout << "new index: " << entryIndex << std::endl;
 		}
 		std::cout << "Entry index: " << entryIndex << std::endl;
@@ -111,6 +107,7 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 		}
 		if (size > 0)
 		{
+			assert(size < 400);
 			Player p(userData);
 			std::cout << p << std::endl;
 		}

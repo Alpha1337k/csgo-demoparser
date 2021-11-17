@@ -77,7 +77,7 @@ void Vector::Init( float _x, float _y, float _z )
 int		readStringBits(const std::string &str, int count, int &i, char &bitsAvailable)
 {
 	if (count == 8 && bitsAvailable == 0)
-		return str[i++];
+		return str[++i];
 	int rval = 0;
 	char buffer = str[i];
 
