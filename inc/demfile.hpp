@@ -129,8 +129,12 @@ struct Player {
 	bool	isHltv;
 
 	int		customFiles[4];
-	char	filesDownloaded;
+	unsigned char	filesDownloaded;
+
+	Player(std::string &data);
 };
+std::ostream &operator<<(std::ostream &o, const Player &p);
+
 
 class ParsedStringTable
 {

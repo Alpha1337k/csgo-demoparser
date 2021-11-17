@@ -85,10 +85,11 @@ int		readStringBits(const std::string &str, int count, int &i, char &bitsAvailab
 	{
 		if (bitsAvailable == 0)
 		{
-			buffer = str[i++];
+			buffer = str[++i];
 			bitsAvailable = 8;
 		}
 		rval |= ((buffer >> (8 - bitsAvailable--)) & 1) << x;
 	}
+	//std::cout << "Rval: " << rval << std::endl;
 	return rval;
 }
