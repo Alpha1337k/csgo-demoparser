@@ -6,6 +6,8 @@
 #include <exception>
 #include <netmessages.pb.h>
 #include <csgomsg.pb.h>
+#include <stdlib.h>
+#include <byteswap.h>
 
 #define ErrorReturnMessage(msg) \
 	{ std::cerr << msg << std::endl; return; }
