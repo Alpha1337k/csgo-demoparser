@@ -106,7 +106,7 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 		{
 			assert(size < 400);
 			Player p(userData);
-			std::cout << p << std::endl;
+			// std::cout << p << std::endl;
 			assert(p.version == -4094);
 			df.AddPlayer(p);
 		}

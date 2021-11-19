@@ -8,6 +8,7 @@
 #include <csgomsg.pb.h>
 #include <stdlib.h>
 #include <byteswap.h>
+#include <sstream>
 
 #define ErrorReturnMessage(msg) \
 	{ std::cerr << msg << std::endl; return; }
@@ -150,6 +151,14 @@ public:
 	~ParsedStringTable();
 };
 
+class ParsedPacketEntities
+{
+	private:
+	
+	public:
+		ParsedPacketEntities(PacketEntities &pe, const DataTable &dt);
+};
+
 
 class DemoFile
 {
@@ -159,10 +168,10 @@ private:
 	std::string	signOnData;
 	std::vector<Frame> frames;
 	std::vector<GameEventList_descriptor_t> gEvents;
-	std::vector<ParsedStringTable> sTables;
-	std::vector<Player>				players;
-
-	std::vector<MessageVector> ParseRounds();
+	std::vector<ParsedStringTable>		sTables;
+	std::vector<Player>					players;
+	std::vector<DataTable::ServiceClass>	entities;
+	// DataTable							dataTable;
 
 	void handleGameEventList(GameEventList &ge);
 	void handleGameEvent(GameEvent &ge);
@@ -177,6 +186,7 @@ public:
 	~DemoFile();
 	void AddPlayer(Player &p);
 	void	create_metrics();
+
 };
 
 struct GameEventListParsed
@@ -198,5 +208,6 @@ bool	readVarBool(FILE *f, size_t *iter);
 MessageVector getProtoMesssages(FILE *f, int size);
 int readVarInt(char *ar, size_t *iter);
 int		readStringBits(const std::string &str, int count, int &i, char &bitsAvailable);
-
+int		readStringVarInt(const std::string &str, int &i, char &bitsAvailable);
+std::string replaceAll(std::string str, const std::string from, const std::string to);
 #endif

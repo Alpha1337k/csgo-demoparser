@@ -173,11 +173,6 @@ void DemoFile::handleDataTable(DataTable &dt)
 	}
 }
 
-std::vector<MessageVector> DemoFile::ParseRounds()
-{
-	
-}
-
 void	DemoFile::create_metrics()
 {
 	extern StartupParser startupParameters;

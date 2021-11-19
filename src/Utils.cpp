@@ -1,5 +1,18 @@
 #include <demo.hpp>
 
+std::string replaceAll(std::string str, const std::string from, const std::string to)
+{
+    if(from.empty())
+        return (str);
+    size_t start_pos = 0;
+    while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+    }
+
+	return (str);
+}
+
 int readVarInt(FILE *f, size_t *iter)
 {
 	unsigned int result = 0;
@@ -92,4 +105,21 @@ int		readStringBits(const std::string &str, int count, int &i, char &bitsAvailab
 	}
 	//std::cout << "Rval: " << rval << std::endl;
 	return rval;
+}
+
+int		readStringVarInt(const std::string &str, int &i, char &bitsAvailable)
+{
+	int ret = readStringBits(str, 6, i, bitsAvailable);
+	switch (ret & (16 | 32)) {
+		case 16:
+			ret = (ret & 15) | (readStringBits(str, 4, i, bitsAvailable) << 4);
+			break;
+		case 32:
+			ret = (ret & 15) | (readStringBits(str, 8, i, bitsAvailable) << 4);
+			break;
+		case 48:
+			ret = (ret & 15) | (readStringBits(str, 32 - 4, i, bitsAvailable) << 4);
+			break;
+	}
+	return ret;
 }
