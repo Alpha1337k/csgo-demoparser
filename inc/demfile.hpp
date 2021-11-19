@@ -189,18 +189,6 @@ public:
 
 };
 
-struct GameEventListParsed
-{
-
-	GameEventListParsed(GameEventList &l);
-};
-
-struct GameEventParsed
-{
-
-	GameEventParsed(GameEvent &l);
-};
-
 std::string	readVarString(FILE *f, size_t *iter);
 std::string	readVarString(const std::string &str, int &iter);
 int readVarInt(FILE *f, size_t *iter);
