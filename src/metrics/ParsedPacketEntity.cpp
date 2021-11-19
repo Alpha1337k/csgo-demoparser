@@ -2,6 +2,56 @@
 
 #define readBits(x) readStringBits(data, x, i, bitsAvailable)
 
+int		readFieldIndex(const std::string &data, int &i, char &bitsAvailable, bool newWay, int oldindex)
+{
+	if (newWay && readBits(1))
+	{
+		return oldindex + 1;
+	}
+	int rval = 0;
+	if (newWay && readBits(1))
+		rval = readBits(3);
+	else
+	{
+		rval = readBits(7);
+		switch (rval & (32 | 64))
+		{
+			case 32:
+				rval = (rval & ~96) | (readBits(2) << 5);
+				break;
+			case 64:
+				rval = (rval & ~96) | (readBits(4) << 5);
+				break;
+			case 96:
+				rval = (rval & ~96) | (readBits(7) << 5);
+				break;
+			default:
+				break;
+		}
+	}
+	if (rval == 0xFFF)
+		return -1;
+	return oldindex + 1 + rval;
+}
+
+void	readFromStream(const std::string &data, int &i, char &bitsAvailable)
+{
+	bool readNewWay = readBits(1);
+	std::vector<int> indicies;
+	int index = 0;
+
+	std::cout << "new way: " << readNewWay << std::endl;
+	while ((index = readFieldIndex(data, i, bitsAvailable, readNewWay, index)) != -1)
+		indicies.push_back(index);
+
+	for (size_t i = 0; i < indicies.size(); i++)
+	{
+		std::cout << "I: " << indicies[i] << std::endl;
+	}
+	
+	
+}
+
 DataTable::ServiceClass	PVSParser(const std::string &data, int &i, char &bitsAvailable, int &id, const DataTable &dt)
 {
 	int serverClassId = readBits(5);
@@ -13,16 +63,9 @@ DataTable::ServiceClass	PVSParser(const std::string &data, int &i, char &bitsAva
 	DataTable::ServiceClass nSC = DataTable::ServiceClass(dt.services[serverClassId]);
 
 	std::cout << "New Entity: { id: " << nSC.id << ", name: " << nSC.name \
-		<< ", tableName: " << nSC.nameDataTable << std::endl;
+		<< ", tableName: " << nSC.nameDataTable << "}" << std::endl;
 
 	return nSC;
-}
-
-void	ApplyUpdate(DataTable::ServiceClass serviceClass, const std::string &data, int &i, char &bitsAvailable)
-{
-	bool readNew = readBits(1);
-	int index = -1;
-	
 }
 
 ParsedPacketEntities::ParsedPacketEntities(PacketEntities &pe, const DataTable &dt)
@@ -44,7 +87,7 @@ ParsedPacketEntities::ParsedPacketEntities(PacketEntities &pe, const DataTable &
 			{
 				std::cerr << "Create" << std::endl;
 				DataTable::ServiceClass serviceClass = PVSParser(data, i, bitsAvailable, currentEntity, dt);
-				ApplyUpdate(serviceClass, data, i, bitsAvailable);
+				readFromStream(data, i, bitsAvailable);
 				exit(1);
 			}
 			// update

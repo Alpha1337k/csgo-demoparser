@@ -118,6 +118,8 @@ struct DataTable
 	MessageVector msg;
 
 	DataTable(FILE *f);
+	DataTable();
+	DataTable &operator=(const DataTable &d);
 };
 
 struct Player {
@@ -171,7 +173,7 @@ private:
 	std::vector<ParsedStringTable>		sTables;
 	std::vector<Player>					players;
 	std::vector<DataTable::ServiceClass>	entities;
-	// DataTable							dataTable;
+	DataTable							dataTable;
 
 	void handleGameEventList(GameEventList &ge);
 	void handleGameEvent(GameEvent &ge);

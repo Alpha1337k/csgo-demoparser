@@ -28,3 +28,13 @@ DataTable::DataTable(FILE *f)
 		}
 	}
 }
+
+DataTable &DataTable::operator=(const DataTable &d)
+{
+	services = d.services;
+	msg = d.msg;
+
+	return *this;
+}
+
+DataTable::DataTable() {}

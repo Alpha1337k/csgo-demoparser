@@ -76,7 +76,8 @@ void DemoFile::handleUpdateStringTable(UpdateStringTable &si)
 
 void DemoFile::handlePacketEntities(PacketEntities &e)
 {
-	//std::cout << "PacketEntity: {" << e.DebugString() << "}" << std::endl;
+	ParsedPacketEntities p(e, dataTable);
+	exit(0);
 }
 
 template < class T >
@@ -171,6 +172,12 @@ void DemoFile::handleDataTable(DataTable &dt)
 			std::cout << "SendTable: name: " << ((SendTable *)dt.msg[i].second)->net_table_name() << std::endl;
 		}
 	}
+	for (size_t i = 0; i < dt.services.size(); i++)
+	{
+		std::cout << "Service: { name: " << dt.services[i].name << ", id: " << dt.services[i].id << ", tableName: "  << dt.services[i].nameDataTable << "}\n";
+	}
+	
+	dataTable = dt;
 }
 
 void	DemoFile::create_metrics()
