@@ -7,7 +7,7 @@
 #include <netmessages.pb.h>
 #include <csgomsg.pb.h>
 #include <stdlib.h>
-#include <byteswap.h>
+#include <bswap.h>
 #include <sstream>
 
 #define ErrorReturnMessage(msg) \
