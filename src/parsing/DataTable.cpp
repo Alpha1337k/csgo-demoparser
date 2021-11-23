@@ -10,6 +10,12 @@ DataTable::DataTable(FILE *f)
 	short serverClassesCount = 0;
 	fread(&serverClassesCount, sizeof(serverClassesCount), 1, f);
 
+	short serverClassCountIter = serverClassesCount;
+	serviceClassBits = 0;
+
+	while (serverClassCountIter >>= 1)
+		serviceClassBits++;
+	
 	ServiceClass sc;
 	// std::cout << "Count: " << serverClassesCount << std::endl;
 	for (short i = 0; i < serverClassesCount; i++)
@@ -33,6 +39,7 @@ DataTable &DataTable::operator=(const DataTable &d)
 {
 	services = d.services;
 	msg = d.msg;
+	serviceClassBits = d.serviceClassBits;
 
 	return *this;
 }

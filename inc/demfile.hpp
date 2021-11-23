@@ -116,6 +116,7 @@ struct DataTable
 	};
 	std::vector<ServiceClass> services;
 	MessageVector msg;
+	char	serviceClassBits;
 
 	DataTable(FILE *f);
 	DataTable();

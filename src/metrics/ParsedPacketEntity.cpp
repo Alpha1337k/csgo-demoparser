@@ -1,8 +1,9 @@
 #include <demo.hpp>
 
 #define readBits(x) readStringBits(data, x, i, bitsAvailable)
+#define standardParameters const std::string &data, int &i, char &bitsAvailable
 
-int		readFieldIndex(const std::string &data, int &i, char &bitsAvailable, bool newWay, int oldindex)
+int		readFieldIndex(standardParameters, bool newWay, int oldindex)
 {
 	if (newWay && readBits(1))
 	{
@@ -34,7 +35,7 @@ int		readFieldIndex(const std::string &data, int &i, char &bitsAvailable, bool n
 	return oldindex + 1 + rval;
 }
 
-void	readFromStream(const std::string &data, int &i, char &bitsAvailable)
+void	readFromStream(standardParameters)
 {
 	bool readNewWay = readBits(1);
 	std::vector<int> indicies;
@@ -52,11 +53,11 @@ void	readFromStream(const std::string &data, int &i, char &bitsAvailable)
 	
 }
 
-DataTable::ServiceClass	PVSParser(const std::string &data, int &i, char &bitsAvailable, int &id, const DataTable &dt)
+DataTable::ServiceClass	PVSParser(standardParameters, int &id, const DataTable &dt)
 {
-	int serverClassId = readBits(5);
+	int serverClassId = readBits(dt.serviceClassBits);
 
-	std::cout << "serverClassId: " << serverClassId << std::endl;
+	std::cout << "serverClassId: " << serverClassId << ", Bits: " << (int)dt.serviceClassBits << std::endl;
 
 	readBits(10);
 	
@@ -75,6 +76,7 @@ ParsedPacketEntities::ParsedPacketEntities(PacketEntities &pe, const DataTable &
 	char bitsAvailable = 8;
 	int currentEntity = -1;
 
+	std::cout << "updated: " << pe.updated_entries() << std::endl;
 	for (size_t x = 0; x < pe.updated_entries(); x++)
 	{
 		currentEntity += 1 + readStringVarInt(data, i, bitsAvailable);
@@ -85,23 +87,22 @@ ParsedPacketEntities::ParsedPacketEntities(PacketEntities &pe, const DataTable &
 			// create
 			if (readBits(1))
 			{
-				std::cerr << "Create" << std::endl;
+				std::cout << "Create" << std::endl;
 				DataTable::ServiceClass serviceClass = PVSParser(data, i, bitsAvailable, currentEntity, dt);
 				readFromStream(data, i, bitsAvailable);
-				exit(1);
+				//exit(0);
 			}
 			// update
 			else
 			{
-				std::cerr << "Update" << std::endl;
+				std::cout << "Update" << std::endl;
 				
-				exit(1);
 			}
 		}
 		// delete
 		else
 		{
-			std::cerr << "Delete" << std::endl;
+			std::cout << "Delete" << std::endl;
 			readBits(1);
 			exit(1);
 		}
