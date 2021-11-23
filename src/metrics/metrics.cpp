@@ -27,19 +27,34 @@ void	DemoFile::handleGameEvent(GameEvent &ge)
 		const GameEventList_key_t &key = event.keys(i);
 		const GameEvent_key_t &eventKey = ge.keys(i);
 		std::cout << key.name() << ": ";
-		switch (eventKey.type())
+		if (key.name() == "userid")
 		{
-			SwitchPrint(1, val_string);
-			SwitchPrint(2, val_float);
-			SwitchPrint(3, val_long);
-			SwitchPrint(4, val_short);
-			SwitchPrint(5, val_byte);
-			SwitchPrint(6, val_bool);
-			SwitchPrint(7, val_uint64);
-			SwitchPrint(8, val_wstring);
-		default:
-			break;
+			for (size_t i = 0; i < players.size(); i++)
+			{
+				if (players[i].userId == eventKey.val_short())
+				{
+					std::cout << players[i].userName;
+					break;
+				}
+			}			
 		}
+		else
+		{
+			switch (eventKey.type())
+			{
+				SwitchPrint(1, val_string);
+				SwitchPrint(2, val_float);
+				SwitchPrint(3, val_long);
+				SwitchPrint(4, val_short);
+				SwitchPrint(5, val_byte);
+				SwitchPrint(6, val_bool);
+				SwitchPrint(7, val_uint64);
+				SwitchPrint(8, val_wstring);
+			default:
+				break;
+			}
+		}
+			
 		std::cout << ", ";
 	}
 	std::cout << "}\n";
@@ -77,6 +92,7 @@ void DemoFile::handleUpdateStringTable(UpdateStringTable &si)
 void DemoFile::handlePacketEntities(PacketEntities &e)
 {
 	ParsedPacketEntities p(e, dataTable);
+	std::cout << "done!" << std::endl;
 	exit(0);
 }
 
