@@ -23,7 +23,6 @@ void	ParsedStringTable::Update(UpdateStringTable &ut, DemoFile &df, bool isUserI
 
 void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num_changed_entries, DemoFile &df)
 {
-#define readBits(x) readStringBits(data, x, i, bitsAvailable)
 
 	int i = 0;
 	int lastEntry = -1;
@@ -112,7 +111,6 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 		}
 		assert(i < data.length());
 	}
-#undef readBits
 }
 
 void DemoFile::AddPlayer(Player &p)

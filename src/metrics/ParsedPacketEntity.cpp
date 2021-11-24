@@ -1,8 +1,5 @@
 #include <demo.hpp>
 
-#define readBits(x) readStringBits(data, x, i, bitsAvailable)
-#define standardParameters const std::string &data, int &i, char &bitsAvailable
-
 int		readFieldIndex(standardParameters, bool newWay, int oldindex)
 {
 	if (newWay && readBits(1))
@@ -35,22 +32,63 @@ int		readFieldIndex(standardParameters, bool newWay, int oldindex)
 	return oldindex + 1 + rval;
 }
 
-void	readFromStream(standardParameters)
+void	decodeProperty(standardParameters, int &ind, const DataTable &dt)
+{
+	std::cout << "Propsize: " << dt.props.size() << std::endl;
+	if (ind > dt.props.size())
+		return;
+	const PropW &flatProp = dt.props[ind];
+
+	std::cout << flatProp.path << ", " << flatProp.prop.type() << std::endl;
+	switch (flatProp.prop.type())
+	{
+	case 0:
+		{
+			int rv = decodeInt(standardIParameters, flatProp.prop);
+			std::cout << "rv, " << rv << std::endl;
+			break;
+		}
+	case 1:
+		{
+
+		}
+	case 2:
+		{
+
+		}
+	case 3:
+		{
+
+		}
+	case 4:
+		{
+
+		}
+	case 5:
+		{
+
+		}
+	
+	default:
+		break;
+	}
+}
+
+void	readFromStream(standardParameters, const DataTable &dt)
 {
 	bool readNewWay = readBits(1);
 	std::vector<int> indicies;
 	int index = 0;
 
 	std::cout << "new way: " << readNewWay << std::endl;
-	while ((index = readFieldIndex(data, i, bitsAvailable, readNewWay, index)) != -1)
+	while ((index = readFieldIndex(standardIParameters, readNewWay, index)) != -1)
 		indicies.push_back(index);
 
-	for (size_t i = 0; i < indicies.size(); i++)
+	for (size_t x = 0; x < indicies.size(); x++)
 	{
-		std::cout << "I: " << indicies[i] << std::endl;
+		std::cout << "I: " << indicies[x] << std::endl;
+		decodeProperty(standardIParameters, indicies[i], dt);
 	}
-	
-	
 }
 
 DataTable::ServiceClass	PVSParser(standardParameters, int &id, const DataTable &dt)
@@ -79,7 +117,7 @@ ParsedPacketEntities::ParsedPacketEntities(PacketEntities &pe, const DataTable &
 	std::cout << "updated: " << pe.updated_entries() << std::endl;
 	for (size_t x = 0; x < pe.updated_entries(); x++)
 	{
-		currentEntity += 1 + readStringVarInt(data, i, bitsAvailable);
+		currentEntity += 1 + readStringVarInt(standardIParameters);
 
 		std::cout << "CurrentEn: " << currentEntity << std::endl;
 		if (readBits(1) == 0)
@@ -88,21 +126,22 @@ ParsedPacketEntities::ParsedPacketEntities(PacketEntities &pe, const DataTable &
 			if (readBits(1))
 			{
 				std::cout << "Create" << std::endl;
-				DataTable::ServiceClass serviceClass = PVSParser(data, i, bitsAvailable, currentEntity, dt);
-				readFromStream(data, i, bitsAvailable);
+				DataTable::ServiceClass serviceClass = PVSParser(standardIParameters, currentEntity, dt);
+				readFromStream(standardIParameters, dt);
 				//exit(0);
 			}
 			// update
 			else
 			{
 				std::cout << "Update" << std::endl;
-				
+				exit(1);
 			}
 		}
 		// delete
 		else
 		{
 			std::cout << "Delete" << std::endl;
+			
 			readBits(1);
 			exit(1);
 		}
@@ -112,5 +151,3 @@ ParsedPacketEntities::ParsedPacketEntities(PacketEntities &pe, const DataTable &
 	}
 
 }
-
-#undef readBits
