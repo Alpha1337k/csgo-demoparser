@@ -10,10 +10,16 @@
 #include <bswap.h>
 #include <sstream>
 
+#define readBits(x) readStringBits(data, x, i, bitsAvailable)
+#define standardParameters const std::string &data, int &i, char &bitsAvailable
+#define standardIParameters data, i, bitsAvailable
+
 #define ErrorReturnMessage(msg) \
 	{ std::cerr << msg << std::endl; return; }
 #define ReturnMessage(msg) \
 	{ std::cout << msg << std::endl; return; }
+
+#define PrintVariable(name, var) std::cout << ", " << name << ": " << var;
 
 #define MessageVector std::vector<std::pair<int, void *>>
 
@@ -106,6 +112,13 @@ struct Frame
 };
 std::ostream &operator<<(std::ostream &o, const Frame &d);
 
+struct PropW
+{
+	SendTable_sendprop_t 	prop;
+	std::string				path;
+
+};
+
 struct DataTable
 {
 	struct ServiceClass
@@ -113,7 +126,12 @@ struct DataTable
 		short id;
 		std::string name;
 		std::string nameDataTable;
+		SendTable	*dataTable;
+		void	setProps(DataTable &dt, SendTable *send = 0);
+		ServiceClass &operator=(const ServiceClass &cs);
 	};
+
+	std::vector<PropW> props;
 	std::vector<ServiceClass> services;
 	MessageVector msg;
 	char	serviceClassBits;
@@ -121,6 +139,8 @@ struct DataTable
 	DataTable(FILE *f);
 	DataTable();
 	DataTable &operator=(const DataTable &d);
+
+	SendTable	*findSendTable(std::string name);
 };
 
 struct Player {
@@ -171,7 +191,7 @@ private:
 	std::string	signOnData;
 	std::vector<Frame> frames;
 	std::vector<GameEventList_descriptor_t> gEvents;
-	std::vector<ParsedStringTable>		sTables;
+	std::vector<ParsedStringTable>			parsedTables;
 	std::vector<Player>					players;
 	std::vector<DataTable::ServiceClass>	entities;
 	DataTable							dataTable;
@@ -201,4 +221,8 @@ int readVarInt(char *ar, size_t *iter);
 int		readStringBits(const std::string &str, int count, int &i, char &bitsAvailable);
 int		readStringVarInt(const std::string &str, int &i, char &bitsAvailable);
 std::string replaceAll(std::string str, const std::string from, const std::string to);
+
+/* decoders */
+int decodeInt(standardParameters, const SendTable_sendprop_t &prop);
+
 #endif
