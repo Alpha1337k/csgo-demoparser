@@ -72,17 +72,17 @@ void DemoFile::handleServerInfo(ServerInfo &si)
 void DemoFile::handleCreateStringTable(CreateStringTable &si)
 {
 	std::cout << "CreateStringTable: { name: " << si.name() << ", stringdata len:" << si.string_data().length() << " }" << std::endl;
-	sTables.push_back(ParsedStringTable(si, *this));
+	parsedTables.push_back(ParsedStringTable(si, *this));
 }
 
 void DemoFile::handleUpdateStringTable(UpdateStringTable &si)
 {
-	if (si.table_id() >= sTables.size())
+	if (si.table_id() >= parsedTables.size())
 		return;
-	const std::string &tableName = sTables[si.table_id()].origin.name();
+	const std::string &tableName = parsedTables[si.table_id()].origin.name();
 	std::cout << "UpdateStringTable: { name: " << tableName << ", changed: " << si.num_changed_entries() << ", length: " << si.string_data().length() << "}" << std::endl;
 
-	ParsedStringTable &target = sTables[si.table_id()];
+	ParsedStringTable &target = parsedTables[si.table_id()];
 	if (tableName == "userinfo")
 	{
 		target.Update(si, *this, true);
@@ -190,9 +190,12 @@ void DemoFile::handleDataTable(DataTable &dt)
 	}
 	for (size_t i = 0; i < dt.services.size(); i++)
 	{
+		dt.services[i].dataTable = dt.findSendTable(dt.services[i].nameDataTable);
+		dt.services[i].setProps(dt);
 		std::cout << "Service: { name: " << dt.services[i].name << ", id: " << dt.services[i].id << ", tableName: "  << dt.services[i].nameDataTable << "}\n";
+
 	}
-	
+	// exit(0);
 	dataTable = dt;
 }
 
