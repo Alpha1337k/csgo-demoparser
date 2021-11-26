@@ -32,70 +32,60 @@ int		readFieldIndex(standardParameters, bool newWay, int oldindex)
 	return oldindex + 1 + rval;
 }
 
-void	decodeProperty(standardParameters, int &ind, const DataTable &dt)
+void	decodeProperty(standardParameters, int &ind, const DataTable &dt, DataTable::ServiceClass &serviceClass)
 {
-	std::cout << "Propsize: " << dt.props.size() << std::endl;
-	if (ind > dt.props.size())
-		return;
-	const PropW &flatProp = dt.props[ind];
+#define string std::string
+#define DecodeSwitch(i, type) \
+	case i: \
+	{ \
+		type rv = decode##type(standardIParameters, flatProp.prop); \
+		std::cout << "rv: " << rv << std::endl; \
+		break; \
+	}
 
-	std::cout << flatProp.path << ", " << flatProp.prop.type() << std::endl;
+	std::cout << "Propcount: " << serviceClass.props.size() << std::endl;
+	if (ind > serviceClass.props.size())
+		return;
+	const PropW &flatProp = serviceClass.props[ind];
+
+	std::cout << flatProp.prop.var_name() << ", " << flatProp.prop.type() << std::endl;
 	switch (flatProp.prop.type())
 	{
-	case 0:
-		{
-			int rv = decodeInt(standardIParameters, flatProp.prop);
-			std::cout << "rv, " << rv << std::endl;
-			break;
-		}
-	case 1:
-		{
-
-		}
-	case 2:
-		{
-
-		}
-	case 3:
-		{
-
-		}
-	case 4:
-		{
-
-		}
-	case 5:
-		{
-
-		}
+		DecodeSwitch(0, int);
+		DecodeSwitch(1, float);
+		DecodeSwitch(2, Vector);
+		DecodeSwitch(3, Vector2);
+		DecodeSwitch(4, string);
 	
 	default:
-		break;
+		{
+			ErrorReturnMessage("Error case not found!");
+		}
 	}
+#undef string
+#undef DecodeSwitch
 }
 
-void	readFromStream(standardParameters, const DataTable &dt)
+void	readFromStream(standardParameters, const DataTable &dt, DataTable::ServiceClass &serviceClass)
 {
 	bool readNewWay = readBits(1);
 	std::vector<int> indicies;
 	int index = 0;
 
-	std::cout << "new way: " << readNewWay << std::endl;
+	// std::cout << "new way: " << readNewWay << std::endl;
 	while ((index = readFieldIndex(standardIParameters, readNewWay, index)) != -1)
 		indicies.push_back(index);
 
 	for (size_t x = 0; x < indicies.size(); x++)
 	{
-		std::cout << "I: " << indicies[x] << std::endl;
-		decodeProperty(standardIParameters, indicies[i], dt);
+		std::cout << "indicie: " << indicies[x] << std::endl;
+		decodeProperty(standardIParameters, indicies[i], dt, serviceClass);
 	}
 }
 
 DataTable::ServiceClass	PVSParser(standardParameters, int &id, const DataTable &dt)
 {
 	int serverClassId = readBits(dt.serviceClassBits);
-
-	std::cout << "serverClassId: " << serverClassId << ", Bits: " << (int)dt.serviceClassBits << std::endl;
 
 	readBits(10);
 	
@@ -114,7 +104,7 @@ ParsedPacketEntities::ParsedPacketEntities(PacketEntities &pe, const DataTable &
 	char bitsAvailable = 8;
 	int currentEntity = -1;
 
-	std::cout << "updated: " << pe.updated_entries() << std::endl;
+	std::cout << "-------------\nupdated entities: " << pe.updated_entries() << std::endl;
 	for (size_t x = 0; x < pe.updated_entries(); x++)
 	{
 		currentEntity += 1 + readStringVarInt(standardIParameters);
@@ -127,7 +117,7 @@ ParsedPacketEntities::ParsedPacketEntities(PacketEntities &pe, const DataTable &
 			{
 				std::cout << "Create" << std::endl;
 				DataTable::ServiceClass serviceClass = PVSParser(standardIParameters, currentEntity, dt);
-				readFromStream(standardIParameters, dt);
+				readFromStream(standardIParameters, dt, serviceClass);
 				//exit(0);
 			}
 			// update
