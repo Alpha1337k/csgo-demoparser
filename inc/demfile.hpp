@@ -61,6 +61,14 @@ struct Vector
 };
 std::ostream &operator<<(std::ostream &o, const Vector &d);
 
+struct Vector2
+{
+	float x, y;
+	void Init( void );
+	void Init( float _x, float _y, float _z );
+};
+std::ostream &operator<<(std::ostream &o, const Vector2 &d);
+
 struct DemHeader
 {
 	char 	headerDef[8];
@@ -128,10 +136,11 @@ struct DataTable
 		std::string nameDataTable;
 		SendTable	*dataTable;
 		void	setProps(DataTable &dt, SendTable *send = 0);
+		std::vector<PropW> props;
+
 		ServiceClass &operator=(const ServiceClass &cs);
 	};
 
-	std::vector<PropW> props;
 	std::vector<ServiceClass> services;
 	MessageVector msg;
 	char	serviceClassBits;
@@ -223,6 +232,12 @@ int		readStringVarInt(const std::string &str, int &i, char &bitsAvailable);
 std::string replaceAll(std::string str, const std::string from, const std::string to);
 
 /* decoders */
-int decodeInt(standardParameters, const SendTable_sendprop_t &prop);
+int decodeint(standardParameters, const SendTable_sendprop_t &prop);
+float decodefloat(standardParameters, const SendTable_sendprop_t &prop);
+Vector decodeVector(standardParameters, const SendTable_sendprop_t &prop);
+Vector2 decodeVector2(standardParameters, const SendTable_sendprop_t &prop);
+std::string decodestring(standardParameters, const SendTable_sendprop_t &prop);
+
+
 
 #endif

@@ -26,6 +26,12 @@ std::ostream &operator<<(std::ostream &o, const Vector &d)
 	return o;
 }
 
+std::ostream &operator<<(std::ostream &o, const Vector2 &d)
+{
+	o << "[ " << d.x << ", " << d.y << " ]";
+	return o;
+}
+
 DemoFile::DemoFile(FILE *f)
 {
 	std::size_t headerSize;

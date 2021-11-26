@@ -192,11 +192,29 @@ void DemoFile::handleDataTable(DataTable &dt)
 	{
 		dt.services[i].dataTable = dt.findSendTable(dt.services[i].nameDataTable);
 		dt.services[i].setProps(dt);
-		std::cout << "Service: { name: " << dt.services[i].name << ", id: " << dt.services[i].id << ", tableName: "  << dt.services[i].nameDataTable << "}\n";
-
 	}
-	// exit(0);
+	std::cout << "------" << std::endl;
 	dataTable = dt;
+	for (size_t i = 0; i < dataTable.services.size(); i++)
+	{
+		std::cout << "Service: { name: " << dt.services[i].name << ", id: " << dt.services[i].id << ", tableName: "  << dt.services[i].nameDataTable << "}\n";
+		for (size_t x = 0; x < dataTable.services[i].props.size(); x++)
+		{
+			const SendTable_sendprop_t &prop = dataTable.services[i].props[x].prop;
+			std::cout << "Prop: { " << i;
+				PrintVariable("type", prop.type());
+				PrintVariable("name", prop.var_name());
+				PrintVariable("flags", prop.flags());
+				PrintVariable("priority", prop.priority());
+				PrintVariable("dt_name", prop.dt_name());
+				PrintVariable("elements", prop.num_elements());
+				PrintVariable("low_value", prop.low_value());
+				PrintVariable("high_value", prop.high_value());
+				PrintVariable("num_bits", prop.num_bits());
+			std::cout << "}\n";
+		}
+		
+	}
 }
 
 void	DemoFile::create_metrics()
