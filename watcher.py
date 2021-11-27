@@ -19,6 +19,7 @@ def printmsg(text, color = ''):
 	print("[{:s}] {:s}{:s}\033[0m".format(curtime, color, text))
 
 def main():
+	os.environ['TERM'] = 'xterm'
 	firstrun = False;	
 	lasterrormsg = ''
 	runningprc: subprocess.Popen[bytes] | str = ''
@@ -32,21 +33,33 @@ def main():
 		stdout = stdout.decode("utf-8")
 		if stderr:
 			stderr = stderr.decode("utf-8")
+
 		if rcode != 0 and lasterrormsg != stderr:
 			os.system('clear')
 			printmsg("Compilation error", bcolors.FAIL)
 			print("---\n"+stderr+"\n----")
 			lasterrormsg = stderr
 			if runningprc != '':
+				outfile.flush()
 				runningprc.terminate()
+
 		elif rcode == 0 and (stdout != "make[1]: Nothing to be done for `all'.\n" or firstrun == False):
 			os.system('clear')
-			printmsg("Compilation successful", bcolors.OKGREEN)
+			printmsg("Compilation successful, running", bcolors.OKGREEN)
 			firstrun = True
-			if runningprc != '':
-				runningprc.terminate()
+			lasterrormsg = ''
+
+			# you might think this is retarded. while this is true,
+			# it fixed a null byte bug
 			outfile.truncate(0)
-			runningprc = subprocess.Popen(['./democheck', 'samples/wallhack1.dem'], stdout=outfile, stderr=outfile)
+			outfile.flush()
+			outfile.close()
+			outfile = open('out.txt', 'w')
+			if runningprc != '':
+				outfile.flush()
+				runningprc.terminate()
+		
+			runningprc = subprocess.Popen(['./democheck samples/wallhack1.dem'], stdout=outfile, stderr=outfile, shell=True, universal_newlines=True)
 		time.sleep(5)
 
 main()
