@@ -200,18 +200,7 @@ void DemoFile::handleDataTable(DataTable &dt)
 		std::cout << "Service: { name: " << dt.services[i].name << ", id: " << dt.services[i].id << ", tableName: "  << dt.services[i].nameDataTable << "}\n";
 		for (size_t x = 0; x < dataTable.services[i].props.size(); x++)
 		{
-			const SendTable_sendprop_t &prop = dataTable.services[i].props[x].prop;
-			std::cout << "Prop: { " << i;
-				PrintVariable("type", prop.type());
-				PrintVariable("name", prop.var_name());
-				PrintVariable("flags", prop.flags());
-				PrintVariable("priority", prop.priority());
-				PrintVariable("dt_name", prop.dt_name());
-				PrintVariable("elements", prop.num_elements());
-				PrintVariable("low_value", prop.low_value());
-				PrintVariable("high_value", prop.high_value());
-				PrintVariable("num_bits", prop.num_bits());
-			std::cout << "}\n";
+			std::cout << dataTable.services[i].props[x].prop << std::endl;
 		}
 		
 	}

@@ -19,8 +19,6 @@
 #define ReturnMessage(msg) \
 	{ std::cout << msg << std::endl; return; }
 
-#define PrintVariable(name, var) std::cout << ", " << name << ": " << var;
-
 #define MessageVector std::vector<std::pair<int, void *>>
 
 enum PacketTypes
@@ -124,8 +122,9 @@ struct PropW
 {
 	SendTable_sendprop_t 	prop;
 	std::string				path;
-
 };
+std::ostream &operator<<(std::ostream &o, const PropW &p);
+std::ostream &operator<<(std::ostream &o, const SendTable_sendprop_t &p);
 
 struct DataTable
 {

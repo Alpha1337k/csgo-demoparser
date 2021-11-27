@@ -1,37 +1,5 @@
 #include <demo.hpp>
 
-std::ostream &operator<<(std::ostream &o, const DemHeader &d)
-{
-	o << "DemHeader {\n";
-	o << "headerDef:       " << d.headerDef << std::endl;
-	o << "demoProtocol:    " << d.demoProtocol << std::endl;
-	o << "networkProtocol: " << d.networkProtocol << std::endl;
-	o << "serverName:      " << d.serverName << std::endl;
-	o << "clientName:      " << d.clientName << std::endl;
-	o << "mapName:         " << d.mapName << std::endl;
-	o << "gameDir:         " << d.gameDir << std::endl;
-	o << "demoLength:      " << d.demoLength << std::endl;
-	o << "ticks:           " << d.ticks << std::endl;
-	o << "frames:          " << d.frames << std::endl;
-	o << "signOnLength:    " << d.signOnLength << std::endl;
-
-	o << "}\n";
-
-	return (o);
-}
-
-std::ostream &operator<<(std::ostream &o, const Vector &d)
-{
-	o << "[ " << d.x << ", " << d.y << ", " << d.z << " ]";
-	return o;
-}
-
-std::ostream &operator<<(std::ostream &o, const Vector2 &d)
-{
-	o << "[ " << d.x << ", " << d.y << " ]";
-	return o;
-}
-
 DemoFile::DemoFile(FILE *f)
 {
 	std::size_t headerSize;

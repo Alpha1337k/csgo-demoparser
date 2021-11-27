@@ -8,7 +8,6 @@ ParsedStringTable::ParsedStringTable(CreateStringTable &st, DemoFile &df): origi
 	}
 }
 
-
 ParsedStringTable::~ParsedStringTable() {}
 
 void	ParsedStringTable::Update(CreateStringTable &st, DemoFile &df)

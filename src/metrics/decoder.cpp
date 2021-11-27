@@ -111,13 +111,9 @@ float readfBitsCoord(standardParameters, bool isInt, bool isLowPrc)
 	return rv * (isNeg == 1 ? -1 : 1);
 }
 
-float	readFloat(standardParameters)
+float	readFloat(standardParameters, const SendTable_sendprop_t &prop)
 {
 	int fl = readBits(32);
-
-	std::cout << "data: " << fl << std::endl;
-	int sign, exp, man;
-	sign = 1 - 2 * (fl >> 31);
 
 	return fl;
 }
@@ -137,7 +133,7 @@ float decodefloat(standardParameters, const SendTable_sendprop_t &prop)
 	else if (prop.flags() & SPROP_COORD_MP_INTEGRAL)
 		rv = readfBitsCoord(standardIParameters, true, false);
 	else if (prop.flags() & SPROP_NOSCALE)
-		rv = readFloat(standardIParameters);
+		rv = readFloat(standardIParameters, prop);
 	else
 		assert(0 != 0);
 	return rv;
