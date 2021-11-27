@@ -19,7 +19,6 @@ def printmsg(text, color = ''):
 	print("[{:s}] {:s}{:s}\033[0m".format(curtime, color, text))
 
 def main():
-	os.environ['TERM'] = 'xterm'
 	firstrun = False;	
 	lasterrormsg = ''
 	runningprc: subprocess.Popen[bytes] | str = ''
