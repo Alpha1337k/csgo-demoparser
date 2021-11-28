@@ -107,18 +107,18 @@ int		readStringBits(const std::string &str, int count, int &i, char &bitsAvailab
 	return rval;
 }
 
-int		readStringVarInt(const std::string &str, int &i, char &bitsAvailable)
+int		readStringVarInt(const std::string &data, int &i, char &bitsAvailable)
 {
-	int ret = readStringBits(str, 6, i, bitsAvailable);
+	int ret = readBits(6);
 	switch (ret & (16 | 32)) {
 		case 16:
-			ret = (ret & 15) | (readStringBits(str, 4, i, bitsAvailable) << 4);
+			ret = (ret & 15) | (readBits(4) << 4);
 			break;
 		case 32:
-			ret = (ret & 15) | (readStringBits(str, 8, i, bitsAvailable) << 4);
+			ret = (ret & 15) | (readBits(8) << 4);
 			break;
 		case 48:
-			ret = (ret & 15) | (readStringBits(str, 32 - 4, i, bitsAvailable) << 4);
+			ret = (ret & 15) | (readBits(28) << 4);
 			break;
 	}
 	return ret;
