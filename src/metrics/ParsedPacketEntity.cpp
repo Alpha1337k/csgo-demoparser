@@ -43,12 +43,9 @@ void	decodeProperty(standardParameters, int &ind, const DataTable &dt, DataTable
 		break; \
 	}
 
-	std::cout << "Propcount: " << serviceClass.props.size() << std::endl;
-	if (ind > serviceClass.props.size())
-		return;
+	assert(ind < serviceClass.props.size());
 	const PropW &flatProp = serviceClass.props[ind];
 
-	std::cout << "Prop name: " << flatProp.prop.var_name() << ", type: " << flatProp.prop.type() << std::endl;
 	std::cout << flatProp.prop << std::endl;
 	switch (flatProp.prop.type())
 	{
@@ -69,11 +66,12 @@ void	decodeProperty(standardParameters, int &ind, const DataTable &dt, DataTable
 
 void	readFromStream(standardParameters, const DataTable &dt, DataTable::ServiceClass &serviceClass)
 {
-	bool readNewWay = readBits(1);
-	std::vector<int> indicies;
-	int index = 0;
+	bool readNewWay = readBits(1) == 1 ? true : false;
+	std::cout << "read: " << readNewWay << ", or " << (readNewWay == 1) << std::endl;
 
-	// std::cout << "new way: " << readNewWay << std::endl;
+	std::vector<int> indicies;
+	int index = -1;
+	
 	while ((index = readFieldIndex(standardIParameters, readNewWay, index)) != -1)
 		indicies.push_back(index);
 
@@ -88,10 +86,11 @@ DataTable::ServiceClass	PVSParser(standardParameters, int &id, const DataTable &
 {
 	int serverClassId = readBits(dt.serviceClassBits);
 
-	readBits(10);
+	int serial = readBits(10);
 	
 	DataTable::ServiceClass nSC = DataTable::ServiceClass(dt.services[serverClassId]);
 
+	std::cout << "Serial: " << serial << ", id " << serverClassId << std::endl;
 	std::cout << "New Entity: { id: " << nSC.id << ", name: " << nSC.name \
 		<< ", tableName: " << nSC.nameDataTable << "}" << std::endl;
 
@@ -110,7 +109,7 @@ ParsedPacketEntities::ParsedPacketEntities(PacketEntities &pe, const DataTable &
 	{
 		currentEntity += 1 + readStringVarInt(standardIParameters);
 
-		std::cout << "CurrentEn: " << currentEntity << std::endl;
+		std::cout << "-------[Current Entity: " << currentEntity << "]" << std::endl;
 		if (readBits(1) == 0)
 		{
 			// create
@@ -125,7 +124,6 @@ ParsedPacketEntities::ParsedPacketEntities(PacketEntities &pe, const DataTable &
 			else
 			{
 				std::cout << "Update" << std::endl;
-				exit(1);
 			}
 		}
 		// delete
@@ -140,5 +138,5 @@ ParsedPacketEntities::ParsedPacketEntities(PacketEntities &pe, const DataTable &
 
 		assert(i < data.length());
 	}
-
+	exit(0);
 }

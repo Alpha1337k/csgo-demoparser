@@ -1,11 +1,10 @@
 #include <demo.hpp>
 
-
-
 int decodeint(standardParameters, const SendTable_sendprop_t &prop)
 {
 	if (prop.flags() & ( 1 << 19))
 	{
+		exit(15);
 		assert(0 != 0);
 		return readBits(4);
 	}
@@ -33,7 +32,12 @@ Vector decodeVector(standardParameters, const SendTable_sendprop_t &prop)
 }
 Vector2 decodeVector2(standardParameters, const SendTable_sendprop_t &prop) 
 {
+	Vector2 rv;
 
+	rv.x = decodefloat(standardIParameters, prop);
+	rv.y = decodefloat(standardIParameters, prop);
+
+	return rv;
 }
 std::string decodestring(standardParameters, const SendTable_sendprop_t &prop) 
 {
@@ -60,6 +64,7 @@ const float COORD_RESOLUTION_LOWPRECISION = ( 1.0f / ( COORD_DENOMINATOR_LOWPREC
 
 float readfBits(standardParameters)
 {
+	std::cerr << "FBITS" << std::endl;
 	int iVal, fVal;
 	float rv = 0;
 
@@ -86,6 +91,9 @@ float readfBitsCoord(standardParameters, bool isInt, bool isLowPrc)
 	int iVal, fVal;
 	float rv = 0;
 	bool isNeg, inbounds;
+
+	std::cerr << "bitscoord" << std::endl;
+
 
 	inbounds = readBits(1);
 
@@ -115,6 +123,7 @@ float	readFloat(standardParameters, const SendTable_sendprop_t &prop)
 {
 	int fl = readBits(32);
 
+	std::cerr << "readfloat fl:" << fl << std::endl;
 	return fl;
 }
 
@@ -134,6 +143,14 @@ float decodefloat(standardParameters, const SendTable_sendprop_t &prop)
 		rv = readfBitsCoord(standardIParameters, true, false);
 	else if (prop.flags() & SPROP_NOSCALE)
 		rv = readFloat(standardIParameters, prop);
+	else if (prop.flags() & SPROP_NORMAL)
+		assert(0 != 0);
+	else if (prop.flags() & SPROP_CELL_COORD)
+		assert(0 != 0);
+	else if (prop.flags() & SPROP_CELL_COORD_LOWPRECISION)
+		assert(0 != 0);
+	else if (prop.flags() & SPROP_CELL_COORD_INTEGRAL)
+		assert(0 != 0);
 	else
 		assert(0 != 0);
 	return rv;
