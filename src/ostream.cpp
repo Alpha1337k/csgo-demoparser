@@ -107,7 +107,7 @@ std::ostream &operator<<(std::ostream &o, const Packet &p)
 std::ostream &operator<<(std::ostream &o, const PropW &p)
 {
 
-	o << p.prop << std::endl;
+	o << p.prop;
 	return (o);
 }
 
@@ -125,7 +125,7 @@ std::ostream &operator<<(std::ostream &o, const SendTable_sendprop_t &prop)
 	PrintVariable("low_value", prop.low_value());
 	PrintVariable("high_value", prop.high_value());
 	PrintVariable("num_bits", prop.num_bits());
-	o << "}\n";
+	o << "}";
 
 	return (o);
 #undef PrintVariable

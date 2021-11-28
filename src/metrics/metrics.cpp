@@ -191,7 +191,7 @@ void DemoFile::handleDataTable(DataTable &dt)
 	for (size_t i = 0; i < dt.services.size(); i++)
 	{
 		dt.services[i].dataTable = dt.findSendTable(dt.services[i].nameDataTable);
-		dt.services[i].setProps(dt);
+		dt.services[i].flattenProps(dt);
 	}
 	std::cout << "------" << std::endl;
 	dataTable = dt;
