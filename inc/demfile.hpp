@@ -122,6 +122,11 @@ struct PropW
 {
 	SendTable_sendprop_t 	prop;
 	std::string				path;
+
+	PropW(const SendTable_sendprop_t &p)
+	{
+		prop = p;
+	}
 };
 std::ostream &operator<<(std::ostream &o, const PropW &p);
 std::ostream &operator<<(std::ostream &o, const SendTable_sendprop_t &p);
@@ -134,13 +139,19 @@ struct DataTable
 		std::string name;
 		std::string nameDataTable;
 		SendTable	*dataTable;
-		void	setProps(DataTable &dt, SendTable *send = 0);
 		std::vector<PropW> props;
 
+
+		bool isPropExcluded(DataTable &dt, const SendTable_sendprop_t &p);
+		void flattenProps(DataTable &dt, SendTable *send = 0);
+		void gatherExcludes(DataTable &dt, const SendTable &st);
+		void gatherProps(DataTable &dt, SendTable &st);
+		void iterateProps(DataTable &dt, const SendTable &send, std::vector<PropW> &store);
 		ServiceClass &operator=(const ServiceClass &cs);
 	};
 
 	std::vector<ServiceClass> services;
+	std::vector<SendTable_sendprop_t> excludedProps;
 	MessageVector msg;
 	char	serviceClassBits;
 

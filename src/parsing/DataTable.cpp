@@ -22,9 +22,10 @@ DataTable::DataTable(FILE *f)
 	{
 		sc.id = 0;
 		fread(&sc.id, sizeof(sc.id), 1, f);
-		if (sc.id > serverClassesCount)
+		if (sc.id >= serverClassesCount)
 		{
 			std::cerr << "Error: id is bigger than serverclasscount" << std::endl;
+			exit(-1);
 		}
 		else
 		{
@@ -32,7 +33,7 @@ DataTable::DataTable(FILE *f)
 			sc.nameDataTable = readVarString(f, NULL);
 			services.push_back(sc);
 		}
-	}
+	}	
 }
 
 DataTable &DataTable::operator=(const DataTable &d)
@@ -59,32 +60,116 @@ SendTable	*DataTable::findSendTable(std::string name)
 	return 0;
 }
 
-void	DataTable::ServiceClass::setProps(DataTable &dt, SendTable *send)
+bool	DataTable::ServiceClass::isPropExcluded(DataTable &dt, const SendTable_sendprop_t &p)
+{
+	for (size_t i = 0; i < dt.excludedProps.size(); i++)
+	{
+		if (p.var_name() == dt.excludedProps[i].var_name() && \
+			p.dt_name() ==  dt.excludedProps[i].dt_name())
+			return true;
+	}
+	return false;
+}
+
+void	DataTable::ServiceClass::gatherExcludes(DataTable &dt, const SendTable &send)
+{
+	for (size_t i = 0; i < send.props_size(); i++)
+	{
+		const SendTable_sendprop_t &prop = send.props(i);
+
+		if (prop.flags() & (1 << 6))
+		{
+			dt.excludedProps.push_back(prop);
+		}
+		if (prop.type() == 6)
+		{
+			SendTable *st = dt.findSendTable(prop.dt_name());
+			assert(st != 0);
+			gatherExcludes(dt, *st);
+		}
+	}
+}
+
+void	DataTable::ServiceClass::iterateProps(DataTable &dt, const SendTable &send, std::vector<PropW> &store)
+{
+	for (size_t i = 0; i < send.props_size(); i++)
+	{
+		const SendTable_sendprop_t &prop = send.props(i);
+		if ( ( prop.flags() & (1 << 8) ) || 
+			 ( prop.flags() & (1 << 6) ) || 
+			 isPropExcluded( dt, prop ) )
+		{
+			continue;
+		}
+		if (prop.type() == 6)
+		{
+			SendTable *st = dt.findSendTable(prop.dt_name());
+			assert(st != 0);
+			if (prop.flags() & (1 << 11))
+			{
+				iterateProps(dt, *st, store);
+			}
+			else
+			{
+				gatherProps(dt, *st);
+			}
+		}
+		else
+		{
+			if (prop.type() == 5)
+			{
+				store.push_back(PropW(send.props(i - 1)));
+			}
+			else
+			{
+				store.push_back(PropW(prop));
+			}
+		}
+	}
+	
+}
+
+
+void	DataTable::ServiceClass::gatherProps(DataTable &dt, SendTable &send)
+{
+	std::vector<PropW> tmp;
+
+	iterateProps(dt, send, tmp);
+	for (size_t i = 0; i < tmp.size(); i++)
+	{
+		props.push_back(tmp[i]);
+	}
+}
+
+void	DataTable::ServiceClass::flattenProps(DataTable &dt, SendTable *send)
 {
 	if (!dataTable || !dataTable->props_size())
 		return;
 	if (send == 0)
 		send = dataTable;
-	const SendTable &st = *send;
+	SendTable &st = *send;
 	std::string path = "";
+	dt.excludedProps.clear();
+	gatherExcludes(dt, st);
+	gatherProps(dt, st);
 
-	for (size_t i = 0; i < st.props_size(); i++)
+	std::vector<unsigned int> priorities;
+
+	bool isSorted = false;
+	while (!isSorted)
 	{
-		const SendTable_sendprop_t &prop = st.props(i);
-
-		if (prop.flags() & (1 << 8) || prop.flags() & (1 << 6) || prop.type() == 6)
-			continue;
-		std::string propPath = prop.var_name() == "baseclass" ? "" : prop.var_name(); 
-		if (propPath != "" && path != "")
-			propPath = path + '.' + propPath;
-		
-		else
+		isSorted = true;
+		for (size_t i = 0; i < props.size() - 1; i++)
 		{
-			PropW p;
-			p.prop = prop;
-			p.path = propPath;
-
-			props.push_back(p);
+			const int &p1 = props[i].prop.priority();
+			const int &p2 = props[i + 1].prop.priority();
+			if (p1 > p2)
+			{
+				PropW tmp = props[i + 1];
+				props[i + 1] = props[i];
+				props[i] = props[i + 1];
+				isSorted = false;
+			}
 		}
 	}
 }
