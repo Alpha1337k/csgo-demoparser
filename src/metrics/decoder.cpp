@@ -47,7 +47,20 @@ Vector2 decodeVector2(standardParameters, const SendTable_sendprop_t &prop)
 }
 std::string decodestring(standardParameters, const SendTable_sendprop_t &prop) 
 {
+	unsigned int len = readBits(9);
 
+	unsigned int maxBuffer = (1 << 9);
+	if (len >= maxBuffer)
+		len = maxBuffer - 1;
+
+	std::string rv;
+
+	rv.reserve(len);
+	for (size_t x = 0; x < len; x++)
+	{
+		rv += (char)readBits(8);
+	}
+	return rv;
 }
 
 const int SPROP_COORD = (1 << 1);
@@ -70,7 +83,6 @@ const float COORD_RESOLUTION_LOWPRECISION = ( 1.0f / ( COORD_DENOMINATOR_LOWPREC
 
 float readfBits(standardParameters)
 {
-	std::cerr << "FBITS" << std::endl;
 	int iVal, fVal;
 	float rv = 0;
 
@@ -97,9 +109,6 @@ float readfBitsCoord(standardParameters, bool isInt, bool isLowPrc)
 	int iVal, fVal;
 	float rv = 0;
 	bool isNeg, inbounds;
-
-	std::cerr << "bitscoord" << std::endl;
-
 
 	inbounds = readBits(1);
 
@@ -129,7 +138,6 @@ float	readFloat(standardParameters, const SendTable_sendprop_t &prop)
 {
 	unsigned int fl = readBits(32);
 
-	std::cerr << "readfloat fl:" << fl << std::endl;
 	return *((float *)&fl);
 }
 
@@ -158,8 +166,7 @@ float readfIntep(standardParameters, const SendTable_sendprop_t &prop)
 float decodefloat(standardParameters, const SendTable_sendprop_t &prop) 
 {
 	float rv;
-	// kanker
-	std::cout << "Flags:: " << prop.flags() << std::endl;
+
 	if (prop.flags() & SPROP_COORD)
 		rv = readfBits(standardIParameters);
 	else if (prop.flags() & SPROP_COORD_MP)
