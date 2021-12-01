@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <bswap.h>
 #include <sstream>
+#include <algorithm>
 
 #define readBits(x) readStringBits(data, x, i, bitsAvailable)
 #define standardParameters const std::string &data, int &i, char &bitsAvailable
@@ -123,9 +124,11 @@ struct PropW
 	SendTable_sendprop_t 	prop;
 	std::string				path;
 
-	PropW(const SendTable_sendprop_t &p)
+	PropW(const SendTable_sendprop_t &p, std::string pth)
 	{
+		path = pth;
 		prop = p;
+
 	}
 };
 std::ostream &operator<<(std::ostream &o, const PropW &p);
@@ -145,8 +148,11 @@ struct DataTable
 		bool isPropExcluded(DataTable &dt, const SendTable_sendprop_t &p);
 		void flattenProps(DataTable &dt, SendTable *send = 0);
 		void gatherExcludes(DataTable &dt, const SendTable &st);
-		void gatherProps(DataTable &dt, SendTable &st);
-		void iterateProps(DataTable &dt, const SendTable &send, std::vector<PropW> &store);
+		void gatherProps(DataTable &dt, SendTable &st, std::string path = "");
+		void iterateProps(DataTable &dt, const SendTable &send, \
+				std::vector<PropW> &store, std::string path = "");
+		void sortProps();
+
 		ServiceClass &operator=(const ServiceClass &cs);
 	};
 

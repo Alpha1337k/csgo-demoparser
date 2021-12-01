@@ -207,12 +207,6 @@ void	DataTable::ServiceClass::flattenProps(DataTable &dt, SendTable *send)
 	gatherProps(dt, st);
 	sortProps();
 
-	std::cout << "we done! " << st.net_table_name() << ", " << id << ", " << props.size() << std::endl;
-	for (size_t i = 0; i < props.size(); i++)
-	{
-		std::cout << props[i] << std::endl;
-	}
-	exit(0);
 }
 
 DataTable::ServiceClass &DataTable::ServiceClass::operator=(const DataTable::ServiceClass &cs)
