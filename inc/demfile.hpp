@@ -146,7 +146,7 @@ struct DataTable
 		std::vector<PropW> props;
 
 
-		bool isPropExcluded(DataTable &dt, const SendTable_sendprop_t &p);
+		bool isPropExcluded(const DataTable &dt, const SendTable &st, const SendTable_sendprop_t &p);
 		void flattenProps(DataTable &dt, SendTable *send = 0);
 		void gatherExcludes(DataTable &dt, const SendTable &st);
 		void gatherProps(DataTable &dt, SendTable &st, std::string path = "");
@@ -205,7 +205,7 @@ class ParsedPacketEntities
 	private:
 	
 	public:
-		ParsedPacketEntities(PacketEntities &pe, const DataTable &dt);
+		ParsedPacketEntities(PacketEntities &pe, DataTable &dt);
 };
 
 

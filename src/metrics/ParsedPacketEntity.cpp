@@ -39,14 +39,14 @@ void	decodeProperty(standardParameters, int &ind, const DataTable &dt, DataTable
 	case i: \
 	{ \
 		type rv = decode##type(standardIParameters, flatProp.prop); \
-		std::cout << "rv: " << rv << std::endl; \
+		std::cout << flatProp.path << " : " << rv << std::endl; \
 		break; \
 	}
 
 	assert(ind < serviceClass.props.size());
 	const PropW &flatProp = serviceClass.props[ind];
 
-	std::cout << flatProp << std::endl;
+	// std::cout << flatProp << std::endl;
 	switch (flatProp.prop.type())
 	{
 		DecodeSwitch(0, int);
@@ -75,20 +75,20 @@ void	readFromStream(standardParameters, const DataTable &dt, DataTable::ServiceC
 	while ((index = readFieldIndex(standardIParameters, readNewWay, index)) != -1)
 		indicies.push_back(index);
 
-	for (size_t x = 0; x < indicies.size(); x++)
-	{
-		std::cout << "---- New Prop: " << indicies[x] << std::endl;
-	}
-	std::cout << "\n\n";
+	// for (size_t x = 0; x < indicies.size(); x++)
+	// {
+	// 	std::cout << "---- New Prop: " << indicies[x] << std::endl;
+	// }
+	// std::cout << "\n\n";
 
 	for (size_t x = 0; x < indicies.size(); x++)
 	{
-		std::cout << "---- New Prop: " << indicies[x] << std::endl;
+		// std::cout << "---- New Prop: " << indicies[x] << std::endl;
 		decodeProperty(standardIParameters, indicies[x], dt, serviceClass);
 	}
 }
 
-DataTable::ServiceClass	PVSParser(standardParameters, int &id, const DataTable &dt)
+DataTable::ServiceClass	PVSParser(standardParameters, int &id, DataTable &dt)
 {
 	int serverClassId = readBits(dt.serviceClassBits);
 
@@ -103,7 +103,7 @@ DataTable::ServiceClass	PVSParser(standardParameters, int &id, const DataTable &
 	return nSC;
 }
 
-ParsedPacketEntities::ParsedPacketEntities(PacketEntities &pe, const DataTable &dt)
+ParsedPacketEntities::ParsedPacketEntities(PacketEntities &pe, DataTable &dt)
 {
 	const std::string &data = pe.entity_data();
 	int i = 0;
@@ -115,7 +115,7 @@ ParsedPacketEntities::ParsedPacketEntities(PacketEntities &pe, const DataTable &
 	{
 		currentEntity += 1 + readStringVarInt(standardIParameters);
 
-		std::cout << "-------[Current Entity: " << currentEntity << "]" << std::endl;
+		std::cout << "-------[Current Entity: " << currentEntity << ", bytes read: << " << i << "]" << std::endl;
 		if (readBits(1) == 0)
 		{
 			// create
