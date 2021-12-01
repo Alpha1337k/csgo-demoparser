@@ -46,7 +46,7 @@ void	decodeProperty(standardParameters, int &ind, const DataTable &dt, DataTable
 	assert(ind < serviceClass.props.size());
 	const PropW &flatProp = serviceClass.props[ind];
 
-	std::cout << flatProp.prop << std::endl;
+	std::cout << flatProp << std::endl;
 	switch (flatProp.prop.type())
 	{
 		DecodeSwitch(0, int);
@@ -74,6 +74,12 @@ void	readFromStream(standardParameters, const DataTable &dt, DataTable::ServiceC
 	
 	while ((index = readFieldIndex(standardIParameters, readNewWay, index)) != -1)
 		indicies.push_back(index);
+
+	for (size_t x = 0; x < indicies.size(); x++)
+	{
+		std::cout << "---- New Prop: " << indicies[x] << std::endl;
+	}
+	std::cout << "\n\n";
 
 	for (size_t x = 0; x < indicies.size(); x++)
 	{

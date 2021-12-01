@@ -121,10 +121,10 @@ float readfBitsCoord(standardParameters, bool isInt, bool isLowPrc)
 
 float	readFloat(standardParameters, const SendTable_sendprop_t &prop)
 {
-	int fl = readBits(32);
+	unsigned int fl = readBits(32);
 
 	std::cerr << "readfloat fl:" << fl << std::endl;
-	return fl;
+	return *((float *)&fl);
 }
 
 
