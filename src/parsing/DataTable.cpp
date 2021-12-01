@@ -60,13 +60,15 @@ SendTable	*DataTable::findSendTable(std::string name)
 	return 0;
 }
 
-bool	DataTable::ServiceClass::isPropExcluded(DataTable &dt, const SendTable_sendprop_t &p)
+bool	DataTable::ServiceClass::isPropExcluded(const DataTable &dt, const SendTable &st, const SendTable_sendprop_t &p)
 {
 	for (size_t i = 0; i < dt.excludedProps.size(); i++)
 	{
 		if (p.var_name() == dt.excludedProps[i].var_name() && \
-			p.dt_name() ==  dt.excludedProps[i].dt_name())
+			dt.excludedProps[i].dt_name() == st.net_table_name())
+		{
 			return true;
+		}
 	}
 	return false;
 }
@@ -98,7 +100,7 @@ void	DataTable::ServiceClass::iterateProps(DataTable &dt, const SendTable &send,
 		const SendTable_sendprop_t &prop = send.props(i);
 		if ( ( prop.flags() & (1 << 8) ) || 
 			 ( prop.flags() & (1 << 6) ) || 
-			 isPropExcluded( dt, prop ) )
+			 isPropExcluded(dt, send, prop))
 		{
 			continue;
 		}
@@ -126,7 +128,7 @@ void	DataTable::ServiceClass::iterateProps(DataTable &dt, const SendTable &send,
 		{
 			if (prop.type() == 5)
 			{
-				store.push_back(PropW(send.props(i - 1), propPath));
+				store.push_back(PropW(prop, propPath));
 			}
 			else
 			{
@@ -204,6 +206,7 @@ void	DataTable::ServiceClass::flattenProps(DataTable &dt, SendTable *send)
 	std::string path = "";
 	dt.excludedProps.clear();
 	gatherExcludes(dt, st);
+	
 	gatherProps(dt, st);
 	sortProps();
 
