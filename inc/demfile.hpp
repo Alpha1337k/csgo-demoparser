@@ -10,6 +10,7 @@
 #include <bswap.h>
 #include <sstream>
 #include <algorithm>
+#include <math.h>
 
 #define readBits(x) readStringBits(data, x, i, bitsAvailable)
 #define standardParameters const std::string &data, int &i, char &bitsAvailable

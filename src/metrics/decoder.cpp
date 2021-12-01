@@ -25,8 +25,14 @@ Vector decodeVector(standardParameters, const SendTable_sendprop_t &prop)
 		rv.z = decodefloat(standardIParameters, prop);
 	else
 	{
-		assert(0 != 0);
-		rv.z = 0;
+		rv.z = rv.x * rv.x + rv.y * rv.y;
+		if (rv.z < 1)
+			rv.z = sqrt(1 - rv.z);
+		else
+			rv.z = 0;
+
+		if (readBits(1))
+			rv.z = -1;
 	}
 	return rv;
 }
@@ -127,6 +133,27 @@ float	readFloat(standardParameters, const SendTable_sendprop_t &prop)
 	return *((float *)&fl);
 }
 
+float readfCellCoord(standardParameters, const SendTable_sendprop_t &prop, char level)
+{
+	if (level == 2)
+		return readBits(prop.num_bits());
+	int iVal = readBits(prop.num_bits());
+	int fVal = readBits(level == 1 ? 3 : 5);
+
+	return iVal + (fVal * (1 / (1 << (level == 1 ? 3 : 5))));
+}
+
+float readfIntep(standardParameters, const SendTable_sendprop_t &prop)
+{
+	float rv = 0;
+
+	int fl = readBits(prop.num_bits());
+
+	rv = (float)fl / ((1 << prop.num_bits()) - 1);
+	rv = prop.low_value() + (prop.high_value() - prop.low_value()) * rv;
+
+	return rv;
+}
 
 float decodefloat(standardParameters, const SendTable_sendprop_t &prop) 
 {
@@ -146,12 +173,12 @@ float decodefloat(standardParameters, const SendTable_sendprop_t &prop)
 	else if (prop.flags() & SPROP_NORMAL)
 		assert(0 != 0);
 	else if (prop.flags() & SPROP_CELL_COORD)
-		assert(0 != 0);
+		rv = readfCellCoord(standardIParameters, prop, 0);
 	else if (prop.flags() & SPROP_CELL_COORD_LOWPRECISION)
-		assert(0 != 0);
+		rv = readfCellCoord(standardIParameters, prop, 1);
 	else if (prop.flags() & SPROP_CELL_COORD_INTEGRAL)
-		assert(0 != 0);
+		rv = readfCellCoord(standardIParameters, prop, 2);
 	else
-		assert(0 != 0);
+		rv = readfIntep(standardIParameters, prop);
 	return rv;
 }
