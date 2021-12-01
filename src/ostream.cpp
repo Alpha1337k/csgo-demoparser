@@ -106,7 +106,7 @@ std::ostream &operator<<(std::ostream &o, const Packet &p)
 
 std::ostream &operator<<(std::ostream &o, const PropW &p)
 {
-
+	o << "Name: " << p.path << "\t";
 	o << p.prop;
 	return (o);
 }

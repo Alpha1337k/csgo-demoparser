@@ -11,7 +11,7 @@ DataTable::DataTable(FILE *f)
 	fread(&serverClassesCount, sizeof(serverClassesCount), 1, f);
 
 	short serverClassCountIter = serverClassesCount;
-	serviceClassBits = 0;
+	serviceClassBits = 1;
 
 	while (serverClassCountIter >>= 1)
 		serviceClassBits++;
@@ -90,7 +90,8 @@ void	DataTable::ServiceClass::gatherExcludes(DataTable &dt, const SendTable &sen
 	}
 }
 
-void	DataTable::ServiceClass::iterateProps(DataTable &dt, const SendTable &send, std::vector<PropW> &store)
+void	DataTable::ServiceClass::iterateProps(DataTable &dt, const SendTable &send, \
+											std::vector<PropW> &store, std::string path)
 {
 	for (size_t i = 0; i < send.props_size(); i++)
 	{
@@ -101,28 +102,35 @@ void	DataTable::ServiceClass::iterateProps(DataTable &dt, const SendTable &send,
 		{
 			continue;
 		}
+
+		std::string propPath;
+		if (prop.var_name() != "baseclass")
+			propPath = prop.var_name();
+		if (propPath.length() && path.length())
+			propPath = path + '.' + propPath;
+		
 		if (prop.type() == 6)
 		{
 			SendTable *st = dt.findSendTable(prop.dt_name());
 			assert(st != 0);
 			if (prop.flags() & (1 << 11))
 			{
-				iterateProps(dt, *st, store);
+				iterateProps(dt, *st, store, propPath);
 			}
 			else
 			{
-				gatherProps(dt, *st);
+				gatherProps(dt, *st, propPath);
 			}
 		}
 		else
 		{
 			if (prop.type() == 5)
 			{
-				store.push_back(PropW(send.props(i - 1)));
+				store.push_back(PropW(send.props(i - 1), propPath));
 			}
 			else
 			{
-				store.push_back(PropW(prop));
+				store.push_back(PropW(prop, propPath));
 			}
 		}
 	}
@@ -130,14 +138,59 @@ void	DataTable::ServiceClass::iterateProps(DataTable &dt, const SendTable &send,
 }
 
 
-void	DataTable::ServiceClass::gatherProps(DataTable &dt, SendTable &send)
+void	DataTable::ServiceClass::gatherProps(DataTable &dt, SendTable &send, std::string path)
 {
 	std::vector<PropW> tmp;
 
-	iterateProps(dt, send, tmp);
+	iterateProps(dt, send, tmp, path);
 	for (size_t i = 0; i < tmp.size(); i++)
 	{
 		props.push_back(tmp[i]);
+	}
+}
+
+void	DataTable::ServiceClass::sortProps()
+{
+	std::vector<unsigned int> priorities;
+
+	priorities.push_back(64);
+	for (size_t i = 0; i < props.size(); i++)
+	{
+		size_t x = 0;
+		for (; x < priorities.size() && priorities[x] != props[i].prop.priority(); x++);
+
+		if (x == priorities.size())
+			priorities.push_back(props[i].prop.priority());
+	}
+	std::sort(priorities.begin(), priorities.end());
+
+	int start = 0;
+	for (size_t prior_idx = 0; prior_idx < priorities.size(); prior_idx++)
+	{
+		unsigned int &prior = priorities[prior_idx];
+
+		while (1)
+		{
+			int cur_prop = start;
+			while (cur_prop < props.size())
+			{
+				PropW &p = props[cur_prop];
+				if (p.prop.priority() == prior || (prior == 64 && ((1 << 18) & p.prop.flags())))
+				{
+					if (start != cur_prop)
+					{
+						PropW tmp = props[start];
+						props[start] = props[cur_prop];
+						props[cur_prop] = tmp;
+					}
+					start++;
+					break;
+				}
+				cur_prop++;
+			}
+			if (cur_prop == props.size())
+				break;
+		}
 	}
 }
 
@@ -152,26 +205,14 @@ void	DataTable::ServiceClass::flattenProps(DataTable &dt, SendTable *send)
 	dt.excludedProps.clear();
 	gatherExcludes(dt, st);
 	gatherProps(dt, st);
+	sortProps();
 
-	std::vector<unsigned int> priorities;
-
-	bool isSorted = false;
-	while (!isSorted)
+	std::cout << "we done! " << st.net_table_name() << ", " << id << ", " << props.size() << std::endl;
+	for (size_t i = 0; i < props.size(); i++)
 	{
-		isSorted = true;
-		for (size_t i = 0; i < props.size() - 1; i++)
-		{
-			const int &p1 = props[i].prop.priority();
-			const int &p2 = props[i + 1].prop.priority();
-			if (p1 > p2)
-			{
-				PropW tmp = props[i + 1];
-				props[i + 1] = props[i];
-				props[i] = props[i + 1];
-				isSorted = false;
-			}
-		}
+		std::cout << props[i] << std::endl;
 	}
+	exit(0);
 }
 
 DataTable::ServiceClass &DataTable::ServiceClass::operator=(const DataTable::ServiceClass &cs)
