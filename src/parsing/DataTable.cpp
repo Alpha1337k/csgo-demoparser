@@ -128,7 +128,7 @@ void	DataTable::ServiceClass::iterateProps(DataTable &dt, const SendTable &send,
 		{
 			if (prop.type() == 5)
 			{
-				store.push_back(PropW(prop, propPath));
+				store.push_back(PropW(prop, propPath, &send.props(i - 1)));
 			}
 			else
 			{

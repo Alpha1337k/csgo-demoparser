@@ -124,12 +124,14 @@ struct PropW
 {
 	SendTable_sendprop_t 	prop;
 	std::string				path;
+	SendTable_sendprop_t	targetElem;
 
-	PropW(const SendTable_sendprop_t &p, std::string pth)
+	PropW(const SendTable_sendprop_t &p, std::string pth, const SendTable_sendprop_t *target = 0)
 	{
 		path = pth;
 		prop = p;
-
+		if (target)
+			targetElem = *target;
 	}
 };
 std::ostream &operator<<(std::ostream &o, const PropW &p);
