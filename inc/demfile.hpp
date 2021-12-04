@@ -54,6 +54,16 @@ enum PacketTypes
 	dem_lastcmd		= dem_stringtables,
 };
 
+enum DecodedTypes
+{
+	decoded_int,
+	decoded_float,
+	decoded_Vector,
+	decoded_Vector2,
+	decoded_string
+};
+
+
 enum PreParsedPackages
 {
 	svc_DataTable = -1
@@ -212,12 +222,39 @@ public:
 
 class GameEntities
 {
+	public:
+		struct Property
+		{
+			std::string name;
+			int type;
+			void	*data;
+			Property		&operator=(const Property &s);
+			Property(): data(0) {}
+			~Property();
+		};
+		struct Entity
+		{
+			DataTable::ServiceClass parentService;
+			std::vector<Property>	properties;
+			Entity			&operator=(const Entity &s);
+		};
+		struct StagedChange
+		{
+			// 0 create, 1 update, 2 delete
+			char	type;
+			int		index;
+			Entity	data;
+			StagedChange	&operator=(const StagedChange &s);
+		};
+
 	private:
-		void	updateProps(int idx, DataTable::ServiceClass &cls);
-		std::vector<DataTable::ServiceClass> props;
+		std::vector<Entity>						props;
+		std::vector<StagedChange>				staged;
 	public:
 		GameEntities();
-		void parse(PacketEntities &pe, DataTable &dt);
+		void	parse(PacketEntities &pe, DataTable &dt);
+		const std::vector<StagedChange>	&getStagedChanges();
+		void	executeChanges();
 };
 
 

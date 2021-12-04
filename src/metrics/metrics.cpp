@@ -93,6 +93,41 @@ void DemoFile::handlePacketEntities(PacketEntities &e)
 {
 	entities.parse(e, dataTable);
 	std::cout << "PacketEntities: { updated_entries: " << e.updated_entries() << ", data_len: " << e.entity_data().length() << "}" << std::endl; 
+
+	// std::vector<GameEntities::StagedChange> ent = entities.getStagedChanges();
+
+	// for (size_t i = 0; i < ent.size(); i++)
+	// {
+	// 	std::cout << "StagedChange: { type: " << (int)ent[i].type << ", index: " << ent[i].index << ", data: {" << std::endl;
+	// 	std::cout << '\t' << ent[i].data.parentService << std::endl;
+	// 	for (size_t x = 0; x < ent[i].data.properties.size(); x++)
+	// 	{
+	// 		switch (ent[i].data.properties[x].type)
+	// 		{
+	// 		case decoded_int:
+	// 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(int *)ent[i].data.properties[x].data << std::endl;
+	// 			break;
+	// 		case decoded_float:
+	// 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(float *)ent[i].data.properties[x].data << std::endl;
+	// 			break;
+	// 		case decoded_Vector:
+	// 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(Vector *)ent[i].data.properties[x].data << std::endl;
+	// 			break;
+	// 		case decoded_Vector2:
+	// 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(Vector2 *)ent[i].data.properties[x].data << std::endl;
+	// 			break;
+	// 		case decoded_string:
+	// 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(std::string *)ent[i].data.properties[x].data << std::endl;
+	// 			break;
+	// 		default:
+	// 			break;
+	// 		}
+	// 	}
+	// 	std::cout << "}\n";
+		
+	// }
+	entities.executeChanges();
+
 }
 
 template < class T >
