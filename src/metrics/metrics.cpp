@@ -92,6 +92,7 @@ void DemoFile::handleUpdateStringTable(UpdateStringTable &si)
 void DemoFile::handlePacketEntities(PacketEntities &e)
 {
 	entities.parse(e, dataTable);
+	std::cout << "PacketEntities: { updated_entries: " << e.updated_entries() << ", data_len: " << e.entity_data().length() << "}" << std::endl; 
 }
 
 template < class T >
@@ -191,19 +192,7 @@ void DemoFile::handleDataTable(DataTable &dt)
 		dt.services[i].dataTable = dt.findSendTable(dt.services[i].nameDataTable);
 		dt.services[i].flattenProps(dt);
 	}
-	std::cout << "------" << std::endl;
 	dataTable = dt;
-	// for (size_t i = 0; i < dataTable.services.size(); i++)
-	// {
-	// 	std::cout << dataTable.services[i].name << std::endl;
-	// 	// std::cout << "Service: { name: " << dt.services[i].name << ", id: " << dt.services[i].id << ", tableName: "  << dt.services[i].nameDataTable << "}\n";
-	// 	for (size_t x = 0; x < dataTable.services[i].props.size(); x++)
-	// 	{
-	// 		std::cout << dataTable.services[i].props[x].path << std::endl;
-	// 	}
-	// 	std::cout << std::endl;
-	// }
-	// exit(0);
 }
 
 void	DemoFile::create_metrics()
@@ -234,7 +223,6 @@ void	DemoFile::create_metrics()
 		break; \
 	}
 
-	std::cout << "\n\n\n" << std::endl;
 	for (size_t i = 0; i < frames.size(); i++)
 	{
 		for (size_t x = 0; x < frames[i].pckt.msg.size(); x++)

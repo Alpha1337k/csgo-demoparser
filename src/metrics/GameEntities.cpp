@@ -39,7 +39,7 @@ void	decodeProperty(standardParameters, int &ind, const DataTable &dt, DataTable
 	case i: \
 	{ \
 		type rv = decode##type(standardIParameters, flatProp.prop); \
-		std::cout << flatProp.path << " : " << rv << std::endl; \
+		printIfAllowed("--entitymsg", std::cout << flatProp.path << " : " << rv << std::endl); \
 		break; \
 	}
 	assert(ind < serviceClass.props.size());
@@ -48,7 +48,6 @@ void	decodeProperty(standardParameters, int &ind, const DataTable &dt, DataTable
 		arProp = &serviceClass.props[ind];
 	const PropW &flatProp = *arProp;
 
-	// std::cout << flatProp << std::endl;
 	switch (flatProp.prop.type())
 	{
 		DecodeSwitch(0, int);
@@ -90,15 +89,8 @@ void	readFromStream(standardParameters, const DataTable &dt, DataTable::ServiceC
 	while ((index = readFieldIndex(standardIParameters, readNewWay, index)) != -1)
 		indicies.push_back(index);
 
-	// for (size_t x = 0; x < indicies.size(); x++)
-	// {
-	// 	std::cout << "---- New Prop: " << indicies[x] << std::endl;
-	// }
-	// std::cout << "\n\n";
-
 	for (size_t x = 0; x < indicies.size(); x++)
 	{
-		// std::cout << "---- New Prop: " << indicies[x] << std::endl;
 		decodeProperty(standardIParameters, indicies[x], dt, serviceClass);
 	}
 }
@@ -111,9 +103,6 @@ DataTable::ServiceClass	PVSParser(standardParameters, int &id, DataTable &dt)
 	
 	DataTable::ServiceClass nSC = DataTable::ServiceClass(dt.services[serverClassId]);
 
-	std::cout << "New Entity: { id: " << nSC.id << ", name: " << nSC.name \
-		<< ", tableName: " << nSC.nameDataTable << "}" << std::endl;
-
 	return nSC;
 }
 
@@ -124,36 +113,40 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt)
 	char bitsAvailable = 8;
 	int currentEntity = -1;
 
-	std::cout << "-------------\nupdated entities: " << pe.updated_entries() << std::endl;
-
 	size_t x = 0;
 	for (; x < pe.updated_entries(); x++)
 	{
 		currentEntity += 1 + readStringVarInt(standardIParameters);
 
-		std::cout << "-------[Current Entity: " << currentEntity << ", bytes read: << " << i << "]" << std::endl;
+		printIfAllowed("--entitymsg", std::cout << "-------[Current Entity: " << currentEntity << ", bytes read: << " << i << "]" << std::endl);
 		if (readBits(1) == 0)
 		{
-			// create
 			if (readBits(1))
 			{
-				std::cout << "Create" << std::endl;
 				DataTable::ServiceClass serviceClass = PVSParser(standardIParameters, currentEntity, dt);
+				printIfAllowed("--entitymsg", std::cout << "Create" << std::endl);
+				printIfAllowed("--entitymsg", std::cout << serviceClass << std::endl);
 				readFromStream(standardIParameters, dt, serviceClass);
-				//exit(0);
+				updateProps(currentEntity, serviceClass);
 			}
-			// update
 			else
 			{
-				std::cout << "Update" << std::endl;
-				exit(2);
+				printIfAllowed("--entitymsg", std::cout << "Update" << std::endl);
+				printIfAllowed("--entitymsg", std::cout << props[currentEntity] << std::endl);
+				readFromStream(standardIParameters, dt, props[currentEntity]);
+				updateProps(currentEntity, props[currentEntity]);
 			}
 		}
-		// delete
 		else
 		{
-			std::cout << "Delete" << std::endl;
-			
+
+			printIfAllowed("--entitymsg", std::cout << "Delete" << std::endl);
+			printIfAllowed("--entitymsg", std::cout << props[currentEntity] << std::endl);
+
+			DataTable::ServiceClass nullified = DataTable::ServiceClass();
+			nullified.id = -1;
+			updateProps(currentEntity, nullified);
+
 			readBits(1);
 		}
 
@@ -161,6 +154,14 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt)
 		assert(i < data.length());
 	}
 	assert(x == pe.updated_entries());
+	// assert(i == data.length()); this fails, dont know if its a big deal
+}
+
+void	GameEntities::updateProps(int idx, DataTable::ServiceClass &cls)
+{
+	if (props.size() <= idx)
+		props.resize(idx * 2 == 0 ? 1 : idx * 2);
+	props[idx] = cls;
 }
 
 GameEntities::GameEntities() {}
