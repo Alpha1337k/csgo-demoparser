@@ -1,10 +1,27 @@
 #include <demo.hpp>
 
+const int SPROP_COORD = (1 << 1);
+const int SPROP_NOSCALE = (1 << 2);
+const int SPROP_NORMAL = (1 << 5);
+const int SPROP_COORD_MP = (1 << 12);
+const int SPROP_COORD_MP_LOWPRECISION = (1 << 13);
+const int SPROP_COORD_MP_INTEGRAL = (1 << 14);
+const int SPROP_CELL_COORD = (1 << 15);
+const int SPROP_CELL_COORD_LOWPRECISION = (1 << 16);
+const int SPROP_CELL_COORD_INTEGRAL = (1 << 17);
+
+const int COORD_FRACTIONAL_BITS = 5;
+const int COORD_DENOMINATOR = ( 1 << ( COORD_FRACTIONAL_BITS ) );
+const float COORD_RESOLUTION = ( 1.0f / ( COORD_DENOMINATOR ) );
+
+const int COORD_FRACTIONAL_BITS_MP_LOWPRECISION = 3;
+const float COORD_DENOMINATOR_LOWPRECISION = ( 1 << ( COORD_FRACTIONAL_BITS_MP_LOWPRECISION ) );
+const float COORD_RESOLUTION_LOWPRECISION = ( 1.0f / ( COORD_DENOMINATOR_LOWPRECISION ) );
+
 int decodeint(standardParameters, const SendTable_sendprop_t &prop)
 {
 	if (prop.flags() & ( 1 << 19))
 	{
-		exit(15);
 		assert(0 != 0);
 		return readBits(4);
 	}
@@ -62,24 +79,6 @@ std::string decodestring(standardParameters, const SendTable_sendprop_t &prop)
 	}
 	return rv;
 }
-
-const int SPROP_COORD = (1 << 1);
-const int SPROP_NOSCALE = (1 << 2);
-const int SPROP_NORMAL = (1 << 5);
-const int SPROP_COORD_MP = (1 << 12);
-const int SPROP_COORD_MP_LOWPRECISION = (1 << 13);
-const int SPROP_COORD_MP_INTEGRAL = (1 << 14);
-const int SPROP_CELL_COORD = (1 << 15);
-const int SPROP_CELL_COORD_LOWPRECISION = (1 << 16);
-const int SPROP_CELL_COORD_INTEGRAL = (1 << 17);
-
-const int COORD_FRACTIONAL_BITS = 5;
-const int COORD_DENOMINATOR = ( 1 << ( COORD_FRACTIONAL_BITS ) );
-const float COORD_RESOLUTION = ( 1.0f / ( COORD_DENOMINATOR ) );
-
-const int COORD_FRACTIONAL_BITS_MP_LOWPRECISION = 3;
-const float COORD_DENOMINATOR_LOWPRECISION = ( 1 << ( COORD_FRACTIONAL_BITS_MP_LOWPRECISION ) );
-const float COORD_RESOLUTION_LOWPRECISION = ( 1.0f / ( COORD_DENOMINATOR_LOWPRECISION ) );
 
 float readfBits(standardParameters)
 {
