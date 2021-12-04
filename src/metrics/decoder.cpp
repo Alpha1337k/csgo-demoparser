@@ -163,6 +163,16 @@ float readfIntep(standardParameters, const SendTable_sendprop_t &prop)
 	return rv;
 }
 
+float readfNormal(standardParameters, const SendTable_sendprop_t &prop)
+{
+	int sign = readBits(1);
+	int	dt = readBits(11);
+
+	float val = (float)dt * (1 / ((1 << 11) - 1));
+
+	return sign == 1 ? -val : val;
+}
+
 float decodefloat(standardParameters, const SendTable_sendprop_t &prop) 
 {
 	float rv;
@@ -178,7 +188,7 @@ float decodefloat(standardParameters, const SendTable_sendprop_t &prop)
 	else if (prop.flags() & SPROP_NOSCALE)
 		rv = readFloat(standardIParameters, prop);
 	else if (prop.flags() & SPROP_NORMAL)
-		assert(0 != 0);
+		rv = readfNormal(standardIParameters, prop);
 	else if (prop.flags() & SPROP_CELL_COORD)
 		rv = readfCellCoord(standardIParameters, prop, 0);
 	else if (prop.flags() & SPROP_CELL_COORD_LOWPRECISION)
