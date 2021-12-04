@@ -117,7 +117,7 @@ DataTable::ServiceClass	PVSParser(standardParameters, int &id, DataTable &dt)
 	return nSC;
 }
 
-ParsedPacketEntities::ParsedPacketEntities(PacketEntities &pe, DataTable &dt)
+void GameEntities::parse(PacketEntities &pe, DataTable &dt)
 {
 	const std::string &data = pe.entity_data();
 	int i = 0;
@@ -125,7 +125,9 @@ ParsedPacketEntities::ParsedPacketEntities(PacketEntities &pe, DataTable &dt)
 	int currentEntity = -1;
 
 	std::cout << "-------------\nupdated entities: " << pe.updated_entries() << std::endl;
-	for (size_t x = 0; x < pe.updated_entries(); x++)
+
+	size_t x = 0;
+	for (; x < pe.updated_entries(); x++)
 	{
 		currentEntity += 1 + readStringVarInt(standardIParameters);
 
@@ -153,11 +155,12 @@ ParsedPacketEntities::ParsedPacketEntities(PacketEntities &pe, DataTable &dt)
 			std::cout << "Delete" << std::endl;
 			
 			readBits(1);
-			exit(1);
 		}
 
 
 		assert(i < data.length());
 	}
-	exit(0);
+	assert(x == pe.updated_entries());
 }
+
+GameEntities::GameEntities() {}

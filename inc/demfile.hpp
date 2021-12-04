@@ -202,12 +202,13 @@ public:
 	~ParsedStringTable();
 };
 
-class ParsedPacketEntities
+class GameEntities
 {
 	private:
-	
+		std::vector<PropW> props;
 	public:
-		ParsedPacketEntities(PacketEntities &pe, DataTable &dt);
+		GameEntities();
+		void parse(PacketEntities &pe, DataTable &dt);
 };
 
 
@@ -221,8 +222,8 @@ private:
 	std::vector<GameEventList_descriptor_t> gEvents;
 	std::vector<ParsedStringTable>			parsedTables;
 	std::vector<Player>					players;
-	std::vector<DataTable::ServiceClass>	entities;
 	DataTable							dataTable;
+	GameEntities						entities;
 
 	void handleGameEventList(GameEventList &ge);
 	void handleGameEvent(GameEvent &ge);

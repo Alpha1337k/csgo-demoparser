@@ -91,9 +91,7 @@ void DemoFile::handleUpdateStringTable(UpdateStringTable &si)
 
 void DemoFile::handlePacketEntities(PacketEntities &e)
 {
-	ParsedPacketEntities p(e, dataTable);
-	std::cout << "done!" << std::endl;
-	exit(0);
+	entities.parse(e, dataTable);
 }
 
 template < class T >
