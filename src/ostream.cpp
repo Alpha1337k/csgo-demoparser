@@ -144,3 +144,15 @@ std::ostream &operator<<(std::ostream &o, const DataTable::ServiceClass &p)
 	return (o);
 #undef PrintVariable	
 }
+
+std::ostream &operator<<(std::ostream &o, const Frame &f)
+{
+	o << "Frame {\n";
+	o << "cmd:        " << (int)f.cmd << std::endl;
+	o << "tick:       " << f.tick << std::endl;
+	o << "playerslot: " << (int)f.playerslot << std::endl;
+	o << "packet: {\n" << f.pckt << std::endl; 
+	o << "} }\n";
+
+	return (o);
+}

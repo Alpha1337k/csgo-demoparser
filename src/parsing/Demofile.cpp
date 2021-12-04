@@ -77,7 +77,7 @@ std::cout << "Freeing" << std::endl;
 					{
 						delete (SendTable *)d->msg[y].second;
 					}
-					
+					delete d;
 				}
 			
 			default:

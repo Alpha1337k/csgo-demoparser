@@ -30,8 +30,7 @@ Frame::Frame(FILE *f, bool &finished)
 			finished = true;
 			break;
 		case dem_consolecmd:
-			std::cerr << "UnIMPLEMENTED!!! cons" << std::endl;
-			exit(0);
+			assert(0);
 			break;
 		case dem_datatables:
 		{
@@ -40,12 +39,10 @@ Frame::Frame(FILE *f, bool &finished)
 			break;
 		}
 		case dem_stringtables:
-			std::cerr << "UnIMPLEMENTED!!! strig" << std::endl;
-			exit(0);
+			assert(0);
 			break;
 		case dem_usercmd:
-			std::cerr << "UnIMPLEMENTED!!! usr" << std::endl;
-			exit(0);
+			assert(0);
 			break;
 		case dem_synctick:
 		default:
@@ -53,16 +50,4 @@ Frame::Frame(FILE *f, bool &finished)
 			break;
 		}
 	}
-}
-
-std::ostream &operator<<(std::ostream &o, const Frame &f)
-{
-	o << "Frame {\n";
-	o << "cmd:        " << (int)f.cmd << std::endl;
-	o << "tick:       " << f.tick << std::endl;
-	o << "playerslot: " << (int)f.playerslot << std::endl;
-	o << "packet: {\n" << f.pckt << std::endl; 
-	o << "} }\n";
-
-	return (o);
 }

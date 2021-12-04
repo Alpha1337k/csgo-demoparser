@@ -21,8 +21,9 @@ int main(int argc, char **argv, char **env)
 	}
 	DemoFile demo(f);
 
+	fclose(f);
 	if (startupParameters["--only-parse"] == 0)
 		demo.create_metrics();
-	fclose(f);
+	google::protobuf::ShutdownProtobufLibrary();
 	return (0);
 }
