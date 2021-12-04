@@ -130,3 +130,17 @@ std::ostream &operator<<(std::ostream &o, const SendTable_sendprop_t &prop)
 	return (o);
 #undef PrintVariable
 }
+
+std::ostream &operator<<(std::ostream &o, const DataTable::ServiceClass &p)
+{
+#define PrintVariable(name, var) std::cout << ", " << name << ": " << var;
+
+	o << "ServiceClass: { ";
+	PrintVariable("id", p.id);
+	PrintVariable("name", p.name);
+	PrintVariable("tableName", p.nameDataTable);
+	o << "}";
+
+	return (o);
+#undef PrintVariable	
+}

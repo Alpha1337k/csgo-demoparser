@@ -16,6 +16,12 @@
 #define standardParameters const std::string &data, int &i, char &bitsAvailable
 #define standardIParameters data, i, bitsAvailable
 
+#define printIfAllowed(query, toPrint)	\
+	{									\
+		if (startupParameters[#query])	\
+			toPrint;					\
+	}
+
 #define ErrorReturnMessage(msg) \
 	{ std::cerr << msg << std::endl; return; }
 #define ReturnMessage(msg) \
@@ -170,6 +176,8 @@ struct DataTable
 
 	SendTable	*findSendTable(std::string name);
 };
+std::ostream &operator<<(std::ostream &o, const DataTable::ServiceClass &p);
+
 
 struct Player {
 	long	version;
@@ -205,7 +213,8 @@ public:
 class GameEntities
 {
 	private:
-		std::vector<PropW> props;
+		void	updateProps(int idx, DataTable::ServiceClass &cls);
+		std::vector<DataTable::ServiceClass> props;
 	public:
 		GameEntities();
 		void parse(PacketEntities &pe, DataTable &dt);
