@@ -197,11 +197,13 @@ void DemoFile::handleDataTable(DataTable &dt)
 	dataTable = dt;
 	// for (size_t i = 0; i < dataTable.services.size(); i++)
 	// {
-	// 	std::cout << "Service: { name: " << dt.services[i].name << ", id: " << dt.services[i].id << ", tableName: "  << dt.services[i].nameDataTable << "}\n";
+	// 	std::cout << dataTable.services[i].name << std::endl;
+	// 	// std::cout << "Service: { name: " << dt.services[i].name << ", id: " << dt.services[i].id << ", tableName: "  << dt.services[i].nameDataTable << "}\n";
 	// 	for (size_t x = 0; x < dataTable.services[i].props.size(); x++)
 	// 	{
-	// 		std::cout << dataTable.services[i].props[x].prop << std::endl;
+	// 		std::cout << dataTable.services[i].props[x].path << std::endl;
 	// 	}
+	// 	std::cout << std::endl;
 	// }
 	// exit(0);
 }

@@ -32,7 +32,7 @@ int		readFieldIndex(standardParameters, bool newWay, int oldindex)
 	return oldindex + 1 + rval;
 }
 
-void	decodeProperty(standardParameters, int &ind, const DataTable &dt, DataTable::ServiceClass &serviceClass)
+void	decodeProperty(standardParameters, int &ind, const DataTable &dt, DataTable::ServiceClass &serviceClass, const PropW *arProp = 0)
 {
 #define string std::string
 #define DecodeSwitch(i, type) \
@@ -42,9 +42,11 @@ void	decodeProperty(standardParameters, int &ind, const DataTable &dt, DataTable
 		std::cout << flatProp.path << " : " << rv << std::endl; \
 		break; \
 	}
-
 	assert(ind < serviceClass.props.size());
-	const PropW &flatProp = serviceClass.props[ind];
+
+	if (!arProp)
+		arProp = &serviceClass.props[ind];
+	const PropW &flatProp = *arProp;
 
 	// std::cout << flatProp << std::endl;
 	switch (flatProp.prop.type())
@@ -54,10 +56,24 @@ void	decodeProperty(standardParameters, int &ind, const DataTable &dt, DataTable
 		DecodeSwitch(2, Vector);
 		DecodeSwitch(3, Vector2);
 		DecodeSwitch(4, string);
+		case 5:
+		{
+			int maxElem = flatProp.prop.num_elements();
+			int bitsToRead = 1;
+			while (maxElem >>= 1)
+				bitsToRead++;
+			int numElem = readBits(bitsToRead);
+			for (size_t x = 0; x < numElem; x++)
+			{
+				PropW newProp = PropW(flatProp.targetElem, flatProp.path + '.' + std::to_string(x));
+				decodeProperty(standardIParameters, ind, dt, serviceClass, &newProp);
+			}
+			break;
+		}
 	
 	default:
 		{
-			ErrorReturnMessage("Error case not found!");
+			ErrorReturnMessage("Error case not found! type: " + std::to_string(flatProp.prop.type()));
 		}
 	}
 #undef string
@@ -67,7 +83,6 @@ void	decodeProperty(standardParameters, int &ind, const DataTable &dt, DataTable
 void	readFromStream(standardParameters, const DataTable &dt, DataTable::ServiceClass &serviceClass)
 {
 	bool readNewWay = readBits(1) == 1 ? true : false;
-	std::cout << "read: " << readNewWay << ", or " << (readNewWay == 1) << std::endl;
 
 	std::vector<int> indicies;
 	int index = -1;
@@ -96,7 +111,6 @@ DataTable::ServiceClass	PVSParser(standardParameters, int &id, DataTable &dt)
 	
 	DataTable::ServiceClass nSC = DataTable::ServiceClass(dt.services[serverClassId]);
 
-	std::cout << "Serial: " << serial << ", id " << serverClassId << std::endl;
 	std::cout << "New Entity: { id: " << nSC.id << ", name: " << nSC.name \
 		<< ", tableName: " << nSC.nameDataTable << "}" << std::endl;
 
@@ -130,6 +144,7 @@ ParsedPacketEntities::ParsedPacketEntities(PacketEntities &pe, DataTable &dt)
 			else
 			{
 				std::cout << "Update" << std::endl;
+				exit(2);
 			}
 		}
 		// delete
