@@ -1,14 +1,5 @@
 #include <demo.hpp>
 
-Packet handlePacket(FILE *f)
-{
-	Packet p(f);
-
-	// std::cout << p << std::endl;
-
-	return p;
-}
-
 Frame::Frame(FILE *f, bool &finished)
 {
 	cmd = 0;
@@ -24,7 +15,7 @@ Frame::Frame(FILE *f, bool &finished)
 	{
 		case dem_signon:
 		case dem_packet:
-			pckt = handlePacket(f);
+			pckt = Packet(f);
 			break;
 		case dem_stop:
 			finished = true;
