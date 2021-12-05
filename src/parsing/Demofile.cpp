@@ -1,10 +1,11 @@
 #include <demo.hpp>
 
-DemoFile::DemoFile(FILE *f)
+DemoFile::DemoFile(FileReader &f)
 {
 	std::size_t headerSize;
 	
-	headerSize = fread(&header, 1, sizeof(header), f);
+	// headerSize = fread(&header, 1, sizeof(header), f);
+	headerSize = f.read(&header, sizeof(header));
 	if (headerSize != 1072)
 		throw std::exception();
 	// std::cout << header << std::endl;

@@ -102,6 +102,24 @@ struct DemHeader
 };
 std::ostream &operator<<(std::ostream &o, const DemHeader &d);
 
+class FileReader
+{
+	private:
+		std::string data;
+		size_t		idx;
+	public:
+		FileReader(std::string path);
+		FileReader();
+		~FileReader();
+		int				load(std::string path);
+		size_t			read(void *buffer, size_t size);
+		bool			isEof();
+		int				readInt();
+		std::string		readString();
+		size_t			getOffset();
+
+};
+
 struct Packet
 {
 	struct Split_t
@@ -120,7 +138,7 @@ struct Packet
 	};
 	Split_t splits[2];
 	MessageVector msg;
-	Packet(FILE *f);
+	Packet(FileReader &f);
 	Packet();
 };
 std::ostream &operator<<(std::ostream &o, const Packet &d);
@@ -132,7 +150,7 @@ struct Frame
 	char			playerslot;
 
 	Packet			pckt;
-	Frame(FILE *f, bool &finished);
+	Frame(FileReader &f, bool &finished);
 };
 std::ostream &operator<<(std::ostream &o, const Frame &d);
 
@@ -180,7 +198,7 @@ struct DataTable
 	MessageVector msg;
 	char	serviceClassBits;
 
-	DataTable(FILE *f);
+	DataTable(FileReader &f);
 	DataTable();
 	DataTable &operator=(const DataTable &d);
 
@@ -280,18 +298,15 @@ private:
 	void handleUserMessage(UserMessage &e);
 	void handleDataTable(DataTable &dt);
 public:
-	DemoFile(FILE *f);
+	DemoFile(FileReader &f);
 	~DemoFile();
 	void AddPlayer(Player &p);
 	void	create_metrics();
 
 };
 
-std::string	readVarString(FILE *f, size_t *iter);
 std::string	readVarString(const std::string &str, int &iter);
-int readVarInt(FILE *f, size_t *iter);
-bool	readVarBool(FILE *f, size_t *iter);
-MessageVector getProtoMesssages(FILE *f, int size);
+MessageVector getProtoMesssages(FileReader &f, int size);
 int readVarInt(char *ar, size_t *iter);
 int		readStringBits(const std::string &str, int count, int &i, char &bitsAvailable);
 int		readStringVarInt(const std::string &str, int &i, char &bitsAvailable);

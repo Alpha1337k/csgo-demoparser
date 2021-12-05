@@ -1,14 +1,14 @@
 #include <demo.hpp>
 
-DataTable::DataTable(FILE *f)
+DataTable::DataTable(FileReader &f)
 {
 	int size = 0;
 
-	fread(&size, sizeof(int), 1, f);
+	f.read(&size, sizeof(size));
 	msg = getProtoMesssages(f, -1);
 
 	short serverClassesCount = 0;
-	fread(&serverClassesCount, sizeof(serverClassesCount), 1, f);
+	f.read(&serverClassesCount, sizeof(serverClassesCount));
 
 	short serverClassCountIter = serverClassesCount;
 	serviceClassBits = 1;
@@ -21,7 +21,7 @@ DataTable::DataTable(FILE *f)
 	for (short i = 0; i < serverClassesCount; i++)
 	{
 		sc.id = 0;
-		fread(&sc.id, sizeof(sc.id), 1, f);
+		f.read(&sc.id, sizeof(sc.id));
 		if (sc.id >= serverClassesCount)
 		{
 			std::cerr << "Error: id is bigger than serverclasscount" << std::endl;
@@ -29,8 +29,8 @@ DataTable::DataTable(FILE *f)
 		}
 		else
 		{
-			sc.name = readVarString(f, NULL);
-			sc.nameDataTable = readVarString(f, NULL);
+			sc.name = f.readString();
+			sc.nameDataTable = f.readString();
 			services.push_back(sc);
 		}
 	}	

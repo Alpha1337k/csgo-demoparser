@@ -2,18 +2,18 @@
 
 //109269
 
-Packet::Packet(FILE *f)
+Packet::Packet(FileReader &f)
 {
 
-	fread(this, 1, sizeof(*this) - sizeof(MessageVector), f);
+	// fread(this, 1, sizeof(*this) - sizeof(MessageVector), f);
+	f.read(this, sizeof(*this) - sizeof(MessageVector));
 
 	int sequenceIn = 0, sequenceOut = 0;
-	size_t size = 0;
 	int chunkSize = 0;
-	size = fread(&sequenceIn, sizeof(int), 1, f);
-	size = fread(&sequenceOut, sizeof(int), 1, f);
+	f.read(&sequenceIn, sizeof(int));
+	f.read(&sequenceOut, sizeof(int));
 
-	fread(&chunkSize, sizeof(int), 1, f);
+	f.read(&chunkSize, sizeof(int));
 	//std::cout << "Chunksize: " << chunkSize << std::endl;
 
 	msg = getProtoMesssages(f, chunkSize);

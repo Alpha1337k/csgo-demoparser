@@ -11,6 +11,8 @@ FileReader::FileReader(std::string path): idx(0)
 		throw std::invalid_argument("File cannot be opened");
 }
 
+FileReader::FileReader(): idx(0) {}
+
 int				FileReader::load(std::string path)
 {
 	idx = 0;
@@ -31,7 +33,7 @@ int				FileReader::load(std::string path)
 	return (0);
 }
 
-inline size_t	FileReader::read(void *buffer, size_t size)
+size_t	FileReader::read(void *buffer, size_t size)
 {
 	if (size + idx > data.length())
 		size = data.length() - idx;
@@ -41,7 +43,47 @@ inline size_t	FileReader::read(void *buffer, size_t size)
 	return size;
 }
 
-inline bool		FileReader::isEof()
+bool		FileReader::isEof()
 {
 	return idx >= data.length();
+}
+
+int		FileReader::readInt()
+{
+	unsigned int result = 0;
+	char b = 0;
+	char count = 0;
+	do
+	{
+		if (count == 5)
+		{
+			return result;
+		}
+		read(&b, 1);
+		result |= (b & 127) << (7 * count);
+		count++;
+	} while (b & 128);
+	return result;		
+}
+
+std::string		FileReader::readString()
+{
+	std::string rv;
+	char tmp;
+
+	while (1)
+	{
+		read(&tmp, 1);
+		if (tmp == 0)
+			break;
+		rv += tmp;
+	}
+	
+	return rv;	
+}
+
+
+size_t			FileReader::getOffset()
+{
+	return idx;
 }

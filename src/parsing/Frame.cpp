@@ -1,13 +1,13 @@
 #include <demo.hpp>
 
-Frame::Frame(FILE *f, bool &finished)
+Frame::Frame(FileReader &f, bool &finished)
 {
 	cmd = 0;
 	tick = 0;
 	playerslot = 0;
-	fread(&cmd, 1, sizeof(cmd), f);
-	fread(&tick, 1, sizeof(tick), f);
-	fread(&playerslot, 1, sizeof(playerslot), f);
+	f.read(&cmd, sizeof(cmd));
+	f.read(&tick, sizeof(tick));
+	f.read(&playerslot, sizeof(playerslot));
 
 	assert( cmd >= 1 && cmd <= dem_lastcmd );
 

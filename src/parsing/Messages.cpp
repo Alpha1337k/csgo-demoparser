@@ -1,12 +1,9 @@
 #include <demo.hpp>
 
 
-MessageVector	getProtoMesssages(FILE *f, int size)
+MessageVector	getProtoMesssages(FileReader &f, int size)
 {
 	extern StartupParser startupParameters;
-	size_t iter = 0;
-	MessageVector	messages;
-
 #define ParseStatement(type, extra) \
 	case svc_##type: \
 	{ \
@@ -42,17 +39,20 @@ MessageVector	getProtoMesssages(FILE *f, int size)
 		break; \
 	}
 
-	while (iter < (size_t)size || size == -1)
+	size_t startpos = f.getOffset();
+	MessageVector	messages;
+
+	while (f.getOffset() - startpos < (size_t)size || size == -1)
 	{
-		unsigned int	messagetype = readVarInt(f, &iter);
-		unsigned int	length = readVarInt(f, &iter);
+		unsigned int	messagetype = f.readInt();
+		unsigned int	length = f.readInt();
 
 		//std::cout << "Iter: " << iter << " messagetype:" << (int)messagetype << ", length: " << length << std::endl;
 
 		std::string packetdata;
 		packetdata.resize(length);
 
-		iter += fread(&packetdata[0], 1, length, f);
+		f.read(&packetdata[0], length);
 
 		switch (messagetype)
 		{

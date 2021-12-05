@@ -12,16 +12,16 @@ int main(int argc, char **argv, char **env)
 		std::cerr << "Error: filepath required" << std::endl;
 		return (-2);
 	}
+	FileReader f;
 
-	FILE *f = fopen(startupParameters.last().first.c_str(), "r");
-	if (f == NULL)
+	if (f.load(startupParameters.last().first.c_str()) == -1)
 	{
 		std::cerr << "Error: file could not be opened" << std::endl;
 		return (-1);
 	}
+
 	DemoFile demo(f);
 
-	fclose(f);
 	if (startupParameters["--only-parse"] == 0)
 		demo.create_metrics();
 	google::protobuf::ShutdownProtobufLibrary();
