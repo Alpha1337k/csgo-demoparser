@@ -75,7 +75,7 @@ bool	DataTable::ServiceClass::isPropExcluded(const DataTable &dt, const SendTabl
 
 void	DataTable::ServiceClass::gatherExcludes(DataTable &dt, const SendTable &send)
 {
-	for (size_t i = 0; i < send.props_size(); i++)
+	for (int i = 0; i < send.props_size(); i++)
 	{
 		const SendTable_sendprop_t &prop = send.props(i);
 
@@ -95,7 +95,7 @@ void	DataTable::ServiceClass::gatherExcludes(DataTable &dt, const SendTable &sen
 void	DataTable::ServiceClass::iterateProps(DataTable &dt, const SendTable &send, \
 											std::vector<PropW> &store, std::string path)
 {
-	for (size_t i = 0; i < send.props_size(); i++)
+	for (int i = 0; i < send.props_size(); i++)
 	{
 		const SendTable_sendprop_t &prop = send.props(i);
 		if ( ( prop.flags() & (1 << 8) ) || 
@@ -153,7 +153,7 @@ void	DataTable::ServiceClass::gatherProps(DataTable &dt, SendTable &send, std::s
 
 void	DataTable::ServiceClass::sortProps()
 {
-	std::vector<unsigned int> priorities;
+	std::vector<int> priorities;
 
 	priorities.push_back(64);
 	for (size_t i = 0; i < props.size(); i++)
@@ -166,14 +166,14 @@ void	DataTable::ServiceClass::sortProps()
 	}
 	std::sort(priorities.begin(), priorities.end());
 
-	int start = 0;
+	size_t start = 0;
 	for (size_t prior_idx = 0; prior_idx < priorities.size(); prior_idx++)
 	{
-		unsigned int &prior = priorities[prior_idx];
+		int &prior = priorities[prior_idx];
 
 		while (1)
 		{
-			int cur_prop = start;
+			size_t cur_prop = start;
 			while (cur_prop < props.size())
 			{
 				PropW &p = props[cur_prop];

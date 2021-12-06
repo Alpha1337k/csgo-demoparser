@@ -11,6 +11,7 @@
 #include <sstream>
 #include <algorithm>
 #include <math.h>
+#include <chrono>
 
 #define readBits(x) readStringBits(data, x, i, bitsAvailable)
 #define standardParameters const std::string &data, int &i, char &bitsAvailable

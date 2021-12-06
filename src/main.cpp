@@ -25,5 +25,6 @@ int main(int argc, char **argv, char **env)
 	if (startupParameters["--only-parse"] == 0)
 		demo.create_metrics();
 	google::protobuf::ShutdownProtobufLibrary();
+	std::cerr << "Done!" << std::endl;
 	return (0);
 }

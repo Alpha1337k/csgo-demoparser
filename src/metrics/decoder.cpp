@@ -62,8 +62,10 @@ Vector2 decodeVector2(standardParameters, const SendTable_sendprop_t &prop)
 
 	return rv;
 }
-std::string decodestring(standardParameters, const SendTable_sendprop_t &prop) 
+std::string decodestring(standardParameters, const SendTable_sendprop_t &prop)
 {
+
+	(void)prop;
 	unsigned int len = readBits(9);
 
 	unsigned int maxBuffer = (1 << 9);
@@ -87,7 +89,7 @@ float readfBits(standardParameters)
 
 	iVal = readBits(1);
 	fVal = readBits(1);
-	bool isNeg;
+	bool isNeg = false;
 
 	if (iVal || fVal)
 	{
@@ -107,7 +109,7 @@ float readfBitsCoord(standardParameters, bool isInt, bool isLowPrc)
 {
 	int iVal, fVal;
 	float rv = 0;
-	bool isNeg, inbounds;
+	bool isNeg = false, inbounds;
 
 	inbounds = readBits(1);
 
@@ -133,7 +135,7 @@ float readfBitsCoord(standardParameters, bool isInt, bool isLowPrc)
 	return rv * (isNeg == 1 ? -1 : 1);
 }
 
-float	readFloat(standardParameters, const SendTable_sendprop_t &prop)
+float	readFloat(standardParameters)
 {
 	unsigned int fl = readBits(32);
 
@@ -162,7 +164,7 @@ float readfIntep(standardParameters, const SendTable_sendprop_t &prop)
 	return rv;
 }
 
-float readfNormal(standardParameters, const SendTable_sendprop_t &prop)
+float readfNormal(standardParameters)
 {
 	int sign = readBits(1);
 	int	dt = readBits(11);
@@ -185,9 +187,9 @@ float decodefloat(standardParameters, const SendTable_sendprop_t &prop)
 	else if (prop.flags() & SPROP_COORD_MP_INTEGRAL)
 		rv = readfBitsCoord(standardIParameters, true, false);
 	else if (prop.flags() & SPROP_NOSCALE)
-		rv = readFloat(standardIParameters, prop);
+		rv = readFloat(standardIParameters);
 	else if (prop.flags() & SPROP_NORMAL)
-		rv = readfNormal(standardIParameters, prop);
+		rv = readfNormal(standardIParameters);
 	else if (prop.flags() & SPROP_CELL_COORD)
 		rv = readfCellCoord(standardIParameters, prop, 0);
 	else if (prop.flags() & SPROP_CELL_COORD_LOWPRECISION)

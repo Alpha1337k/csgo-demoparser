@@ -22,11 +22,10 @@ void	ParsedStringTable::Update(UpdateStringTable &ut, DemoFile &df, bool isUserI
 
 void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num_changed_entries, DemoFile &df)
 {
-
 	int i = 0;
 	int lastEntry = -1;
-	int lastDictionaryIndex = -1;
 	char bitsAvailable = 8;
+	(void)isUserInfo;
 
 	// perform integer log2() to set nEntryBits
 	int nTemp = origin.max_entries();
@@ -41,17 +40,12 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 
 	std::vector< std::string > history;
 
-	for (size_t x = 0; x < num_changed_entries; x++)
+	for (int x = 0; x < num_changed_entries; x++)
 	{
-		//std::cout << "Start------" << std::endl;
 		int entryIndex = lastEntry + 1;
 
 		if (readBits(1) == 0)
-		{
 			entryIndex = readBits(nEntryBits);
-			//std::cout << "new index: " << entryIndex << std::endl;
-		}
-		//std::cout << "Entry index: " << entryIndex << std::endl;
 		lastEntry = entryIndex;
 		if (entryIndex < 0 || entryIndex >= origin.max_entries())
 			ErrorReturnMessage("Error: ParseStringUpdate Error")
@@ -61,11 +55,7 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 		{
 			int copySize = 1024;
 			if (readBits(1) != 0)
-			{
-				int index = readBits(5);
-				int copyHistSize = readBits(5);
-				//std::cout << "ReadBits Called! Whoops" << index << " " << copyHistSize << std::endl;
-			}
+				readBits(10);
 			char charToAdd = ' ';
 			int count = 0;
 			while (charToAdd != 0 && charToAdd != '\n' && count < copySize)
@@ -74,31 +64,27 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 				entry += charToAdd;
 				count++;
 			}
-			//std::cout << "Entry size: " << entry.length() << " "<< entry << std::endl;
 		}
 
 		std::string userData;
-		int size = 0;
+		size_t size = 0;
 
 		if (readBits(1) != 0)
 		{
 			if (origin.user_data_fixed_size())
 			{
 				size = origin.user_data_size();
-				//std::cout << "Using fixed!!!!" << std::endl;
 			}
 			else
 			{
 				size = readBits(14);
 			}
-			//std::cout << "We have a size: " << size <<  std::endl;
 			char charToAdd;
 			while (size > userData.size())
 			{
 				charToAdd = readBits(8);
 				userData += charToAdd;
 			}
-			//std::cout << "Userdata size: " << userData.size() << "{ " << userData << "}" << std::endl;
 		}
 		if (size > 0)
 		{
@@ -108,7 +94,7 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 			assert(p.version == -4094);
 			df.AddPlayer(p);
 		}
-		assert(i < data.length());
+		assert((size_t)i < data.length());
 	}
 }
 

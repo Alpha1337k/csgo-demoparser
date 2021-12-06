@@ -3,7 +3,7 @@
 void	DemoFile::handleGameEventList(GameEventList &ge)
 {
 	gEvents.reserve(ge.descriptors_size());
-	for (size_t i = 0; i < ge.descriptors_size(); i++)
+	for (int i = 0; i < ge.descriptors_size(); i++)
 	{
 		const GameEventList_descriptor_t &dsc = ge.descriptors(i);
 		gEvents.push_back(dsc);
@@ -18,11 +18,11 @@ void	DemoFile::handleGameEvent(GameEvent &ge)
 		std::cout << eventKey.toprint(); \
 		break;	\
 	}
-	if (ge.eventid() >= gEvents.size())
+	if ((size_t)ge.eventid() >= gEvents.size())
 		throw std::overflow_error("Eventid is more than gEvents");
 	const GameEventList_descriptor_t &event = gEvents[ge.eventid()];
 	std::cout << "Event " << event.name() << ":{ ";
-	for (size_t i = 0; i < event.keys_size(); i++)
+	for (int i = 0; i < event.keys_size(); i++)
 	{
 		const GameEventList_key_t &key = event.keys(i);
 		const GameEvent_key_t &eventKey = ge.keys(i);
@@ -54,7 +54,6 @@ void	DemoFile::handleGameEvent(GameEvent &ge)
 				break;
 			}
 		}
-			
 		std::cout << ", ";
 	}
 	std::cout << "}\n";
@@ -77,16 +76,14 @@ void DemoFile::handleCreateStringTable(CreateStringTable &si)
 
 void DemoFile::handleUpdateStringTable(UpdateStringTable &si)
 {
-	if (si.table_id() >= parsedTables.size())
+	if ((size_t)si.table_id() >= parsedTables.size())
 		return;
 	const std::string &tableName = parsedTables[si.table_id()].origin.name();
 	std::cout << "UpdateStringTable: { name: " << tableName << ", changed: " << si.num_changed_entries() << ", length: " << si.string_data().length() << "}" << std::endl;
 
 	ParsedStringTable &target = parsedTables[si.table_id()];
 	if (tableName == "userinfo")
-	{
 		target.Update(si, *this, true);
-	}
 }
 
 void DemoFile::handlePacketEntities(PacketEntities &e)
@@ -260,6 +257,7 @@ void	DemoFile::create_metrics()
 
 	for (size_t i = 0; i < frames.size(); i++)
 	{
+		auto	startTime = std::chrono::high_resolution_clock::now();
 		for (size_t x = 0; x < frames[i].pckt.msg.size(); x++)
 		{
 			const std::pair<int, void *> &pd = frames[i].pckt.msg[x];
@@ -301,6 +299,11 @@ void	DemoFile::create_metrics()
 				break;
 			}
 		}
+		auto	endTime = std::chrono::high_resolution_clock::now();
+		auto	diffdTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+		std::clog << "Time it took for frame " << i << " was " << diffdTime.count() << ", mspp: " << \
+					(diffdTime.count() == 0 ? 0 : (float)frames[i].pckt.msg.size() / (float)diffdTime.count()) \
+					<< std::endl; 
 	}
 #undef HandleCase
 #undef HandleOther

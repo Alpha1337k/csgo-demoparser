@@ -44,12 +44,15 @@ void	decodeProperty(standardParameters, int &ind, const DataTable &dt, GameEntit
 		prop.name = flatProp.path; \
 		prop.type = decoded_##typeV; \
 		prop.data = new typeV(rv); \
-		if (ind >= ent.properties.size()) \
-			ErrorReturnMessage("kanker"); \
+		if (ind >= (int)ent.properties.size()) \
+		{ \
+			std::cerr << "Error: property exceeds max:" << ent.properties.size() << ", value: " << ind << std::endl; \
+			return; \
+		} \
 		ent.properties[ind] = prop; \
 		break; \
 	}
-	assert(ind < ent.parentService.props.size());
+	assert(ind < (int)ent.parentService.props.size());
 
 	if (!arProp)
 		arProp = &ent.parentService.props[ind];
@@ -69,7 +72,7 @@ void	decodeProperty(standardParameters, int &ind, const DataTable &dt, GameEntit
 			while (maxElem >>= 1)
 				bitsToRead++;
 			int numElem = readBits(bitsToRead);
-			for (size_t x = 0; x < numElem; x++)
+			for (int x = 0; x < numElem; x++)
 			{
 				PropW newProp = PropW(flatProp.targetElem, flatProp.path + '.' + std::to_string(x));
 				decodeProperty(standardIParameters, ind, dt, ent, &newProp);
@@ -102,11 +105,11 @@ void	readFromStream(standardParameters, const DataTable &dt, GameEntities::Entit
 	}
 }
 
-DataTable::ServiceClass	PVSParser(standardParameters, int &id, DataTable &dt)
+DataTable::ServiceClass	PVSParser(standardParameters, DataTable &dt)
 {
 	int serverClassId = readBits(dt.serviceClassBits);
 
-	int serial = readBits(10);
+	readBits(10);
 	
 	DataTable::ServiceClass nSC = DataTable::ServiceClass(dt.services[serverClassId]);
 
@@ -122,7 +125,7 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt)
 
 	staged.clear();
 
-	size_t x = 0;
+	int x = 0;
 	for (; x < pe.updated_entries(); x++)
 	{
 		StagedChange newChange;
@@ -137,7 +140,7 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt)
 			{
 				newChange.type = 0;
 
-				newChange.data.parentService = PVSParser(standardIParameters, currentEntity, dt);
+				newChange.data.parentService = PVSParser(standardIParameters, dt);
 				newChange.data.properties.resize(newChange.data.parentService.props.size());
 
 				printIfAllowed("--entitymsg", std::cout << "Create" << std::endl);
@@ -170,9 +173,9 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt)
 
 		staged.push_back(newChange);
 
-		assert(i < data.length());
+		assert(i < (int)data.length());
 	}
-	assert(x == pe.updated_entries());
+	assert(x == (int)pe.updated_entries());
 	// assert(i == data.length()); this fails, dont know if its a big deal
 }
 
@@ -187,7 +190,7 @@ void		GameEntities::executeChanges()
 	{
 		if (staged[i].type == 0)
 		{
-			if (props.size() <= staged[i].index)
+			if ((int)props.size() <= staged[i].index)
 				props.resize(staged[i].index * 2 == 0 ? 1 : staged[i].index * 2);
 			props[staged[i].index] = staged[i].data;
 		}
