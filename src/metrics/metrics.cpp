@@ -88,43 +88,57 @@ void DemoFile::handleUpdateStringTable(UpdateStringTable &si)
 
 void DemoFile::handlePacketEntities(PacketEntities &e)
 {
+	static int count = 0;
+	auto	startTime = std::chrono::high_resolution_clock::now();
+	(void)e;
+
 	entities.parse(e, dataTable);
-	std::cout << "PacketEntities: { updated_entries: " << e.updated_entries() << ", data_len: " << e.entity_data().length() << "}" << std::endl; 
+	auto	endTime = std::chrono::high_resolution_clock::now();
+	auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
+	std::clog << "[p] Time it took for packet parsing was " << diffdTime.count() << "us, len: " << e.entity_data().length() << std::endl;
+	startTime = std::chrono::high_resolution_clock::now();
+	// std::cout << "PacketEntities: { updated_entries: " << e.updated_entries() << ", data_len: " << e.entity_data().length() << "}" << std::endl; 
 
-	// std::vector<GameEntities::StagedChange> ent = entities.getStagedChanges();
+	// // std::vector<GameEntities::StagedChange> ent = entities.getStagedChanges();
 
-	// for (size_t i = 0; i < ent.size(); i++)
-	// {
-	// 	std::cout << "StagedChange: { type: " << (int)ent[i].type << ", index: " << ent[i].index << ", data: {" << std::endl;
-	// 	std::cout << '\t' << ent[i].data.parentService << std::endl;
-	// 	for (size_t x = 0; x < ent[i].data.properties.size(); x++)
-	// 	{
-	// 		switch (ent[i].data.properties[x].type)
-	// 		{
-	// 		case decoded_int:
-	// 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(int *)ent[i].data.properties[x].data << std::endl;
-	// 			break;
-	// 		case decoded_float:
-	// 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(float *)ent[i].data.properties[x].data << std::endl;
-	// 			break;
-	// 		case decoded_Vector:
-	// 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(Vector *)ent[i].data.properties[x].data << std::endl;
-	// 			break;
-	// 		case decoded_Vector2:
-	// 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(Vector2 *)ent[i].data.properties[x].data << std::endl;
-	// 			break;
-	// 		case decoded_string:
-	// 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(std::string *)ent[i].data.properties[x].data << std::endl;
-	// 			break;
-	// 		default:
-	// 			break;
-	// 		}
-	// 	}
-	// 	std::cout << "}\n";
+	// // for (size_t i = 0; i < ent.size(); i++)
+	// // {
+	// // 	std::cout << "StagedChange: { type: " << (int)ent[i].type << ", index: " << ent[i].index << ", data: {" << std::endl;
+	// // 	std::cout << '\t' << ent[i].data.parentService << std::endl;
+	// // 	for (size_t x = 0; x < ent[i].data.properties.size(); x++)
+	// // 	{
+	// // 		switch (ent[i].data.properties[x].type)
+	// // 		{
+	// // 		case decoded_int:
+	// // 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(int *)ent[i].data.properties[x].data << std::endl;
+	// // 			break;
+	// // 		case decoded_float:
+	// // 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(float *)ent[i].data.properties[x].data << std::endl;
+	// // 			break;
+	// // 		case decoded_Vector:
+	// // 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(Vector *)ent[i].data.properties[x].data << std::endl;
+	// // 			break;
+	// // 		case decoded_Vector2:
+	// // 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(Vector2 *)ent[i].data.properties[x].data << std::endl;
+	// // 			break;
+	// // 		case decoded_string:
+	// // 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(std::string *)ent[i].data.properties[x].data << std::endl;
+	// // 			break;
+	// // 		default:
+	// // 			break;
+	// // 		}
+	// // 	}
+	// // 	std::cout << "}\n";
 		
-	// }
+	// // }
 	entities.executeChanges();
+	endTime = std::chrono::high_resolution_clock::now();
+	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
+	std::clog << "[p] Time it took for packet executing was " << diffdTime.count() << "us, len: " << e.entity_data().length() << std::endl;
 
+	count++;
+	if (count > 10)
+		exit(1);
 }
 
 template < class T >
@@ -300,9 +314,9 @@ void	DemoFile::create_metrics()
 			}
 		}
 		auto	endTime = std::chrono::high_resolution_clock::now();
-		auto	diffdTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+		auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 		std::clog << "Time it took for frame " << i << " was " << diffdTime.count() << ", mspp: " << \
-					(diffdTime.count() == 0 ? 0 : (float)frames[i].pckt.msg.size() / (float)diffdTime.count()) \
+					(diffdTime.count() == 0 ? 0 : (float)frames[i].pckt.msg.size() / (float)diffdTime.count() * 1000) \
 					<< std::endl; 
 	}
 #undef HandleCase

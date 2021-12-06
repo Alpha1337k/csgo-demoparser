@@ -39,23 +39,17 @@ void	decodeProperty(standardParameters, int &ind, const DataTable &dt, GameEntit
 	case i: \
 	{ \
 		typeV rv = decode##typeV(standardIParameters, flatProp.prop); \
-		printIfAllowed("--entitymsg", std::cout << flatProp.path << " : " << rv << std::endl); \
+		/* printIfAllowed("--entitymsg", std::cout << flatProp.path << " : " << rv << std::endl); */ \
 		GameEntities::Property prop; \
-		prop.name = flatProp.path; \
 		prop.type = decoded_##typeV; \
 		prop.data = new typeV(rv); \
-		if (ind >= (int)ent.properties.size()) \
-		{ \
-			std::cerr << "Error: property exceeds max:" << ent.properties.size() << ", value: " << ind << std::endl; \
-			return; \
-		} \
-		ent.properties[ind] = prop; \
+		ent.properties[flatProp.path] = prop;  /* this is a copy, so its kinda inefficient (+-5us) */ \
 		break; \
 	}
-	assert(ind < (int)ent.parentService.props.size());
+	assert(ind < (int)ent.parentService->props.size());
 
 	if (!arProp)
-		arProp = &ent.parentService.props[ind];
+		arProp = &ent.parentService->props[ind];
 	const PropW &flatProp = *arProp;
 
 	switch (flatProp.prop.type())
@@ -105,15 +99,13 @@ void	readFromStream(standardParameters, const DataTable &dt, GameEntities::Entit
 	}
 }
 
-DataTable::ServiceClass	PVSParser(standardParameters, DataTable &dt)
+DataTable::ServiceClass	*PVSParser(standardParameters, DataTable &dt)
 {
 	int serverClassId = readBits(dt.serviceClassBits);
 
 	readBits(10);
-	
-	DataTable::ServiceClass nSC = DataTable::ServiceClass(dt.services[serverClassId]);
 
-	return nSC;
+	return &dt.services[serverClassId];
 }
 
 void GameEntities::parse(PacketEntities &pe, DataTable &dt)
@@ -124,46 +116,45 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt)
 	int currentEntity = -1;
 
 	staged.clear();
+	staged.reserve(pe.updated_entries());
 
 	int x = 0;
 	for (; x < pe.updated_entries(); x++)
 	{
-		StagedChange newChange;
+		StagedChange *newChange = new StagedChange;
 
 		currentEntity += 1 + readStringVarInt(standardIParameters);
 
-		newChange.index = currentEntity;
-		printIfAllowed("--entitymsg", std::cout << "-------[Current Entity: " << currentEntity << ", bytes read: << " << i << "]" << std::endl);
+		newChange->index = currentEntity;
+		// printIfAllowed("--entitymsg", std::cout << "-------[Current Entity: " << currentEntity << ", bytes read: << " << i << "]" << std::endl);
 		if (readBits(1) == 0)
 		{
 			if (readBits(1))
 			{
-				newChange.type = 0;
+				newChange->type = 0;
 
-				newChange.data.parentService = PVSParser(standardIParameters, dt);
-				newChange.data.properties.resize(newChange.data.parentService.props.size());
+				newChange->data.parentService = PVSParser(standardIParameters, dt);
 
-				printIfAllowed("--entitymsg", std::cout << "Create" << std::endl);
-				printIfAllowed("--entitymsg", std::cout << newChange.data.parentService << std::endl);
-				readFromStream(standardIParameters, dt, newChange.data);
+				// printIfAllowed("--entitymsg", std::cout << "Create" << std::endl);
+				// printIfAllowed("--entitymsg", std::cout << newChange.data.parentService << std::endl);
+				readFromStream(standardIParameters, dt, newChange->data);
 			}
 			else
 			{
-				newChange.type = 1;
-				newChange.data.parentService = props[currentEntity].parentService;
-				newChange.data.properties.resize(newChange.data.parentService.props.size());
+				newChange->type = 1;
+				newChange->data.parentService = props[currentEntity].parentService;
 
-				printIfAllowed("--entitymsg", std::cout << "Update" << std::endl);
-				printIfAllowed("--entitymsg", std::cout << newChange.data.parentService << std::endl);
-				readFromStream(standardIParameters, dt, newChange.data);
+				// printIfAllowed("--entitymsg", std::cout << "Update" << std::endl);
+				// printIfAllowed("--entitymsg", std::cout << newChange.data.parentService << std::endl);
+				readFromStream(standardIParameters, dt, newChange->data);
 			}
 		}
 		else
 		{
-			newChange.type = 2;
+			newChange->type = 2;
 
-			printIfAllowed("--entitymsg", std::cout << "Delete" << std::endl);
-			printIfAllowed("--entitymsg", std::cout << props[currentEntity].parentService << std::endl);
+			// printIfAllowed("--entitymsg", std::cout << "Delete" << std::endl);
+			// printIfAllowed("--entitymsg", std::cout << props[currentEntity].parentService << std::endl);
 
 			DataTable::ServiceClass nullified = DataTable::ServiceClass();
 			nullified.id = -1;
@@ -179,7 +170,7 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt)
 	// assert(i == data.length()); this fails, dont know if its a big deal
 }
 
-const std::vector<GameEntities::StagedChange>	&GameEntities::getStagedChanges()
+const std::vector<GameEntities::StagedChange *>	&GameEntities::getStagedChanges()
 {
 	return staged;
 }
@@ -188,29 +179,32 @@ void		GameEntities::executeChanges()
 {
 	for (size_t i = 0; i < staged.size(); i++)
 	{
-		if (staged[i].type == 0)
+		if (staged[i]->type == 0)
 		{
-			if ((int)props.size() <= staged[i].index)
-				props.resize(staged[i].index * 2 == 0 ? 1 : staged[i].index * 2);
-			props[staged[i].index] = staged[i].data;
+			props[staged[i]->index] = staged[i]->data;
 		}
-		else if (staged[i].type == 1)
+		else if (staged[i]->type == 1)
 		{
-			Entity	&ref = props[staged[i].index];
-			for (size_t x = 0; x < staged[i].data.properties.size(); x++)
+			Entity	&ref = props[staged[i]->index];
+			for (std::map<std::string, Property>::iterator it = staged[i]->data.properties.begin(); \
+				it != staged[i]->data.properties.end(); it++)
 			{
-				if (staged[i].data.properties[x].name.length())
-				{
-					ref.properties[x] = staged[i].data.properties[x];
-				}
+				GameEntities::Property &p = ref.properties[it->first];
+				delete (char *)p.data;
+				p.data = it->second.data;
 			}
+			
 		}
-		else if (staged[i].type == 2)
+		else if (staged[i]->type == 2)
 		{
 			Entity nullified;
 
-			props[staged[i].index] = nullified;
+			props[staged[i]->index] = nullified;
 		}
+	}
+	for (size_t i = 0; i < staged.size(); i++)
+	{
+		delete staged[i];
 	}
 	staged.clear();
 }
@@ -219,8 +213,6 @@ GameEntities::GameEntities() {}
 
 GameEntities::Property::~Property()
 {
-	// if (data)
-	// 	delete (char *)data;
 }
 
 
@@ -243,9 +235,9 @@ GameEntities::Entity		&GameEntities::Entity::operator=(const GameEntities::Entit
 
 	return (*this);
 }
+
 GameEntities::Property		&GameEntities::Property::operator=(const GameEntities::Property &s)
 {
-	name = s.name;
 	type = s.type;
 	data = s.data;
 

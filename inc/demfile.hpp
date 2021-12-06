@@ -118,8 +118,19 @@ class FileReader
 		int				readInt();
 		std::string		readString();
 		size_t			getOffset();
-
 };
+
+// class	StreamReader
+// {
+// 	private:
+// 		std::string &data;
+// 		size_t		idx;
+// 		char		bitsAvailable;
+// 	public:
+// 		StreamReader(std::string &d);
+// 		int			readBits(size_t c);
+// 		bool		isEof();
+// };
 
 struct Packet
 {
@@ -244,7 +255,6 @@ class GameEntities
 	public:
 		struct Property
 		{
-			std::string name;
 			int type;
 			void	*data;
 			Property		&operator=(const Property &s);
@@ -253,9 +263,11 @@ class GameEntities
 		};
 		struct Entity
 		{
-			DataTable::ServiceClass parentService;
-			std::vector<Property>	properties;
+			DataTable::ServiceClass *parentService;
+			std::map<std::string, Property>	properties;
+
 			Entity			&operator=(const Entity &s);
+			void UpdateEntity(Entity &s);
 		};
 		struct StagedChange
 		{
@@ -263,16 +275,18 @@ class GameEntities
 			char	type;
 			int		index;
 			Entity	data;
+			StagedChange() {}
+			StagedChange(const StagedChange &s) {*this = s;}
 			StagedChange	&operator=(const StagedChange &s);
 		};
 
 	private:
-		std::vector<Entity>						props;
-		std::vector<StagedChange>				staged;
+		std::map<int, Entity>					props;
+		std::vector<StagedChange *>				staged;
 	public:
 		GameEntities();
 		void	parse(PacketEntities &pe, DataTable &dt);
-		const std::vector<StagedChange>	&getStagedChanges();
+		const std::vector<StagedChange *>	&getStagedChanges();
 		void	executeChanges();
 };
 
