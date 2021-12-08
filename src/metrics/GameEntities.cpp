@@ -1,27 +1,27 @@
 #include <demo.hpp>
 
-int		readFieldIndex(standardParameters, bool newWay, int oldindex)
+int		readFieldIndex(StreamReader &sr, bool newWay, int oldindex)
 {
-	if (newWay && readBits(1))
+	if (newWay && sr.readBits(1))
 	{
 		return oldindex + 1;
 	}
 	int rval = 0;
-	if (newWay && readBits(1))
-		rval = readBits(3);
+	if (newWay && sr.readBits(1))
+		rval = sr.readBits(3);
 	else
 	{
-		rval = readBits(7);
+		rval = sr.readBits(7);
 		switch (rval & (32 | 64))
 		{
 			case 32:
-				rval = (rval & ~96) | (readBits(2) << 5);
+				rval = (rval & ~96) | (sr.readBits(2) << 5);
 				break;
 			case 64:
-				rval = (rval & ~96) | (readBits(4) << 5);
+				rval = (rval & ~96) | (sr.readBits(4) << 5);
 				break;
 			case 96:
-				rval = (rval & ~96) | (readBits(7) << 5);
+				rval = (rval & ~96) | (sr.readBits(7) << 5);
 				break;
 			default:
 				break;
@@ -32,13 +32,13 @@ int		readFieldIndex(standardParameters, bool newWay, int oldindex)
 	return oldindex + 1 + rval;
 }
 
-void	decodeProperty(standardParameters, int &ind, const DataTable &dt, GameEntities::Entity &ent, const PropW *arProp = 0)
+void	decodeProperty(StreamReader &sr, int &ind, const DataTable &dt, GameEntities::Entity &ent, const PropW *arProp = 0)
 {
 #define string std::string
 #define DecodeSwitch(i, typeV) \
 	case i: \
 	{ \
-		typeV rv = decode##typeV(standardIParameters, flatProp.prop); \
+		typeV rv = decode##typeV(sr, flatProp.prop); \
 		/* printIfAllowed("--entitymsg", std::cout << flatProp.path << " : " << rv << std::endl); */ \
 		GameEntities::Property prop; \
 		prop.type = decoded_##typeV; \
@@ -65,11 +65,11 @@ void	decodeProperty(standardParameters, int &ind, const DataTable &dt, GameEntit
 			int bitsToRead = 1;
 			while (maxElem >>= 1)
 				bitsToRead++;
-			int numElem = readBits(bitsToRead);
+			int numElem = sr.readBits(bitsToRead);
 			for (int x = 0; x < numElem; x++)
 			{
 				PropW newProp = PropW(flatProp.targetElem, flatProp.path + '.' + std::to_string(x));
-				decodeProperty(standardIParameters, ind, dt, ent, &newProp);
+				decodeProperty(sr, ind, dt, ent, &newProp);
 			}
 			break;
 		}
@@ -83,36 +83,35 @@ void	decodeProperty(standardParameters, int &ind, const DataTable &dt, GameEntit
 #undef DecodeSwitch
 }
 
-void	readFromStream(standardParameters, const DataTable &dt, GameEntities::Entity &ent)
+void	readFromStream(StreamReader &sr, const DataTable &dt, GameEntities::Entity &ent)
 {
-	bool readNewWay = readBits(1) == 1 ? true : false;
+	bool readNewWay = sr.readBits(1) == 1 ? true : false;
 
 	std::vector<int> indicies;
 	int index = -1;
 	
-	while ((index = readFieldIndex(standardIParameters, readNewWay, index)) != -1)
+	while ((index = readFieldIndex(sr, readNewWay, index)) != -1)
 		indicies.push_back(index);
 
 	for (size_t x = 0; x < indicies.size(); x++)
 	{
-		decodeProperty(standardIParameters, indicies[x], dt, ent);
+		decodeProperty(sr, indicies[x], dt, ent);
 	}
 }
 
-DataTable::ServiceClass	*PVSParser(standardParameters, DataTable &dt)
+DataTable::ServiceClass	*PVSParser(StreamReader &sr, DataTable &dt)
 {
-	int serverClassId = readBits(dt.serviceClassBits);
+	int serverClassId = sr.readBits(dt.serviceClassBits);
 
-	readBits(10);
+	sr.readBits(10);
 
 	return &dt.services[serverClassId];
 }
 
 void GameEntities::parse(PacketEntities &pe, DataTable &dt)
 {
-	const std::string &data = pe.entity_data();
-	int i = 0;
-	char bitsAvailable = 8;
+	StreamReader sr(pe.entity_data());	
+	
 	int currentEntity = -1;
 
 	staged.clear();
@@ -123,21 +122,21 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt)
 	{
 		StagedChange *newChange = new StagedChange;
 
-		currentEntity += 1 + readStringVarInt(standardIParameters);
+		currentEntity += 1 + sr.readStreamInt();
 
 		newChange->index = currentEntity;
 		// printIfAllowed("--entitymsg", std::cout << "-------[Current Entity: " << currentEntity << ", bytes read: << " << i << "]" << std::endl);
-		if (readBits(1) == 0)
+		if (sr.readBits(1) == 0)
 		{
-			if (readBits(1))
+			if (sr.readBits(1))
 			{
 				newChange->type = 0;
 
-				newChange->data.parentService = PVSParser(standardIParameters, dt);
+				newChange->data.parentService = PVSParser(sr, dt);
 
 				// printIfAllowed("--entitymsg", std::cout << "Create" << std::endl);
 				// printIfAllowed("--entitymsg", std::cout << newChange.data.parentService << std::endl);
-				readFromStream(standardIParameters, dt, newChange->data);
+				readFromStream(sr, dt, newChange->data);
 			}
 			else
 			{
@@ -146,7 +145,7 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt)
 
 				// printIfAllowed("--entitymsg", std::cout << "Update" << std::endl);
 				// printIfAllowed("--entitymsg", std::cout << newChange.data.parentService << std::endl);
-				readFromStream(standardIParameters, dt, newChange->data);
+				readFromStream(sr, dt, newChange->data);
 			}
 		}
 		else
@@ -159,12 +158,12 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt)
 			DataTable::ServiceClass nullified = DataTable::ServiceClass();
 			nullified.id = -1;
 
-			readBits(1);
+			sr.readBits(1);
 		}
 
 		staged.push_back(newChange);
 
-		assert(i < (int)data.length());
+		assert(!sr.isEof());
 	}
 	assert(x == (int)pe.updated_entries());
 	// assert(i == data.length()); this fails, dont know if its a big deal

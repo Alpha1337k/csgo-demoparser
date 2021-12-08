@@ -95,7 +95,7 @@ void DemoFile::handlePacketEntities(PacketEntities &e)
 	entities.parse(e, dataTable);
 	auto	endTime = std::chrono::high_resolution_clock::now();
 	auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
-	std::clog << "[p] Time it took for packet parsing was " << diffdTime.count() << "us, len: " << e.entity_data().length() << std::endl;
+	// std::clog << "[p] Time it took for packet parsing was " << diffdTime.count() << "us, len: " << e.entity_data().length() << std::endl;
 	startTime = std::chrono::high_resolution_clock::now();
 	// std::cout << "PacketEntities: { updated_entries: " << e.updated_entries() << ", data_len: " << e.entity_data().length() << "}" << std::endl; 
 
@@ -134,11 +134,7 @@ void DemoFile::handlePacketEntities(PacketEntities &e)
 	entities.executeChanges();
 	endTime = std::chrono::high_resolution_clock::now();
 	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
-	std::clog << "[p] Time it took for packet executing was " << diffdTime.count() << "us, len: " << e.entity_data().length() << std::endl;
-
-	count++;
-	if (count > 10)
-		exit(1);
+	// std::clog << "[p] Time it took for packet executing was " << diffdTime.count() << "us, len: " << e.entity_data().length() << std::endl;
 }
 
 template < class T >
@@ -315,7 +311,7 @@ void	DemoFile::create_metrics()
 		}
 		auto	endTime = std::chrono::high_resolution_clock::now();
 		auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
-		std::clog << "Time it took for frame " << i << " was " << diffdTime.count() << ", mspp: " << \
+		// std::clog << "Time it took for frame " << i << " was " << diffdTime.count() << ", mspp: " << \
 					(diffdTime.count() == 0 ? 0 : (float)frames[i].pckt.msg.size() / (float)diffdTime.count() * 1000) \
 					<< std::endl; 
 	}

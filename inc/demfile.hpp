@@ -13,9 +13,9 @@
 #include <math.h>
 #include <chrono>
 
-#define readBits(x) readStringBits(data, x, i, bitsAvailable)
-#define standardParameters const std::string &data, int &i, char &bitsAvailable
-#define standardIParameters data, i, bitsAvailable
+// #define sr.readBits(x) readStringBits(data, x, i, bitsAvailable)
+// #define StreamReader &sr const std::string &data, int &i, char &bitsAvailable
+// #define sr data, i, bitsAvailable
 
 #define printIfAllowed(query, toPrint)	\
 	{									\
@@ -120,17 +120,19 @@ class FileReader
 		size_t			getOffset();
 };
 
-// class	StreamReader
-// {
-// 	private:
-// 		std::string &data;
-// 		size_t		idx;
-// 		char		bitsAvailable;
-// 	public:
-// 		StreamReader(std::string &d);
-// 		int			readBits(size_t c);
-// 		bool		isEof();
-// };
+class	StreamReader
+{
+	private:
+		const std::string &data;
+		size_t		idx;
+		char		bitsAvailable;
+		char		buffer;
+	public:
+		StreamReader(const std::string &d);
+		int			readBits(char len);
+		int			readStreamInt();
+		bool		isEof();
+};
 
 struct Packet
 {
@@ -303,6 +305,7 @@ private:
 	std::vector<Player>					players;
 	DataTable							dataTable;
 	GameEntities						entities;
+	std::vector<void (*)(void *)>		eventHooks;
 
 	void handleGameEventList(GameEventList &ge);
 	void handleGameEvent(GameEvent &ge);
@@ -318,21 +321,21 @@ public:
 	void AddPlayer(Player &p);
 	void	create_metrics();
 
+	void	addEventHook(SVC_Messages type, void (*f)(void *data));
+	void	removeEventHook(SVC_Messages type);
 };
 
-std::string	readVarString(const std::string &str, int &iter);
 MessageVector getProtoMesssages(FileReader &f, int size);
 int readVarInt(char *ar, size_t *iter);
 int		readStringBits(const std::string &str, int count, int &i, char &bitsAvailable);
 int		readStringVarInt(const std::string &str, int &i, char &bitsAvailable);
-std::string replaceAll(std::string str, const std::string from, const std::string to);
 
 /* decoders */
-int decodeint(standardParameters, const SendTable_sendprop_t &prop);
-float decodefloat(standardParameters, const SendTable_sendprop_t &prop);
-Vector decodeVector(standardParameters, const SendTable_sendprop_t &prop);
-Vector2 decodeVector2(standardParameters, const SendTable_sendprop_t &prop);
-std::string decodestring(standardParameters, const SendTable_sendprop_t &prop);
+int decodeint(StreamReader &sr, const SendTable_sendprop_t &prop);
+float decodefloat(StreamReader &sr, const SendTable_sendprop_t &prop);
+Vector decodeVector(StreamReader &sr, const SendTable_sendprop_t &prop);
+Vector2 decodeVector2(StreamReader &sr, const SendTable_sendprop_t &prop);
+std::string decodestring(StreamReader &sr, const SendTable_sendprop_t &prop);
 
 
 

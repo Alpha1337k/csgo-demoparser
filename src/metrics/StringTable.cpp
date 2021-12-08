@@ -22,9 +22,9 @@ void	ParsedStringTable::Update(UpdateStringTable &ut, DemoFile &df, bool isUserI
 
 void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num_changed_entries, DemoFile &df)
 {
-	int i = 0;
 	int lastEntry = -1;
-	char bitsAvailable = 8;
+	StreamReader sr(data);
+	
 	(void)isUserInfo;
 
 	// perform integer log2() to set nEntryBits
@@ -33,7 +33,7 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 	while (nTemp >>= 1) ++nEntryBits;
 
 
-	bool isDictionary = readBits(1) != 0;
+	bool isDictionary = sr.readBits(1) != 0;
 
 	if (isDictionary)
 		ErrorReturnMessage("Error: StringTable: encoded using dictionary")
@@ -44,23 +44,23 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 	{
 		int entryIndex = lastEntry + 1;
 
-		if (readBits(1) == 0)
-			entryIndex = readBits(nEntryBits);
+		if (sr.readBits(1) == 0)
+			entryIndex = sr.readBits(nEntryBits);
 		lastEntry = entryIndex;
 		if (entryIndex < 0 || entryIndex >= origin.max_entries())
 			ErrorReturnMessage("Error: ParseStringUpdate Error")
 
 		std::string entry;
-		if (readBits(1) != 0)
+		if (sr.readBits(1) != 0)
 		{
 			int copySize = 1024;
-			if (readBits(1) != 0)
-				readBits(10);
+			if (sr.readBits(1) != 0)
+				sr.readBits(10);
 			char charToAdd = ' ';
 			int count = 0;
 			while (charToAdd != 0 && charToAdd != '\n' && count < copySize)
 			{
-				charToAdd = readBits(8);
+				charToAdd = sr.readBits(8);
 				entry += charToAdd;
 				count++;
 			}
@@ -69,7 +69,7 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 		std::string userData;
 		size_t size = 0;
 
-		if (readBits(1) != 0)
+		if (sr.readBits(1) != 0)
 		{
 			if (origin.user_data_fixed_size())
 			{
@@ -77,12 +77,12 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 			}
 			else
 			{
-				size = readBits(14);
+				size = sr.readBits(14);
 			}
 			char charToAdd;
 			while (size > userData.size())
 			{
-				charToAdd = readBits(8);
+				charToAdd = sr.readBits(8);
 				userData += charToAdd;
 			}
 		}
@@ -94,7 +94,7 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 			assert(p.version == -4094);
 			df.AddPlayer(p);
 		}
-		assert((size_t)i < data.length());
+		assert(!sr.isEof());
 	}
 }
 

@@ -18,28 +18,28 @@ const int COORD_FRACTIONAL_BITS_MP_LOWPRECISION = 3;
 const float COORD_DENOMINATOR_LOWPRECISION = ( 1 << ( COORD_FRACTIONAL_BITS_MP_LOWPRECISION ) );
 const float COORD_RESOLUTION_LOWPRECISION = ( 1.0f / ( COORD_DENOMINATOR_LOWPRECISION ) );
 
-int decodeint(standardParameters, const SendTable_sendprop_t &prop)
+int decodeint(StreamReader &sr, const SendTable_sendprop_t &prop)
 {
 	if (prop.flags() & ( 1 << 19))
 	{
 		assert(0 != 0);
-		return readBits(4);
+		return sr.readBits(4);
 	}
 	else
 	{
-		return readBits(prop.num_bits());
+		return sr.readBits(prop.num_bits());
 	}
 }
 
-Vector decodeVector(standardParameters, const SendTable_sendprop_t &prop) 
+Vector decodeVector(StreamReader &sr, const SendTable_sendprop_t &prop) 
 {
 	Vector rv;
 
-	rv.x = decodefloat(standardIParameters, prop);
-	rv.y = decodefloat(standardIParameters, prop);
+	rv.x = decodefloat(sr, prop);
+	rv.y = decodefloat(sr, prop);
 
 	if ((prop.flags() & (1 << 5)) == 0)
-		rv.z = decodefloat(standardIParameters, prop);
+		rv.z = decodefloat(sr, prop);
 	else
 	{
 		rv.z = rv.x * rv.x + rv.y * rv.y;
@@ -48,25 +48,25 @@ Vector decodeVector(standardParameters, const SendTable_sendprop_t &prop)
 		else
 			rv.z = 0;
 
-		if (readBits(1))
+		if (sr.readBits(1))
 			rv.z = -1;
 	}
 	return rv;
 }
-Vector2 decodeVector2(standardParameters, const SendTable_sendprop_t &prop) 
+Vector2 decodeVector2(StreamReader &sr, const SendTable_sendprop_t &prop) 
 {
 	Vector2 rv;
 
-	rv.x = decodefloat(standardIParameters, prop);
-	rv.y = decodefloat(standardIParameters, prop);
+	rv.x = decodefloat(sr, prop);
+	rv.y = decodefloat(sr, prop);
 
 	return rv;
 }
-std::string decodestring(standardParameters, const SendTable_sendprop_t &prop)
+std::string decodestring(StreamReader &sr, const SendTable_sendprop_t &prop)
 {
 
 	(void)prop;
-	unsigned int len = readBits(9);
+	unsigned int len = sr.readBits(9);
 
 	unsigned int maxBuffer = (1 << 9);
 	if (len >= maxBuffer)
@@ -77,86 +77,86 @@ std::string decodestring(standardParameters, const SendTable_sendprop_t &prop)
 	rv.reserve(len);
 	for (size_t x = 0; x < len; x++)
 	{
-		rv += (char)readBits(8);
+		rv += (char)sr.readBits(8);
 	}
 	return rv;
 }
 
-float readfBits(standardParameters)
+float readfBits(StreamReader &sr)
 {
 	int iVal, fVal;
 	float rv = 0;
 
-	iVal = readBits(1);
-	fVal = readBits(1);
+	iVal = sr.readBits(1);
+	fVal = sr.readBits(1);
 	bool isNeg = false;
 
 	if (iVal || fVal)
 	{
-		isNeg = readBits(1);
+		isNeg = sr.readBits(1);
 
 		if (iVal)
-			iVal = readBits(14) + 1;
+			iVal = sr.readBits(14) + 1;
 		if (fVal)
-			fVal = readBits(5);
+			fVal = sr.readBits(5);
 		rv = iVal + ((float)fVal * COORD_RESOLUTION);
 	}
 
 	return rv * (isNeg == 1 ? -1 : 1);
 }
 
-float readfBitsCoord(standardParameters, bool isInt, bool isLowPrc)
+float readfBitsCoord(StreamReader &sr, bool isInt, bool isLowPrc)
 {
 	int iVal, fVal;
 	float rv = 0;
 	bool isNeg = false, inbounds;
 
-	inbounds = readBits(1);
+	inbounds = sr.readBits(1);
 
-	iVal = readBits(1);
+	iVal = sr.readBits(1);
 
 	if (iVal == 1)
 	{
-		isNeg = readBits(1);
+		isNeg = sr.readBits(1);
 
 		if (inbounds)
-			rv = (float)readBits(11) + 1;
+			rv = (float)sr.readBits(11) + 1;
 		else
-			rv = (float)readBits(14) + 1;
+			rv = (float)sr.readBits(14) + 1;
 	}
 	if (isInt == false)
 	{
 		if (isLowPrc)
-			fVal = readBits(3);
+			fVal = sr.readBits(3);
 		else
-			fVal = readBits(5);
+			fVal = sr.readBits(5);
 		rv = rv + ((float)fVal * (isLowPrc ? COORD_RESOLUTION_LOWPRECISION : COORD_RESOLUTION));
 	}
 	return rv * (isNeg == 1 ? -1 : 1);
 }
 
-float	readFloat(standardParameters)
+float	readFloat(StreamReader &sr)
 {
-	unsigned int fl = readBits(32);
+	unsigned int fl = sr.readBits(32);
 
 	return *((float *)&fl);
 }
 
-float readfCellCoord(standardParameters, const SendTable_sendprop_t &prop, char level)
+float readfCellCoord(StreamReader &sr, const SendTable_sendprop_t &prop, char level)
 {
 	if (level == 2)
-		return readBits(prop.num_bits());
-	int iVal = readBits(prop.num_bits());
-	int fVal = readBits(level == 1 ? 3 : 5);
+		return sr.readBits(prop.num_bits());
+	int iVal = sr.readBits(prop.num_bits());
+	int fVal = sr.readBits(level == 1 ? 3 : 5);
 
 	return iVal + (fVal * (1 / (1 << (level == 1 ? 3 : 5))));
 }
 
-float readfIntep(standardParameters, const SendTable_sendprop_t &prop)
+float readfIntep(StreamReader &sr, const SendTable_sendprop_t &prop)
 {
 	float rv = 0;
 
-	int fl = readBits(prop.num_bits());
+	int fl = sr.readBits(prop.num_bits());
 
 	rv = (float)fl / ((1 << prop.num_bits()) - 1);
 	rv = prop.low_value() + (prop.high_value() - prop.low_value()) * rv;
@@ -164,39 +164,39 @@ float readfIntep(standardParameters, const SendTable_sendprop_t &prop)
 	return rv;
 }
 
-float readfNormal(standardParameters)
+float readfNormal(StreamReader &sr)
 {
-	int sign = readBits(1);
-	int	dt = readBits(11);
+	int sign = sr.readBits(1);
+	int	dt = sr.readBits(11);
 
 	float val = (float)dt * (1 / ((1 << 11) - 1));
 
 	return sign == 1 ? -val : val;
 }
 
-float decodefloat(standardParameters, const SendTable_sendprop_t &prop) 
+float decodefloat(StreamReader &sr, const SendTable_sendprop_t &prop) 
 {
 	float rv;
 
 	if (prop.flags() & SPROP_COORD)
-		rv = readfBits(standardIParameters);
+		rv = readfBits(sr);
 	else if (prop.flags() & SPROP_COORD_MP)
-		rv = readfBitsCoord(standardIParameters, false, false);
+		rv = readfBitsCoord(sr, false, false);
 	else if (prop.flags() & SPROP_COORD_MP_LOWPRECISION)
-		rv = readfBitsCoord(standardIParameters, false, true);
+		rv = readfBitsCoord(sr, false, true);
 	else if (prop.flags() & SPROP_COORD_MP_INTEGRAL)
-		rv = readfBitsCoord(standardIParameters, true, false);
+		rv = readfBitsCoord(sr, true, false);
 	else if (prop.flags() & SPROP_NOSCALE)
-		rv = readFloat(standardIParameters);
+		rv = readFloat(sr);
 	else if (prop.flags() & SPROP_NORMAL)
-		rv = readfNormal(standardIParameters);
+		rv = readfNormal(sr);
 	else if (prop.flags() & SPROP_CELL_COORD)
-		rv = readfCellCoord(standardIParameters, prop, 0);
+		rv = readfCellCoord(sr, prop, 0);
 	else if (prop.flags() & SPROP_CELL_COORD_LOWPRECISION)
-		rv = readfCellCoord(standardIParameters, prop, 1);
+		rv = readfCellCoord(sr, prop, 1);
 	else if (prop.flags() & SPROP_CELL_COORD_INTEGRAL)
-		rv = readfCellCoord(standardIParameters, prop, 2);
+		rv = readfCellCoord(sr, prop, 2);
 	else
-		rv = readfIntep(standardIParameters, prop);
+		rv = readfIntep(sr, prop);
 	return rv;
 }
