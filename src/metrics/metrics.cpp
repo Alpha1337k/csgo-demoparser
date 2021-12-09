@@ -63,9 +63,9 @@ void	DemoFile::handleGameEvent(GameEvent &ge)
 void DemoFile::handleServerInfo(ServerInfo &si)
 {
 	info = &si;
-	std::cout << "ServerInfo: {" << std::endl;
-	std::cout << si.DebugString() << std::endl;
-	std::cout << "}" << std::endl;
+
+	if (eventHooks[svc_ServerInfo])
+		eventHooks[svc_ServerInfo](&si);
 }
 
 void DemoFile::handleCreateStringTable(CreateStringTable &si)
@@ -88,7 +88,6 @@ void DemoFile::handleUpdateStringTable(UpdateStringTable &si)
 
 void DemoFile::handlePacketEntities(PacketEntities &e)
 {
-	static int count = 0;
 	auto	startTime = std::chrono::high_resolution_clock::now();
 	(void)e;
 
@@ -249,28 +248,25 @@ void	DemoFile::create_metrics()
 #define HandleOther(type) \
 	case svc_##type: \
 	{ \
-		if (startupParameters["-v"]) \
-			std::cout << #type << ": " << ((type *)pd.second)->DebugString() << std::endl; \
-		else if (startupParameters["-d"]) \
-			std::cout << #type << std::endl; \
+		if (eventHooks[svc_##type]) \
+			eventHooks[svc_##type](&pd.second); \
 		break; \
 	}
 #define HandleOtherNet(type) \
 	case net_##type: \
 	{ \
-		if (startupParameters["-v"]) \
-			std::cout << #type << ": " << ((type *)pd.second)->DebugString() << std::endl; \
-		else if (startupParameters["-d"]) \
-			std::cout << #type << std::endl; \
+		if (eventHooks[net_##type]) \
+			eventHooks[net_##type](&pd.second); \
 		break; \
 	}
 
+	
 	for (size_t i = 0; i < frames.size(); i++)
 	{
 		auto	startTime = std::chrono::high_resolution_clock::now();
 		for (size_t x = 0; x < frames[i].pckt.msg.size(); x++)
 		{
-			const std::pair<int, void *> &pd = frames[i].pckt.msg[x];
+			std::pair<int, void *> &pd = frames[i].pckt.msg[x];
 
 			switch (pd.first)
 			{
@@ -311,7 +307,7 @@ void	DemoFile::create_metrics()
 		}
 		auto	endTime = std::chrono::high_resolution_clock::now();
 		auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
-		// std::clog << "Time it took for frame " << i << " was " << diffdTime.count() << ", mspp: " << \
+		std::clog << "Time it took for frame " << i << " was " << diffdTime.count() << ", mspp: " << \
 					(diffdTime.count() == 0 ? 0 : (float)frames[i].pckt.msg.size() / (float)diffdTime.count() * 1000) \
 					<< std::endl; 
 	}
