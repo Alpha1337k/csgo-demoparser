@@ -2,6 +2,7 @@
 
 DemoFile::DemoFile(FileReader &f)
 {
+	eventHooks.resize(33, 0);
 	std::size_t headerSize;
 	
 	// headerSize = fread(&header, 1, sizeof(header), f);
@@ -35,7 +36,7 @@ DemoFile::~DemoFile()
 		delete (type *)frames[i].pckt.msg[x].second; \
 		break; \
 	}
-std::cout << "Freeing" << std::endl;
+	std::cout << "Freeing" << std::endl;
 	for (size_t i = 0; i < frames.size(); i++)
 	{
 		for (size_t x = 0; x < frames[i].pckt.msg.size(); x++)

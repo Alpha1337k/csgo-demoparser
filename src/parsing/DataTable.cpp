@@ -42,7 +42,6 @@ DataTable &DataTable::operator=(const DataTable &d)
 	msg = d.msg;
 	serviceClassBits = d.serviceClassBits;
 
-	std::cerr << "operator called!!!" << std::endl;
 	return *this;
 }
 

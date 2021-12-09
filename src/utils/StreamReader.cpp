@@ -1,7 +1,8 @@
 #include <demo.hpp>
 
 StreamReader::StreamReader(const std::string &d): data(d), idx(0), bitsAvailable(8), buffer(data[0])
-{}
+{
+}
 
 int		StreamReader::readBits(char len)
 {
