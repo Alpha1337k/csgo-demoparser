@@ -4,21 +4,16 @@ DemoFile::DemoFile(FileReader &f)
 {
 	eventHooks.resize(33, 0);
 	std::size_t headerSize;
-	
-	// headerSize = fread(&header, 1, sizeof(header), f);
+
 	headerSize = f.read(&header, sizeof(header));
 	if (headerSize != 1072)
 		throw std::exception();
 	// std::cout << header << std::endl;
 	bool isFinished = false;
 
-	std::size_t packetCount = 0;
-	while (!isFinished && packetCount < 1000000)
+	while (!isFinished)
 	{
-		Frame frm(f, isFinished);
-		// std::cout << frm <<  std::endl;
-		frames.push_back(frm);
-		packetCount++;
+		frames.push_back(Frame(f, isFinished));
 	}
 }
 

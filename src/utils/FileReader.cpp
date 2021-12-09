@@ -66,6 +66,16 @@ int		FileReader::readInt()
 	return result;		
 }
 
+char		*FileReader::getCurrentChar()
+{
+	return &(data[idx]);
+}
+
+void			FileReader::ForceIncrement(size_t len)
+{
+	idx += len;
+}
+
 std::string		FileReader::readString()
 {
 	std::string rv;

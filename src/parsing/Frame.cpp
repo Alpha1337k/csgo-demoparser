@@ -42,3 +42,16 @@ Frame::Frame(FileReader &f, bool &finished)
 		}
 	}
 }
+
+Frame::Frame(const Frame &f) {*this = f;}
+
+Frame	&Frame::operator=(const Frame &f)
+{
+	cmd = f.cmd;
+	pckt = f.pckt;
+	tick = f.tick;
+	playerslot = f.playerslot;
+
+
+	return *this;
+}

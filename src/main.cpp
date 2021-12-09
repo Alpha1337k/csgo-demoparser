@@ -105,9 +105,15 @@ int main(int argc, char **argv, char **env)
 		std::cerr << "Error: file could not be opened" << std::endl;
 		return (-1);
 	}
+	auto	startTime = std::chrono::high_resolution_clock::now();
 
 	DemoFile demo(f);
 	demoref = &demo;
+
+	auto	endTime = std::chrono::high_resolution_clock::now();
+	auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
+
+	std::cout << "Preparser took" << diffdTime.count() / 1000 << "ms" << std::endl;
 
 	if (startupParameters["--only-parse"] == 0)
 	{

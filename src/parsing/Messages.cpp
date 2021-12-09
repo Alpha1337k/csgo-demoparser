@@ -8,7 +8,7 @@ MessageVector	getProtoMesssages(FileReader &f, int size)
 	case svc_##type: \
 	{ \
 		type *svi = new type; \
-		if (svi->ParseFromString(packetdata) == false) \
+		if (svi->ParseFromArray(dataptr, length) == false) \
 		{ \
 			std::cerr << "Error: parsing failed: " << #type << std::endl; \
 			svi = 0; \
@@ -26,7 +26,7 @@ MessageVector	getProtoMesssages(FileReader &f, int size)
 	case net_##type: \
 	{ \
 		type *net = new type; \
-		if (net->ParseFromString(packetdata) == false) \
+		if (net->ParseFromArray(dataptr, length) == false) \
 		{ \
 			std::cerr << "Error: parsing failed: " << #type << std::endl; \
 			net = 0; \
@@ -49,10 +49,8 @@ MessageVector	getProtoMesssages(FileReader &f, int size)
 
 		//std::cout << "Iter: " << iter << " messagetype:" << (int)messagetype << ", length: " << length << std::endl;
 
-		std::string packetdata;
-		packetdata.resize(length);
-
-		f.read(&packetdata[0], length);
+		char *dataptr = f.getCurrentChar();
+		f.ForceIncrement(length);
 
 		switch (messagetype)
 		{

@@ -115,6 +115,8 @@ class FileReader
 		int				load(std::string path);
 		size_t			read(void *buffer, size_t size);
 		bool			isEof();
+		char			*getCurrentChar();
+		void			ForceIncrement(size_t len);
 		int				readInt();
 		std::string		readString();
 		size_t			getOffset();
@@ -165,6 +167,8 @@ struct Frame
 
 	Packet			pckt;
 	Frame(FileReader &f, bool &finished);
+	Frame(const Frame &f);
+	Frame &operator=(const Frame &f);
 };
 std::ostream &operator<<(std::ostream &o, const Frame &d);
 
