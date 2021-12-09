@@ -12,52 +12,16 @@ void	DemoFile::handleGameEventList(GameEventList &ge)
 
 void	DemoFile::handleGameEvent(GameEvent &ge)
 {
-#define SwitchPrint(val, toprint) \
-	case val: \
-	{			\
-		std::cout << eventKey.toprint(); \
-		break;	\
-	}
 	if ((size_t)ge.eventid() >= gEvents.size())
 		throw std::overflow_error("Eventid is more than gEvents");
-	const GameEventList_descriptor_t &event = gEvents[ge.eventid()];
-	std::cout << "Event " << event.name() << ":{ ";
-	for (int i = 0; i < event.keys_size(); i++)
-	{
-		const GameEventList_key_t &key = event.keys(i);
-		const GameEvent_key_t &eventKey = ge.keys(i);
-		std::cout << key.name() << ": ";
-		if (key.name() == "userid")
-		{
-			for (size_t i = 0; i < players.size(); i++)
-			{
-				if (players[i].userId == eventKey.val_short())
-				{
-					std::cout << players[i].userName;
-					break;
-				}
-			}			
-		}
-		else
-		{
-			switch (eventKey.type())
-			{
-				SwitchPrint(1, val_string);
-				SwitchPrint(2, val_float);
-				SwitchPrint(3, val_long);
-				SwitchPrint(4, val_short);
-				SwitchPrint(5, val_byte);
-				SwitchPrint(6, val_bool);
-				SwitchPrint(7, val_uint64);
-				SwitchPrint(8, val_wstring);
-			default:
-				break;
-			}
-		}
-		std::cout << ", ";
-	}
-	std::cout << "}\n";
-#undef SwitchPrint
+
+	if (eventHooks[svc_GameEvent])
+		eventHooks[svc_GameEvent](&ge);	
+}
+
+const GameEventList_descriptor_t & DemoFile::getGameEvent(size_t idx)
+{
+	return (gEvents[idx]);
 }
 
 void DemoFile::handleServerInfo(ServerInfo &si)
@@ -70,8 +34,10 @@ void DemoFile::handleServerInfo(ServerInfo &si)
 
 void DemoFile::handleCreateStringTable(CreateStringTable &si)
 {
-	std::cout << "CreateStringTable: { name: " << si.name() << ", stringdata len:" << si.string_data().length() << " }" << std::endl;
 	parsedTables.push_back(ParsedStringTable(si, *this));
+
+	if (eventHooks[svc_CreateStringTable])
+		eventHooks[svc_CreateStringTable](&si);
 }
 
 void DemoFile::handleUpdateStringTable(UpdateStringTable &si)
@@ -79,11 +45,12 @@ void DemoFile::handleUpdateStringTable(UpdateStringTable &si)
 	if ((size_t)si.table_id() >= parsedTables.size())
 		return;
 	const std::string &tableName = parsedTables[si.table_id()].origin.name();
-	std::cout << "UpdateStringTable: { name: " << tableName << ", changed: " << si.num_changed_entries() << ", length: " << si.string_data().length() << "}" << std::endl;
 
 	ParsedStringTable &target = parsedTables[si.table_id()];
 	if (tableName == "userinfo")
 		target.Update(si, *this, true);
+	if (eventHooks[svc_UpdateStringTable])
+		eventHooks[svc_UpdateStringTable](&si);
 }
 
 void DemoFile::handlePacketEntities(PacketEntities &e)
@@ -96,68 +63,36 @@ void DemoFile::handlePacketEntities(PacketEntities &e)
 	auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 	// std::clog << "[p] Time it took for packet parsing was " << diffdTime.count() << "us, len: " << e.entity_data().length() << std::endl;
 	startTime = std::chrono::high_resolution_clock::now();
-	// std::cout << "PacketEntities: { updated_entries: " << e.updated_entries() << ", data_len: " << e.entity_data().length() << "}" << std::endl; 
 
-	// // std::vector<GameEntities::StagedChange> ent = entities.getStagedChanges();
-
-	// // for (size_t i = 0; i < ent.size(); i++)
-	// // {
-	// // 	std::cout << "StagedChange: { type: " << (int)ent[i].type << ", index: " << ent[i].index << ", data: {" << std::endl;
-	// // 	std::cout << '\t' << ent[i].data.parentService << std::endl;
-	// // 	for (size_t x = 0; x < ent[i].data.properties.size(); x++)
-	// // 	{
-	// // 		switch (ent[i].data.properties[x].type)
-	// // 		{
-	// // 		case decoded_int:
-	// // 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(int *)ent[i].data.properties[x].data << std::endl;
-	// // 			break;
-	// // 		case decoded_float:
-	// // 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(float *)ent[i].data.properties[x].data << std::endl;
-	// // 			break;
-	// // 		case decoded_Vector:
-	// // 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(Vector *)ent[i].data.properties[x].data << std::endl;
-	// // 			break;
-	// // 		case decoded_Vector2:
-	// // 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(Vector2 *)ent[i].data.properties[x].data << std::endl;
-	// // 			break;
-	// // 		case decoded_string:
-	// // 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(std::string *)ent[i].data.properties[x].data << std::endl;
-	// // 			break;
-	// // 		default:
-	// // 			break;
-	// // 		}
-	// // 	}
-	// // 	std::cout << "}\n";
-		
-	// // }
+	std::vector<GameEntities::StagedChange *> &ent = entities.getStagedChanges();
+	if (eventHooks[svc_PacketEntities])
+		eventHooks[svc_PacketEntities](&ent);
 	entities.executeChanges();
 	endTime = std::chrono::high_resolution_clock::now();
 	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 	// std::clog << "[p] Time it took for packet executing was " << diffdTime.count() << "us, len: " << e.entity_data().length() << std::endl;
 }
 
-template < class T >
-void printUserMessage(UserMessage &e, std::string type)
-{
-	T msg;
-
-	if (msg.ParseFromString(e.msg_data()))
-	{
-		std::cout << "UserMessage: "<< type << ":{\n" << msg.DebugString() << "}"<< std::endl;
-	}
-	else
-	{
-		std::cerr << "Error: parsing of " << type << " failed" << std::endl;
-		exit(0);
-	}
-}
-
 void DemoFile::handleUserMessage(UserMessage &e)
 {
 #define UserMessageSwitch(type) \
-	case CS_UM_##type: \
-		printUserMessage<CCSUsrMsg_##type>(e, #type); \
-		break;
+	case CS_UM_##type:	\
+	{					\
+		CCSUsrMsg_##type msg;		\
+		if (msg.ParseFromString(e.msg_data()))										\
+		{																			\
+			std::string debug = e.DebugString();									\
+			eventHooks[svc_UserMessage](&debug);									\
+		}																			\
+		else																		\
+		{																			\
+			std::cerr << "Error: parsing of " << #type << " failed" << std::endl;	\
+			exit(1);																\
+		}																			\
+		break;																		\
+	}
+	if (!eventHooks[svc_UserMessage])
+		return;
 
 	switch (e.msg_type())
 	{
@@ -219,19 +154,12 @@ void DemoFile::handleUserMessage(UserMessage &e)
 
 void DemoFile::handleDataTable(DataTable &dt)
 {
-	for (size_t i = 0; i < dt.msg.size(); i++)
-	{
-		if (dt.msg[i].first != svc_SendTable)
-			std::cerr << "Error: weird item in datatable: " << dt.msg[i].first << std::endl;
-		else
-		{
-			std::cout << "SendTable: name: " << ((SendTable *)dt.msg[i].second)->net_table_name() << std::endl;
-		}
-	}
 	for (size_t i = 0; i < dt.services.size(); i++)
 	{
 		dt.services[i].dataTable = dt.findSendTable(dt.services[i].nameDataTable);
 		dt.services[i].flattenProps(dt);
+		// if (eventHooks[svc_DataTable])
+		// 	eventHooks[svc_DataTable](&dt.services[i]);
 	}
 	dataTable = dt;
 }
@@ -260,7 +188,6 @@ void	DemoFile::create_metrics()
 		break; \
 	}
 
-	
 	for (size_t i = 0; i < frames.size(); i++)
 	{
 		auto	startTime = std::chrono::high_resolution_clock::now();
@@ -276,8 +203,8 @@ void	DemoFile::create_metrics()
 				HandleCase(CreateStringTable);
 				HandleCase(UpdateStringTable);
 				HandleCase(UserMessage);
-				HandleCase(DataTable);
 				HandleCase(PacketEntities);
+				HandleCase(DataTable);
 
 				HandleOtherNet(Disconnect);
 				HandleOtherNet(File);
@@ -307,9 +234,10 @@ void	DemoFile::create_metrics()
 		}
 		auto	endTime = std::chrono::high_resolution_clock::now();
 		auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
-		std::clog << "Time it took for frame " << i << " was " << diffdTime.count() << ", mspp: " << \
-					(diffdTime.count() == 0 ? 0 : (float)frames[i].pckt.msg.size() / (float)diffdTime.count() * 1000) \
-					<< std::endl; 
+		(void)diffdTime;
+		// std::clog << "Time it took for frame " << i << " was " << diffdTime.count() << "us, uspp: " << \
+		//			(diffdTime.count() == 0 ? 0 : (float)frames[i].pckt.msg.size() / (float)diffdTime.count() * 1000) \
+		//			<< std::endl; 
 	}
 #undef HandleCase
 #undef HandleOther
