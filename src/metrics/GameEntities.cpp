@@ -125,7 +125,7 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt)
 		currentEntity += 1 + sr.readStreamInt();
 
 		newChange->index = currentEntity;
-		// printIfAllowed("--entitymsg", std::cout << "-------[Current Entity: " << currentEntity << ", bytes read: << " << i << "]" << std::endl);
+		// printIfAllowed("--entitymsg", std::c\out << "-------[Current Entity: " << currentEntity << ", bytes read: << " << i << "]" << std::endl);
 		if (sr.readBits(1) == 0)
 		{
 			if (sr.readBits(1))
@@ -169,7 +169,7 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt)
 	// assert(i == data.length()); this fails, dont know if its a big deal
 }
 
-const std::vector<GameEntities::StagedChange *>	&GameEntities::getStagedChanges()
+std::vector<GameEntities::StagedChange *>	&GameEntities::getStagedChanges()
 {
 	return staged;
 }

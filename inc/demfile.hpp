@@ -288,10 +288,9 @@ class GameEntities
 	public:
 		GameEntities();
 		void	parse(PacketEntities &pe, DataTable &dt);
-		const std::vector<StagedChange *>	&getStagedChanges();
+		std::vector<StagedChange *>	&getStagedChanges();
 		void	executeChanges();
 };
-
 
 class DemoFile
 {
@@ -320,6 +319,8 @@ public:
 	~DemoFile();
 	void AddPlayer(Player &p);
 	void	create_metrics();
+
+	const GameEventList_descriptor_t &getGameEvent(size_t idx);
 
 	void	addEventHook(SVC_Messages type, void (*f)(void *data));
 	void	removeEventHook(SVC_Messages type);
