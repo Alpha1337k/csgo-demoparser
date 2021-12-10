@@ -48,7 +48,7 @@ Vector decodeVector(StreamReader &sr, const SendTable_sendprop_t &prop)
 		else
 			rv.z = 0;
 
-		if (sr.readBits(1))
+		if (sr.readBit())
 			rv.z = -1;
 	}
 	return rv;
@@ -87,13 +87,13 @@ float readfBits(StreamReader &sr)
 	int iVal, fVal;
 	float rv = 0;
 
-	iVal = sr.readBits(1);
-	fVal = sr.readBits(1);
+	iVal = sr.readBit();
+	fVal = sr.readBit();
 	bool isNeg = false;
 
 	if (iVal || fVal)
 	{
-		isNeg = sr.readBits(1);
+		isNeg = sr.readBit();
 
 		if (iVal)
 			iVal = sr.readBits(14) + 1;
@@ -111,13 +111,13 @@ float readfBitsCoord(StreamReader &sr, bool isInt, bool isLowPrc)
 	float rv = 0;
 	bool isNeg = false, inbounds;
 
-	inbounds = sr.readBits(1);
+	inbounds = sr.readBit();
 
-	iVal = sr.readBits(1);
+	iVal = sr.readBit();
 
 	if (iVal == 1)
 	{
-		isNeg = sr.readBits(1);
+		isNeg = sr.readBit();
 
 		if (inbounds)
 			rv = (float)sr.readBits(11) + 1;
@@ -166,7 +166,7 @@ float readfIntep(StreamReader &sr, const SendTable_sendprop_t &prop)
 
 float readfNormal(StreamReader &sr)
 {
-	int sign = sr.readBits(1);
+	int sign = sr.readBit();
 	int	dt = sr.readBits(11);
 
 	float val = (float)dt * (1 / ((1 << 11) - 1));

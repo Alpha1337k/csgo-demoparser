@@ -33,7 +33,7 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 	while (nTemp >>= 1) ++nEntryBits;
 
 
-	bool isDictionary = sr.readBits(1) != 0;
+	bool isDictionary = sr.readBit() != 0;
 
 	if (isDictionary)
 		ErrorReturnMessage("Error: StringTable: encoded using dictionary")
@@ -44,17 +44,17 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 	{
 		int entryIndex = lastEntry + 1;
 
-		if (sr.readBits(1) == 0)
+		if (sr.readBit() == 0)
 			entryIndex = sr.readBits(nEntryBits);
 		lastEntry = entryIndex;
 		if (entryIndex < 0 || entryIndex >= origin.max_entries())
 			ErrorReturnMessage("Error: ParseStringUpdate Error")
 
 		std::string entry;
-		if (sr.readBits(1) != 0)
+		if (sr.readBit() != 0)
 		{
 			int copySize = 1024;
-			if (sr.readBits(1) != 0)
+			if (sr.readBit() != 0)
 				sr.readBits(10);
 			char charToAdd = ' ';
 			int count = 0;
@@ -69,7 +69,7 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 		std::string userData;
 		size_t size = 0;
 
-		if (sr.readBits(1) != 0)
+		if (sr.readBit() != 0)
 		{
 			if (origin.user_data_fixed_size())
 			{

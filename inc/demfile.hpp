@@ -124,14 +124,16 @@ class FileReader
 
 class	StreamReader
 {
-	private:
+	public:
 		const std::string &data;
-		size_t		idx;
+		int			idx;
 		char		bitsAvailable;
-		char		buffer;
+		unsigned int buffer;
+		void		loadBuffer();
 	public:
 		StreamReader(const std::string &d);
-		int			readBits(char len);
+		int			readBits(int len);
+		int		readBit();
 		int			readStreamInt();
 		bool		isEof();
 };

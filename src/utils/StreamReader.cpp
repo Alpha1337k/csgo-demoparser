@@ -1,23 +1,114 @@
 #include <demo.hpp>
 
-StreamReader::StreamReader(const std::string &d): data(d), idx(0), bitsAvailable(8), buffer(data[0])
+const unsigned int s_nMaskTable[33] = {
+	0,
+	( 1 << 1 ) - 1,
+	( 1 << 2 ) - 1,
+	( 1 << 3 ) - 1,
+	( 1 << 4 ) - 1,
+	( 1 << 5 ) - 1,
+	( 1 << 6 ) - 1,
+	( 1 << 7 ) - 1,
+	( 1 << 8 ) - 1,
+	( 1 << 9 ) - 1,
+	( 1 << 10 ) - 1,
+	( 1 << 11 ) - 1,
+	( 1 << 12 ) - 1,
+	( 1 << 13 ) - 1,
+	( 1 << 14 ) - 1,
+	( 1 << 15 ) - 1,
+	( 1 << 16 ) - 1,
+	( 1 << 17 ) - 1,
+	( 1 << 18 ) - 1,
+	( 1 << 19 ) - 1,
+   	( 1 << 20 ) - 1,
+	( 1 << 21 ) - 1,
+	( 1 << 22 ) - 1,
+	( 1 << 23 ) - 1,
+	( 1 << 24 ) - 1,
+	( 1 << 25 ) - 1,
+	( 1 << 26 ) - 1,
+   	( 1 << 27 ) - 1,
+	( 1 << 28 ) - 1,
+	( 1 << 29 ) - 1,
+	( 1 << 30 ) - 1,
+	0x7fffffff,
+	0xffffffff,
+};
+
+StreamReader::StreamReader(const std::string &d): data(d), idx(0), bitsAvailable(32), buffer(*(int *)&data[idx])
 {
+	int diff = data.length() % 4;
+
+	if (d.length() > 4 && diff != 0)
+	{
+		idx = diff - 4;
+		bitsAvailable = diff * 8;
+		buffer = (buffer << (32 - bitsAvailable)) >> (32 - bitsAvailable);
+	}
+	else if (d.length() <= 4)
+		bitsAvailable = d.length() * 8;
+	else
+		bitsAvailable = 32;
+
+	// std::cout << "diff" << (int)diff << ", " << (int)bitsAvailable << std::endl;
 }
 
-int		StreamReader::readBits(char len)
+void	StreamReader::loadBuffer()
 {
-	int rval = 0;
+	idx += sizeof(buffer);
+	buffer = *(int *)&data[idx];
+	bitsAvailable = 32;
+}
 
-	for (int x = 0; x < len; x++)
+int		StreamReader::readBits(int len)
+{
+	// std::cout << "---data" << std::endl;
+	// std::cout << "\tBuffers:" << (int)buffer << std::endl;
+	// std::cout << "\tbits:" << (int)bitsAvailable << std::endl;
+	// std::cout << "\tidx:" << (int)idx << std::endl;
+	// std::cout << "---" << std::endl;
+	// std::cout << len;
+	if (bitsAvailable >= len)
 	{
-		if (bitsAvailable == 0)
-		{
-			buffer = data[++idx];
-			bitsAvailable = 8;
-		}
-		rval |= ((buffer >> (8 - bitsAvailable--)) & 1) << x;
+		int rv = buffer & s_nMaskTable[len];
+		bitsAvailable -= len;
+		if (bitsAvailable)
+			buffer >>= len;
+		else
+			loadBuffer();
+		// std::cout << "-Rval: " << rv << std::endl;
+		return rv;
 	}
-	return rval;
+	else
+	{
+		unsigned int rv = buffer;
+		len -= bitsAvailable;
+		idx += sizeof(buffer);
+		buffer = *(int *)&data[idx];
+		rv |= ((buffer & s_nMaskTable[len]) << bitsAvailable);
+		bitsAvailable = 32 - len;
+		buffer >>= len;
+
+		// std::cout << " Rval: " << rv << std::endl;
+		return rv;
+	}
+}
+
+int		StreamReader::readBit()
+{
+	int rv = buffer & 1;
+
+	bitsAvailable--;
+	if (bitsAvailable == 0)
+	{
+		loadBuffer();
+	}
+	else
+	{
+		buffer >>= 1;
+	}
+	return rv;
 }
 
 int		StreamReader::readStreamInt()
@@ -39,5 +130,5 @@ int		StreamReader::readStreamInt()
 
 bool	StreamReader::isEof()
 {
-	return idx >= data.length();
+	return idx >= (int)data.length();
 }

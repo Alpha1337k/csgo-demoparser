@@ -2,12 +2,12 @@
 
 int		readFieldIndex(StreamReader &sr, bool newWay, int oldindex)
 {
-	if (newWay && sr.readBits(1))
+	if (newWay && sr.readBit())
 	{
 		return oldindex + 1;
 	}
 	int rval = 0;
-	if (newWay && sr.readBits(1))
+	if (newWay && sr.readBit())
 		rval = sr.readBits(3);
 	else
 	{
@@ -85,7 +85,7 @@ void	decodeProperty(StreamReader &sr, int &ind, const DataTable &dt, GameEntitie
 
 void	readFromStream(StreamReader &sr, const DataTable &dt, GameEntities::Entity &ent)
 {
-	bool readNewWay = sr.readBits(1) == 1 ? true : false;
+	bool readNewWay = sr.readBit() == 1 ? true : false;
 
 	std::vector<int> indicies;
 	int index = -1;
@@ -126,9 +126,9 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt)
 
 		newChange->index = currentEntity;
 		// printIfAllowed("--entitymsg", std::c\out << "-------[Current Entity: " << currentEntity << ", bytes read: << " << i << "]" << std::endl);
-		if (sr.readBits(1) == 0)
+		if (sr.readBit() == 0)
 		{
-			if (sr.readBits(1))
+			if (sr.readBit())
 			{
 				newChange->type = 0;
 
@@ -158,7 +158,7 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt)
 			DataTable::ServiceClass nullified = DataTable::ServiceClass();
 			nullified.id = -1;
 
-			sr.readBits(1);
+			sr.readBit();
 		}
 
 		staged.push_back(newChange);
