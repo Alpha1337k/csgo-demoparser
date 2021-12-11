@@ -226,26 +226,6 @@ struct DataTable
 };
 std::ostream &operator<<(std::ostream &o, const DataTable::ServiceClass &p);
 
-
-struct Player {
-	long	version;
-	long	xUid;
-	char	userName[128];
-	int		userId;
-	char	gUid[33];
-	int		friendsId;
-	char	friendsName[128];
-	bool	isFake;
-	bool	isHltv;
-
-	int		customFiles[4];
-	unsigned char	filesDownloaded;
-
-	Player(std::string &data);
-};
-std::ostream &operator<<(std::ostream &o, const Player &p);
-
-
 class ParsedStringTable
 {
 private:
@@ -298,6 +278,30 @@ class GameEntities
 		void	executeChanges();
 };
 
+struct Player {
+	struct Metadata
+	{
+		long	version;
+		long	xUid;
+		char	userName[128];
+		int		userId;
+		char	gUid[33];
+		int		friendsId;
+		char	friendsName[128];
+		bool	isFake;
+		bool	isHltv;
+
+		int		customFiles[4];
+		unsigned char	filesDownloaded;
+	};
+
+	Metadata	md;
+	std::map<std::string, GameEntities::Property > *packetRef;
+
+	Player(std::string &data);
+};
+std::ostream &operator<<(std::ostream &o, const Player &p);
+
 class DemoFile
 {
 private:
@@ -324,6 +328,7 @@ public:
 	DemoFile(FileReader &f);
 	~DemoFile();
 	void AddPlayer(Player &p);
+	const std::vector<Player> &getPlayers();
 	void	create_metrics();
 
 	const GameEventList_descriptor_t &getGameEvent(size_t idx);

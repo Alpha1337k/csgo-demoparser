@@ -67,7 +67,7 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 		}
 
 		std::string userData;
-		size_t size = 0;
+		int size = 0;
 
 		if (sr.readBit() != 0)
 		{
@@ -79,11 +79,10 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 			{
 				size = sr.readBits(14);
 			}
-			char charToAdd;
+			userData.reserve(size);
 			while (size > userData.size())
 			{
-				charToAdd = sr.readBits(8);
-				userData += charToAdd;
+				userData.push_back(sr.readBits(8));
 			}
 		}
 		if (size > 0)
@@ -91,7 +90,7 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 			assert(size < 400);
 			Player p(userData);
 			// std::cout << p << std::endl;
-			assert(p.version == -4094);
+			assert(p.md.version == -4094);
 			df.AddPlayer(p);
 		}
 		assert(!sr.isEof());
@@ -101,4 +100,9 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 void DemoFile::AddPlayer(Player &p)
 {
 	players.push_back(p);
+}
+
+const std::vector<Player>	&DemoFile::getPlayers()
+{
+	return players;
 }

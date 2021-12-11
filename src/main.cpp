@@ -88,6 +88,21 @@ void	printPacketEntities(void *data)
 	// // }
 }
 
+void	printCreateStringTable(void *data)
+{
+	CreateStringTable *st = (CreateStringTable *)data;
+
+	if (st->name() != "userinfo")
+		return;
+
+	const std::vector<Player> &players = demoref->getPlayers();
+	for (size_t i = 0; i < players.size(); i++)
+	{
+		std::cout << players[i] << std::endl;
+	}
+	
+}
+
 int main(int argc, char **argv, char **env)
 {
 	(void)env;
@@ -120,7 +135,7 @@ int main(int argc, char **argv, char **env)
 		// demo.addEventHook(svc_ServerInfo, printServerInfo);
 		// demo.addEventHook(svc_GameEvent, printGameEvent);
 		// demo.addEventHook(svc_PacketEntities, printPacketEntities);
-
+		demo.addEventHook(svc_CreateStringTable, printCreateStringTable);
 
 		demo.create_metrics();
 	}
