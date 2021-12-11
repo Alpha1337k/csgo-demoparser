@@ -221,6 +221,7 @@ struct DataTable
 	DataTable(FileReader &f);
 	DataTable();
 	DataTable &operator=(const DataTable &d);
+	void	shallowSwap(DataTable &d);
 
 	SendTable	*findSendTable(std::string name);
 };
@@ -275,8 +276,10 @@ class GameEntities
 		GameEntities();
 		void	parse(PacketEntities &pe, DataTable &dt);
 		std::vector<StagedChange *>	&getStagedChanges();
-		void	executeChanges();
+		void	executeChanges(class DemoFile &df);
 };
+std::ostream &operator<<(std::ostream &o, const GameEntities::Entity &e);
+
 
 struct Player {
 	struct Metadata
@@ -296,7 +299,7 @@ struct Player {
 	};
 
 	Metadata	md;
-	std::map<std::string, GameEntities::Property > *packetRef;
+	GameEntities::Entity *packetRef;
 
 	Player(std::string &data);
 };
@@ -329,12 +332,13 @@ public:
 	~DemoFile();
 	void AddPlayer(Player &p);
 	const std::vector<Player> &getPlayers();
+	Player &getPlayer(size_t idx);
 	void	create_metrics();
 
 	const GameEventList_descriptor_t &getGameEvent(size_t idx);
 
-	void	addEventHook(SVC_Messages type, void (*f)(void *data));
-	void	removeEventHook(SVC_Messages type);
+	void	addEventHook(int type, void (*f)(void *data));
+	void	removeEventHook(int type);
 };
 
 MessageVector getProtoMesssages(FileReader &f, int size);

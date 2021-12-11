@@ -65,9 +65,11 @@ void DemoFile::handlePacketEntities(PacketEntities &e)
 	startTime = std::chrono::high_resolution_clock::now();
 
 	std::vector<GameEntities::StagedChange *> &ent = entities.getStagedChanges();
+
+	entities.executeChanges(*this);
 	if (eventHooks[svc_PacketEntities])
 		eventHooks[svc_PacketEntities](&ent);
-	entities.executeChanges();
+
 	endTime = std::chrono::high_resolution_clock::now();
 	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 	// std::clog << "[p] Time it took for packet executing was " << diffdTime.count() << "us, len: " << e.entity_data().length() << std::endl;
@@ -158,10 +160,10 @@ void DemoFile::handleDataTable(DataTable &dt)
 	{
 		dt.services[i].dataTable = dt.findSendTable(dt.services[i].nameDataTable);
 		dt.services[i].flattenProps(dt);
-		// if (eventHooks[svc_DataTable])
-		// 	eventHooks[svc_DataTable](&dt.services[i]);
 	}
-	dataTable = dt;
+	dataTable.shallowSwap(dt);
+	if (eventHooks[dem_datatables])
+		eventHooks[dem_datatables](&dataTable);
 }
 
 void	DemoFile::create_metrics()
