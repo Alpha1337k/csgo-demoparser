@@ -45,6 +45,13 @@ DataTable &DataTable::operator=(const DataTable &d)
 	return *this;
 }
 
+void		DataTable::shallowSwap(DataTable &d)
+{
+	services.swap(d.services);
+	serviceClassBits = d.serviceClassBits;
+
+}
+
 DataTable::DataTable() {}
 
 SendTable	*DataTable::findSendTable(std::string name)

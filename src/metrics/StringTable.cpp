@@ -96,13 +96,3 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 		assert(!sr.isEof());
 	}
 }
-
-void DemoFile::AddPlayer(Player &p)
-{
-	players.push_back(p);
-}
-
-const std::vector<Player>	&DemoFile::getPlayers()
-{
-	return players;
-}

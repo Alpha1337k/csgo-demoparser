@@ -14,6 +14,10 @@ std::ostream &operator<<(std::ostream &o, const Player &p)
 	o << "isHltv: " << p.md.isHltv << std::endl;
 	o << "customFiles: " << p.md.customFiles << std::endl;
 	o << "filesDownloaded: " << (unsigned int)p.md.filesDownloaded << std::endl;
+	if (p.packetRef)
+		o << "packetData: " << *p.packetRef << std::endl;
+	else
+		o << "packetData: 0" << std::endl;
 	o << "}" << std::endl;
 
 	return o;
@@ -133,12 +137,18 @@ std::ostream &operator<<(std::ostream &o, const SendTable_sendprop_t &prop)
 
 std::ostream &operator<<(std::ostream &o, const DataTable::ServiceClass &p)
 {
-#define PrintVariable(name, var) std::cout << ", " << name << ": " << var;
+#define PrintVariable(name, var) o << ", " << name << ": " << var;
 
 	o << "ServiceClass: { ";
 	PrintVariable("id", p.id);
 	PrintVariable("name", p.name);
 	PrintVariable("tableName", p.nameDataTable);
+	o << "Props:";
+	for (size_t i = 0; i < p.props.size(); i++)
+	{
+		o << p.props[i] << std::endl;
+	}
+	
 	o << "}";
 
 	return (o);
@@ -154,5 +164,37 @@ std::ostream &operator<<(std::ostream &o, const Frame &f)
 	o << "packet: {\n" << f.pckt << std::endl; 
 	o << "} }\n";
 
+	return (o);
+}
+
+std::ostream &operator<<(std::ostream &o, const GameEntities::Entity &e)
+{
+	o << "Packet: " << e.parentService->nameDataTable << std::endl;
+
+	for (auto it = e.properties.begin(); it != e.properties.end(); it++)
+	{
+		std::cout << it->first;
+		switch (it->second.type)
+		{
+		case decoded_int:
+			o << " : " << *(int *)it->second.data << std::endl;
+			break;
+		case decoded_float:
+			o << " : " << *(float *)it->second.data << std::endl;
+			break;
+		case decoded_Vector:
+			o << " : " << *(Vector *)it->second.data << std::endl;
+			break;
+		case decoded_Vector2:
+			o << " : " << *(Vector2 *)it->second.data << std::endl;
+			break;
+		case decoded_string:
+			o << " : " << *(std::string *)it->second.data << std::endl;
+			break;
+		default:
+			break;
+		}
+	}
+	std::cout << "}\n";
 	return (o);
 }

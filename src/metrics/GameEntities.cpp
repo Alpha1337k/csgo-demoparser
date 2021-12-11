@@ -174,13 +174,17 @@ std::vector<GameEntities::StagedChange *>	&GameEntities::getStagedChanges()
 	return staged;
 }
 
-void		GameEntities::executeChanges()
+void		GameEntities::executeChanges(DemoFile &df)
 {
 	for (size_t i = 0; i < staged.size(); i++)
 	{
 		if (staged[i]->type == 0)
 		{
 			props[staged[i]->index] = staged[i]->data;
+			if (staged[i]->data.parentService->nameDataTable == "DT_CSPlayer")
+			{
+				df.getPlayer(staged[i]->index - 1).packetRef = &(props[staged[i]->index]);
+			}
 		}
 		else if (staged[i]->type == 1)
 		{
@@ -198,6 +202,7 @@ void		GameEntities::executeChanges()
 		{
 			Entity nullified;
 
+			nullified.parentService = 0;
 			props[staged[i]->index] = nullified;
 		}
 	}
@@ -205,7 +210,6 @@ void		GameEntities::executeChanges()
 	{
 		delete staged[i];
 	}
-	staged.clear();
 }
 
 GameEntities::GameEntities() {}

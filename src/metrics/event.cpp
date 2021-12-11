@@ -1,11 +1,11 @@
 #include <demo.hpp>
 
-void	DemoFile::addEventHook(SVC_Messages type, void (*f)(void *data))
+void	DemoFile::addEventHook(int type, void (*f)(void *data))
 {
 	eventHooks[type] = f;
 }
 
-void	DemoFile::removeEventHook(SVC_Messages type)
+void	DemoFile::removeEventHook(int type)
 {
 	eventHooks[type] = 0;
 }

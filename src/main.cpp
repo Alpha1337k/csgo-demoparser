@@ -53,39 +53,26 @@ void	printGameEvent(void *data)
 
 void	printPacketEntities(void *data)
 {
+	return;
+
+
+
+	static int c = 0;
 	std::vector<GameEntities::StagedChange *> *v = (std::vector<GameEntities::StagedChange *> *)data;
 
-	std::cout << "ParsedPacket: " << v->size() << std::endl;
-	// // for (size_t i = 0; i < ent.size(); i++)
-	// // {
-	// // 	std::cout << "StagedChange: { type: " << (int)ent[i].type << ", index: " << ent[i].index << ", data: {" << std::endl;
-	// // 	std::cout << '\t' << ent[i].data.parentService << std::endl;
-	// // 	for (size_t x = 0; x < ent[i].data.properties.size(); x++)
-	// // 	{
-	// // 		switch (ent[i].data.properties[x].type)
-	// // 		{
-	// // 		case decoded_int:
-	// // 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(int *)ent[i].data.properties[x].data << std::endl;
-	// // 			break;
-	// // 		case decoded_float:
-	// // 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(float *)ent[i].data.properties[x].data << std::endl;
-	// // 			break;
-	// // 		case decoded_Vector:
-	// // 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(Vector *)ent[i].data.properties[x].data << std::endl;
-	// // 			break;
-	// // 		case decoded_Vector2:
-	// // 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(Vector2 *)ent[i].data.properties[x].data << std::endl;
-	// // 			break;
-	// // 		case decoded_string:
-	// // 			std::cout << '\t' << ent[i].data.properties[x].name << " : " << *(std::string *)ent[i].data.properties[x].data << std::endl;
-	// // 			break;
-	// // 		default:
-	// // 			break;
-	// // 		}
-	// // 	}
-	// // 	std::cout << "}\n";
-		
-	// // }
+	Player &plyr = demoref->getPlayer(1);
+
+	std::cout << plyr << std::endl;
+	if (plyr.packetRef != 0)
+	{
+		std::map<std::string, GameEntities::Property>::iterator found = plyr.packetRef->properties.find("m_iHealth");
+
+		if (found != plyr.packetRef->properties.end())
+		{
+			std::cout << "Data: " << *(int *)found->second.data << std::endl;
+		}
+		c++;
+	}
 }
 
 void	printCreateStringTable(void *data)
@@ -100,7 +87,17 @@ void	printCreateStringTable(void *data)
 	{
 		std::cout << players[i] << std::endl;
 	}
-	
+}
+
+void	printDataTable(void *d)
+{
+	// DataTable *data = (DataTable *)d;
+
+	// for (size_t i = 0; i < data->services.size(); i++)
+	// {
+	// 	std::cout << data->services[i] << std::endl;
+	// }
+	// exit(-1);	
 }
 
 int main(int argc, char **argv, char **env)
@@ -134,8 +131,9 @@ int main(int argc, char **argv, char **env)
 	{
 		// demo.addEventHook(svc_ServerInfo, printServerInfo);
 		// demo.addEventHook(svc_GameEvent, printGameEvent);
-		// demo.addEventHook(svc_PacketEntities, printPacketEntities);
-		demo.addEventHook(svc_CreateStringTable, printCreateStringTable);
+		// demo.addEventHook(6, printDataTable);
+		demo.addEventHook(svc_PacketEntities, printPacketEntities);
+		// demo.addEventHook(svc_CreateStringTable, printCreateStringTable);
 
 		demo.create_metrics();
 	}
