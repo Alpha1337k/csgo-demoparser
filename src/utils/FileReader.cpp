@@ -19,7 +19,8 @@ int				FileReader::load(std::string path)
 	data.clear();
 	struct stat s;
 
-	stat(path.c_str(), &s);
+	if (stat(path.c_str(), &s) == -1)
+		return -1;
 
 	data.resize(s.st_size);
 
@@ -31,6 +32,25 @@ int				FileReader::load(std::string path)
 
 	close(fd);
 	return (0);
+}
+
+int		FileReader::loadFd(int fd)
+{
+	int ret = 1;
+	std::string buffer;
+
+	buffer.resize(4096);
+
+	while (ret)
+	{
+		ret = ::read(fd, &buffer[0], 4096);
+
+		if (ret > 0)
+		{
+			data += buffer.substr(0, ret);
+		}
+	}
+	return ret;
 }
 
 size_t	FileReader::read(void *buffer, size_t size)

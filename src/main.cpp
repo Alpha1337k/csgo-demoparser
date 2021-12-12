@@ -53,25 +53,22 @@ void	printGameEvent(void *data)
 
 void	printPacketEntities(void *data)
 {
-	return;
-
-
 
 	static int c = 0;
 	std::vector<GameEntities::StagedChange *> *v = (std::vector<GameEntities::StagedChange *> *)data;
 
 	Player &plyr = demoref->getPlayer(1);
 
-	std::cout << plyr << std::endl;
+	// std::cout << plyr << std::endl;
 	if (plyr.packetRef != 0)
 	{
 		std::map<std::string, GameEntities::Property>::iterator found = plyr.packetRef->properties.find("m_iHealth");
 
 		if (found != plyr.packetRef->properties.end())
 		{
-			std::cout << "Data: " << *(int *)found->second.data << std::endl;
+			int seconds = (int)(demoref->getCurrentTick() * 0.0315) % 60;
+			std::cout << (int)((demoref->getCurrentTick() * 0.0315) / 60)  << ":" << seconds << "=" << *(int *)found->second.data << std::endl;
 		}
-		c++;
 	}
 }
 
@@ -112,7 +109,11 @@ int main(int argc, char **argv, char **env)
 	}
 	FileReader f;
 
-	if (f.load(startupParameters.last().first.c_str()) == -1)
+	if (startupParameters.last().first == "-stdin")
+	{
+		f.loadFd(0);
+	}
+	else if (f.load(startupParameters.last().first) == -1)
 	{
 		std::cerr << "Error: file could not be opened" << std::endl;
 		return (-1);

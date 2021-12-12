@@ -1,6 +1,6 @@
 #include <demo.hpp>
 
-DemoFile::DemoFile(FileReader &f)
+DemoFile::DemoFile(FileReader &f): tick(0)
 {
 	eventHooks.resize(33, 0);
 	std::size_t headerSize;
