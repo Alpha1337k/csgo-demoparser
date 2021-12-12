@@ -11,12 +11,12 @@ Player::Player(std::string &data): packetRef(0)
 
 }
 
-void DemoFile::AddPlayer(Player &p)
+void DemoFile::addPlayer(Player &p, int idx)
 {
-	players.push_back(p);
+	players[idx] = p;
 }
 
-const std::vector<Player>	&DemoFile::getPlayers()
+const std::map<int, Player>	&DemoFile::getPlayers()
 {
 	return players;
 }
@@ -24,4 +24,24 @@ const std::vector<Player>	&DemoFile::getPlayers()
 Player	&DemoFile::getPlayer(size_t idx)
 {
 	return players[idx];
+}
+
+const GameEntities::Property *Player::getProperty(std::string name) const
+{
+	if (!packetRef)
+		return 0;
+	std::map<std::string, GameEntities::Property>::iterator prop = packetRef->properties.find(name);
+
+	if (prop == packetRef->properties.end())
+		return 0;
+
+	return &prop->second;
+}
+
+Player	&Player::operator=(const Player &p)
+{
+	memcpy(&md, &p.md, sizeof(md));
+	packetRef = p.packetRef;
+
+	return *this;
 }

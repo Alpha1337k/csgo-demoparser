@@ -190,7 +190,7 @@ void	DemoFile::create_metrics()
 		break; \
 	}
 
-	std::cout << "Frames: " << frames.size() << std::endl;
+	// std::cout << "Frames: " << frames.size() << std::endl;
 	for (; tick < frames.size(); tick++)
 	{
 		auto	startTime = std::chrono::high_resolution_clock::now();

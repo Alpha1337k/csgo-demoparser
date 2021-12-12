@@ -104,6 +104,8 @@ DataTable::ServiceClass	*PVSParser(StreamReader &sr, DataTable &dt)
 
 	sr.readBits(10);
 
+	assert(serverClassId < dt.services.size());
+
 	return &dt.services[serverClassId];
 }
 
@@ -165,7 +167,7 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt)
 		assert(!sr.isEof());
 	}
 	assert(x == (int)pe.updated_entries());
-	// assert(i == data.length()); this fails, dont know if its a big deal
+	// assert(sr.isEof()); //this fails, dont know if its a big deal
 }
 
 std::vector<GameEntities::StagedChange *>	&GameEntities::getStagedChanges()
@@ -182,6 +184,7 @@ void		GameEntities::executeChanges(DemoFile &df)
 			props[staged[i]->index] = staged[i]->data;
 			if (staged[i]->data.parentService->nameDataTable == "DT_CSPlayer")
 			{
+				std::cerr << "Adding to player" << staged[i]->index - 1 << std::endl;
 				df.getPlayer(staged[i]->index - 1).packetRef = &(props[staged[i]->index]);
 			}
 		}

@@ -91,7 +91,7 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 			Player p(userData);
 			// std::cout << p << std::endl;
 			assert(p.md.version == -4094);
-			df.AddPlayer(p);
+			df.addPlayer(p, entryIndex);
 		}
 		assert(!sr.isEof());
 	}

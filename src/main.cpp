@@ -53,23 +53,39 @@ void	printGameEvent(void *data)
 
 void	printPacketEntities(void *data)
 {
+#define PrintVariable(name, var) std::cout << ", " << name << ": " << var;
 
 	static int c = 0;
 	std::vector<GameEntities::StagedChange *> *v = (std::vector<GameEntities::StagedChange *> *)data;
 
-	Player &plyr = demoref->getPlayer(1);
-
-	// std::cout << plyr << std::endl;
-	if (plyr.packetRef != 0)
+	const std::map<int, Player> &players = demoref->getPlayers();
+	// for (auto i = players.begin(); i != players.end(); i++)
+	// {
+	// 	std::cout << i->first << " " << i->second.md.userName << std::endl;
+	// }
+	// exit(1);
+	
+	std::cout << '[';
+	for (auto i = players.begin(); i != players.end(); i++)
 	{
-		std::map<std::string, GameEntities::Property>::iterator found = plyr.packetRef->properties.find("m_iHealth");
+		const Player &pl = i->second;
 
-		if (found != plyr.packetRef->properties.end())
+		std::cout << "{ name: " << pl.md.userName;
+		if (pl.packetRef != 0)
 		{
-			int seconds = (int)(demoref->getCurrentTick() * 0.0315) % 60;
-			std::cout << (int)((demoref->getCurrentTick() * 0.0315) / 60)  << ":" << seconds << "=" << *(int *)found->second.data << std::endl;
+			if (pl.getProperty("m_iHealth"))
+				PrintVariable("health", *(int *)pl.getProperty("m_iHealth")->data);
+			if (pl.getProperty("m_iAccount"))
+				PrintVariable("balance", *(int *)pl.getProperty("m_iAccount")->data);
+			if (pl.getProperty("m_bHasFelmet"))
+				PrintVariable("helmet", *(int *)pl.getProperty("m_bHasFelmet")->data);
+
 		}
+		std::cout << " }" << std::endl;
 	}
+	std::cout << "]" << std::endl;
+
+#undef PrintVariable
 }
 
 void	printCreateStringTable(void *data)
@@ -79,11 +95,6 @@ void	printCreateStringTable(void *data)
 	if (st->name() != "userinfo")
 		return;
 
-	const std::vector<Player> &players = demoref->getPlayers();
-	for (size_t i = 0; i < players.size(); i++)
-	{
-		std::cout << players[i] << std::endl;
-	}
 }
 
 void	printDataTable(void *d)
@@ -125,8 +136,8 @@ int main(int argc, char **argv, char **env)
 
 	auto	endTime = std::chrono::high_resolution_clock::now();
 	auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
-
-	std::cout << "Preparser took" << diffdTime.count() / 1000 << "ms" << std::endl;
+	(void)diffdTime;
+	// std::cout << "Preparser took" << diffdTime.count() / 1000 << "ms" << std::endl;
 
 	if (startupParameters["--only-parse"] == 0)
 	{

@@ -302,7 +302,11 @@ struct Player {
 	Metadata	md;
 	GameEntities::Entity *packetRef;
 
+	const GameEntities::Property *getProperty(std::string name) const;
 	Player(std::string &data);
+	Player() {}
+	Player(const Player &p) {*this = p;}
+	Player &operator=(const Player &p);
 };
 std::ostream &operator<<(std::ostream &o, const Player &p);
 
@@ -315,7 +319,7 @@ private:
 	std::vector<Frame> frames;
 	std::vector<GameEventList_descriptor_t> gEvents;
 	std::vector<ParsedStringTable>			parsedTables;
-	std::vector<Player>					players;
+	std::map<int, Player>					players;
 	DataTable							dataTable;
 	GameEntities						entities;
 	std::vector<void (*)(void *)>		eventHooks;
@@ -334,8 +338,8 @@ public:
 	~DemoFile();
 	void	create_metrics();
 	
-	void AddPlayer(Player &p);
-	const std::vector<Player> &getPlayers();
+	void	addPlayer(Player &p, int idx);
+	const	std::map<int, Player> &getPlayers();
 	Player &getPlayer(size_t idx);
 
 	const GameEventList_descriptor_t &getGameEvent(size_t idx);
