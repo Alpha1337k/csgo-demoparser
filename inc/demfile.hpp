@@ -113,6 +113,7 @@ class FileReader
 		FileReader();
 		~FileReader();
 		int				load(std::string path);
+		int				loadFd(int fd);
 		size_t			read(void *buffer, size_t size);
 		bool			isEof();
 		char			*getCurrentChar();
@@ -318,6 +319,7 @@ private:
 	DataTable							dataTable;
 	GameEntities						entities;
 	std::vector<void (*)(void *)>		eventHooks;
+	size_t								tick;
 
 	void handleGameEventList(GameEventList &ge);
 	void handleGameEvent(GameEvent &ge);
@@ -330,12 +332,15 @@ private:
 public:
 	DemoFile(FileReader &f);
 	~DemoFile();
+	void	create_metrics();
+	
 	void AddPlayer(Player &p);
 	const std::vector<Player> &getPlayers();
 	Player &getPlayer(size_t idx);
-	void	create_metrics();
 
 	const GameEventList_descriptor_t &getGameEvent(size_t idx);
+
+	const size_t	getCurrentTick();
 
 	void	addEventHook(int type, void (*f)(void *data));
 	void	removeEventHook(int type);

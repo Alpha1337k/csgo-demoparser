@@ -3,6 +3,8 @@
 *out*
 samples/*
 democheck
+*.dSYM
+.vscode
 
 # Prerequisites
 *.d
