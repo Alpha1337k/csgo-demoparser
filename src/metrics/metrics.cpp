@@ -190,12 +190,13 @@ void	DemoFile::create_metrics()
 		break; \
 	}
 
-	for (size_t i = 0; i < frames.size(); i++)
+	std::cout << "Frames: " << frames.size() << std::endl;
+	for (; tick < frames.size(); tick++)
 	{
 		auto	startTime = std::chrono::high_resolution_clock::now();
-		for (size_t x = 0; x < frames[i].pckt.msg.size(); x++)
+		for (size_t x = 0; x < frames[tick].pckt.msg.size(); x++)
 		{
-			std::pair<int, void *> &pd = frames[i].pckt.msg[x];
+			std::pair<int, void *> &pd = frames[tick].pckt.msg[x];
 
 			switch (pd.first)
 			{
@@ -244,4 +245,10 @@ void	DemoFile::create_metrics()
 #undef HandleCase
 #undef HandleOther
 #undef HandleOtherNet
+}
+
+
+const size_t	DemoFile::getCurrentTick()
+{
+	return tick;
 }

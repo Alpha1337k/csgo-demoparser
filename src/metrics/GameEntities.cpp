@@ -39,11 +39,10 @@ void	decodeProperty(StreamReader &sr, int &ind, const DataTable &dt, GameEntitie
 	case i: \
 	{ \
 		typeV rv = decode##typeV(sr, flatProp.prop); \
+		GameEntities::Property &prop = ent.properties[flatProp.path]; \
 		/* printIfAllowed("--entitymsg", std::cout << flatProp.path << " : " << rv << std::endl); */ \
-		GameEntities::Property prop; \
 		prop.type = decoded_##typeV; \
 		prop.data = new typeV(rv); \
-		ent.properties[flatProp.path] = prop;  /* this is a copy, so its kinda inefficient (+-5us) */ \
 		break; \
 	}
 	assert(ind < (int)ent.parentService->props.size());
