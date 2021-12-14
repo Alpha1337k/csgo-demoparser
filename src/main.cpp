@@ -53,7 +53,13 @@ void	printGameEvent(void *data)
 
 void	printPacketEntities(void *data)
 {
-#define PrintVariable(name, var) std::cout << ", " << name << ": " << var;
+#define PrintVariable(name, var) std::cout << ", \"" << name << "\": " << var;
+#define PrintExists(property, cast, name) \
+		{	\
+			const GameEntities::Property *prop = pl.getProperty(property); \
+			if (prop != 0) \
+				PrintVariable(name, *(cast *)prop->data); \
+		}
 
 	static int c = 0;
 	std::vector<GameEntities::StagedChange *> *v = (std::vector<GameEntities::StagedChange *> *)data;
@@ -65,23 +71,30 @@ void	printPacketEntities(void *data)
 	// }
 	// exit(1);
 	
-	std::cout << '[';
-	for (auto i = players.begin(); i != players.end(); i++)
+	if (c == 0)
+		std::cout << '[';
+	else
+		std::cout << ",[";
+	c++;
+	for (auto i = players.begin(); i != players.end();)
 	{
 		const Player &pl = i->second;
 
-		std::cout << "{ name: " << pl.md.userName;
+		std::cout << "{ \"name\": \"" << pl.md.userName << '"';
 		if (pl.packetRef != 0)
 		{
-			if (pl.getProperty("m_iHealth"))
-				PrintVariable("health", *(int *)pl.getProperty("m_iHealth")->data);
-			if (pl.getProperty("m_iAccount"))
-				PrintVariable("balance", *(int *)pl.getProperty("m_iAccount")->data);
-			if (pl.getProperty("m_bHasFelmet"))
-				PrintVariable("helmet", *(int *)pl.getProperty("m_bHasFelmet")->data);
+			PrintExists("m_iHealth", int, "health");
+			PrintExists("m_iAccount", int, "balance");
+			PrintExists("m_bHasFelmet", int, "hasHelmet");
+			PrintExists("localdata.m_vecOrigin", Vector2, "lVecOriginXY");
+			PrintExists("csnonlocaldata.m_vecOrigin", Vector2, "nlVecOriginXY");
 
 		}
-		std::cout << " }" << std::endl;
+		i++;
+		if (i != players.end())
+			std::cout << " }," << std::endl;
+		else
+			std::cout << " }" << std::endl;
 	}
 	std::cout << "]" << std::endl;
 
@@ -141,6 +154,7 @@ int main(int argc, char **argv, char **env)
 
 	if (startupParameters["--only-parse"] == 0)
 	{
+		std::cout << "[";
 		// demo.addEventHook(svc_ServerInfo, printServerInfo);
 		// demo.addEventHook(svc_GameEvent, printGameEvent);
 		// demo.addEventHook(6, printDataTable);
@@ -148,6 +162,7 @@ int main(int argc, char **argv, char **env)
 		// demo.addEventHook(svc_CreateStringTable, printCreateStringTable);
 
 		demo.create_metrics();
+		std::cout << "]" << std::endl;
 	}
 	google::protobuf::ShutdownProtobufLibrary();
 	std::cerr << "Done!" << std::endl;
