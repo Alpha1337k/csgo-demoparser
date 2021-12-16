@@ -16,7 +16,7 @@ void DemoFile::addPlayer(Player &p, int idx)
 	players[idx] = p;
 }
 
-const std::map<int, Player>	&DemoFile::getPlayers()
+const std::unordered_map<int, Player>	&DemoFile::getPlayers()
 {
 	return players;
 }
@@ -30,7 +30,7 @@ const GameEntities::Property *Player::getProperty(std::string name) const
 {
 	if (!packetRef)
 		return 0;
-	std::map<std::string, GameEntities::Property>::iterator prop = packetRef->properties.find(name);
+	std::unordered_map<std::string, GameEntities::Property>::iterator prop = packetRef->properties.find(name);
 
 	if (prop == packetRef->properties.end())
 		return 0;

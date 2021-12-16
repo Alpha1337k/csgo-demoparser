@@ -184,14 +184,13 @@ void		GameEntities::executeChanges(DemoFile &df)
 			props[staged[i]->index] = staged[i]->data;
 			if (staged[i]->data.parentService->nameDataTable == "DT_CSPlayer")
 			{
-				std::cerr << "Adding to player" << staged[i]->index - 1 << std::endl;
 				df.getPlayer(staged[i]->index - 1).packetRef = &(props[staged[i]->index]);
 			}
 		}
 		else if (staged[i]->type == 1)
 		{
 			Entity	&ref = props[staged[i]->index];
-			for (std::map<std::string, Property>::iterator it = staged[i]->data.properties.begin(); \
+			for (auto it = staged[i]->data.properties.begin(); \
 				it != staged[i]->data.properties.end(); it++)
 			{
 				GameEntities::Property &p = ref.properties[it->first];

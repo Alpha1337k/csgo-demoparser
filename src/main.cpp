@@ -64,7 +64,7 @@ void	printPacketEntities(void *data)
 	static int c = 0;
 	std::vector<GameEntities::StagedChange *> *v = (std::vector<GameEntities::StagedChange *> *)data;
 
-	const std::map<int, Player> &players = demoref->getPlayers();
+	const std::unordered_map<int, Player> &players = demoref->getPlayers();
 	// for (auto i = players.begin(); i != players.end(); i++)
 	// {
 	// 	std::cout << i->first << " " << i->second.md.userName << std::endl;

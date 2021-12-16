@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <math.h>
 #include <chrono>
+#include <unordered_map>
 
 // #define sr.readBits(x) readStringBits(data, x, i, bitsAvailable)
 // #define StreamReader &sr const std::string &data, int &i, char &bitsAvailable
@@ -254,7 +255,7 @@ class GameEntities
 		struct Entity
 		{
 			DataTable::ServiceClass *parentService;
-			std::map<std::string, Property>	properties;
+			std::unordered_map<std::string, Property>	properties;
 
 			Entity			&operator=(const Entity &s);
 			void UpdateEntity(Entity &s);
@@ -271,7 +272,7 @@ class GameEntities
 		};
 
 	private:
-		std::map<int, Entity>					props;
+		std::unordered_map<int, Entity>					props;
 		std::vector<StagedChange *>				staged;
 	public:
 		GameEntities();
@@ -319,7 +320,7 @@ private:
 	std::vector<Frame> frames;
 	std::vector<GameEventList_descriptor_t> gEvents;
 	std::vector<ParsedStringTable>			parsedTables;
-	std::map<int, Player>					players;
+	std::unordered_map<int, Player>					players;
 	DataTable							dataTable;
 	GameEntities						entities;
 	std::vector<void (*)(void *)>		eventHooks;
@@ -339,7 +340,7 @@ public:
 	void	create_metrics();
 	
 	void	addPlayer(Player &p, int idx);
-	const	std::map<int, Player> &getPlayers();
+	const	std::unordered_map<int, Player> &getPlayers();
 	Player &getPlayer(size_t idx);
 
 	const GameEventList_descriptor_t &getGameEvent(size_t idx);
