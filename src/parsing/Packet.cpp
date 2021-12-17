@@ -16,7 +16,7 @@ Packet::Packet(FileReader &f)
 	f.read(&chunkSize, sizeof(int));
 	//std::cout << "Chunksize: " << chunkSize << std::endl;
 
-	msg = getProtoMesssages(f, chunkSize);
+	getProtoMesssages(f, chunkSize, msg);
 }
 
 Packet::Packet() {}

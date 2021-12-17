@@ -1,7 +1,6 @@
 #include <demo.hpp>
 
-
-MessageVector	getProtoMesssages(FileReader &f, int size)
+void	getProtoMesssages(FileReader &f, int size, MessageVector &messages)
 {
 	extern StartupParser startupParameters;
 #define ParseStatement(type, extra) \
@@ -14,7 +13,7 @@ MessageVector	getProtoMesssages(FileReader &f, int size)
 			svi = 0; \
 			exit(1); \
 		} \
-		else if (startupParameters["--parsemsg"]) \
+		else if (parsemsg) \
 			std::cout << "Parsed "  << #type << ", length: " << length << std::endl; \
 		messages.push_back(std::make_pair(svc_##type, svi)); \
 		/* std::cout << "{" << svi->DebugString() << "}" << std::endl; */ \
@@ -32,7 +31,7 @@ MessageVector	getProtoMesssages(FileReader &f, int size)
 			net = 0; \
 			exit(1); \
 		} \
-		else if (startupParameters["--parsemsg"]) \
+		else if (parsemsg) \
 			std::cout << "Parsed "  << #type << ", length: " << length << std::endl; \
 		messages.push_back(std::make_pair(net_##type, net)); \
 		/* std::cout << "{" << net->DebugString() << "}" << std::endl; */ \
@@ -40,7 +39,7 @@ MessageVector	getProtoMesssages(FileReader &f, int size)
 	}
 
 	size_t startpos = f.getOffset();
-	MessageVector	messages;
+	bool	parsemsg = startupParameters["--parsemsg"] == 0 ? false : true;
 
 	while (f.getOffset() - startpos < (size_t)size || size == -1)
 	{
@@ -62,7 +61,7 @@ MessageVector	getProtoMesssages(FileReader &f, int size)
 			ParseNetStatement(SetConVar);
 			ParseNetStatement(SignonState);
 			ParseStatement(ServerInfo, );
-			ParseStatement(SendTable, if (svi->is_end()) {return messages;});
+			ParseStatement(SendTable, if (svi->is_end()) {return ;});
 			ParseStatement(ClassInfo, )
 			ParseStatement(SetPause, );
 			ParseStatement(CreateStringTable, );
@@ -85,7 +84,7 @@ MessageVector	getProtoMesssages(FileReader &f, int size)
 			ParseStatement(GetCvarValue, );
 			default:
 			{
-				if (startupParameters["--parsemsg"])
+				if (parsemsg)
 					std::cerr << "Error: Could not find matching type " << messagetype  << " ,length: " << length << std::endl;
 				break;
 			}
@@ -94,5 +93,4 @@ MessageVector	getProtoMesssages(FileReader &f, int size)
 	}
 #undef ParseStatement
 #undef ParseNetStatement
-	return messages;
 }
