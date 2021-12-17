@@ -102,7 +102,7 @@ float readfBits(StreamReader &sr)
 		rv = iVal + ((float)fVal * COORD_RESOLUTION);
 	}
 
-	return rv * (isNeg == 1 ? -1 : 1);
+	return isNeg ? -rv : rv;
 }
 
 float readfBitsCoord(StreamReader &sr, bool isInt, bool isLowPrc)
@@ -132,7 +132,7 @@ float readfBitsCoord(StreamReader &sr, bool isInt, bool isLowPrc)
 			fVal = sr.readBits(5);
 		rv = rv + ((float)fVal * (isLowPrc ? COORD_RESOLUTION_LOWPRECISION : COORD_RESOLUTION));
 	}
-	return rv * (isNeg == 1 ? -1 : 1);
+	return isNeg ? -rv : rv;
 }
 
 float	readFloat(StreamReader &sr)
@@ -176,27 +176,24 @@ float readfNormal(StreamReader &sr)
 
 float decodefloat(StreamReader &sr, const SendTable_sendprop_t &prop) 
 {
-	float rv;
-
 	if (prop.flags() & SPROP_COORD)
-		rv = readfBits(sr);
+		return readfBits(sr);
 	else if (prop.flags() & SPROP_COORD_MP)
-		rv = readfBitsCoord(sr, false, false);
+		return readfBitsCoord(sr, false, false);
 	else if (prop.flags() & SPROP_COORD_MP_LOWPRECISION)
-		rv = readfBitsCoord(sr, false, true);
+		return readfBitsCoord(sr, false, true);
 	else if (prop.flags() & SPROP_COORD_MP_INTEGRAL)
-		rv = readfBitsCoord(sr, true, false);
+		return readfBitsCoord(sr, true, false);
 	else if (prop.flags() & SPROP_NOSCALE)
-		rv = readFloat(sr);
+		return readFloat(sr);
 	else if (prop.flags() & SPROP_NORMAL)
-		rv = readfNormal(sr);
+		return readfNormal(sr);
 	else if (prop.flags() & SPROP_CELL_COORD)
-		rv = readfCellCoord(sr, prop, 0);
+		return readfCellCoord(sr, prop, 0);
 	else if (prop.flags() & SPROP_CELL_COORD_LOWPRECISION)
-		rv = readfCellCoord(sr, prop, 1);
+		return readfCellCoord(sr, prop, 1);
 	else if (prop.flags() & SPROP_CELL_COORD_INTEGRAL)
-		rv = readfCellCoord(sr, prop, 2);
+		return readfCellCoord(sr, prop, 2);
 	else
-		rv = readfIntep(sr, prop);
-	return rv;
+		return readfIntep(sr, prop);
 }

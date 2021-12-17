@@ -62,9 +62,10 @@ void DemoFile::handlePacketEntities(PacketEntities &e)
 	auto	endTime = std::chrono::high_resolution_clock::now();
 	auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 	// std::clog << "[p] Time it took for packet parsing was " << diffdTime.count() << "us, len: " << e.entity_data().length() << std::endl;
+	totalparse += diffdTime.count();
 	startTime = std::chrono::high_resolution_clock::now();
 
-	std::vector<GameEntities::StagedChange *> &ent = entities.getStagedChanges();
+	std::vector<GameEntities::StagedChange> &ent = entities.getStagedChanges();
 
 	entities.executeChanges(*this);
 	if (eventHooks[svc_PacketEntities])
@@ -72,6 +73,7 @@ void DemoFile::handlePacketEntities(PacketEntities &e)
 
 	endTime = std::chrono::high_resolution_clock::now();
 	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
+	totalset += diffdTime.count();
 	// std::clog << "[p] Time it took for packet executing was " << diffdTime.count() << "us, len: " << e.entity_data().length() << std::endl;
 }
 
@@ -189,6 +191,8 @@ void	DemoFile::create_metrics()
 			eventHooks[net_##type](&pd.second); \
 		break; \
 	}
+	totalparse = 0;
+	totalset = 0;
 
 	// std::cout << "Frames: " << frames.size() << std::endl;
 	for (; tick < frames.size(); tick++)

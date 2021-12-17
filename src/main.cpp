@@ -121,9 +121,17 @@ void	printDataTable(void *d)
 	// exit(-1);	
 }
 
+void	printTime(std::chrono::system_clock::time_point p1, std::chrono::system_clock::time_point p2)
+{
+	auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(p1 - p2);
+	(void)diffdTime;
+	std::cout << "It took " << diffdTime.count() / 1000 << "ms" << std::endl;
+}
+
 int main(int argc, char **argv, char **env)
 {
 	(void)env;
+	auto	startTime = std::chrono::high_resolution_clock::now();
 
 	startupParameters = StartupParser(argc, argv);
 	if (argc < 2)
@@ -131,6 +139,7 @@ int main(int argc, char **argv, char **env)
 		std::cerr << "Error: filepath required" << std::endl;
 		return (-2);
 	}
+
 	FileReader f;
 
 	if (startupParameters.last().first == "-stdin")
@@ -142,27 +151,30 @@ int main(int argc, char **argv, char **env)
 		std::cerr << "Error: file could not be opened" << std::endl;
 		return (-1);
 	}
-	auto	startTime = std::chrono::high_resolution_clock::now();
+	auto	startEnd = std::chrono::high_resolution_clock::now();
+	printTime(startEnd, startTime);
 
 	DemoFile demo(f);
 	demoref = &demo;
 
-	auto	endTime = std::chrono::high_resolution_clock::now();
-	auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
-	(void)diffdTime;
-	// std::cout << "Preparser took" << diffdTime.count() / 1000 << "ms" << std::endl;
+	auto	preparseTime = std::chrono::high_resolution_clock::now();
+	printTime(preparseTime, startEnd);
 
 	if (startupParameters["--only-parse"] == 0)
 	{
-		std::cout << "[";
+		// std::cout << "[";
 		// demo.addEventHook(svc_ServerInfo, printServerInfo);
 		// demo.addEventHook(svc_GameEvent, printGameEvent);
 		// demo.addEventHook(6, printDataTable);
-		demo.addEventHook(svc_PacketEntities, printPacketEntities);
+		// demo.addEventHook(svc_PacketEntities, printPacketEntities);
 		// demo.addEventHook(svc_CreateStringTable, printCreateStringTable);
 
 		demo.create_metrics();
-		std::cout << "]" << std::endl;
+		auto	metricsTime = std::chrono::high_resolution_clock::now();
+		printTime(metricsTime, preparseTime);
+		std::cout << "parser took" << demo.totalparse << std::endl;
+		std::cout << "setter took" << demo.totalset << std::endl;
+		// std::cout << "]" << std::endl;
 	}
 	google::protobuf::ShutdownProtobufLibrary();
 	std::cerr << "Done!" << std::endl;

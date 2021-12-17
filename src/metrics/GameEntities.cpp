@@ -40,7 +40,6 @@ void	decodeProperty(StreamReader &sr, int &ind, const DataTable &dt, GameEntitie
 	{ \
 		typeV rv = decode##typeV(sr, flatProp.prop); \
 		GameEntities::Property &prop = ent.properties[flatProp.path]; \
-		/* printIfAllowed("--entitymsg", std::cout << flatProp.path << " : " << rv << std::endl); */ \
 		prop.type = decoded_##typeV; \
 		prop.data = new typeV(rv); \
 		break; \
@@ -84,11 +83,12 @@ void	decodeProperty(StreamReader &sr, int &ind, const DataTable &dt, GameEntitie
 
 void	readFromStream(StreamReader &sr, const DataTable &dt, GameEntities::Entity &ent)
 {
-	bool readNewWay = sr.readBit() == 1 ? true : false;
+	bool readNewWay = sr.readBit();
 
 	std::vector<int> indicies;
 	int index = -1;
 	
+	indicies.reserve(20);
 	while ((index = readFieldIndex(sr, readNewWay, index)) != -1)
 		indicies.push_back(index);
 
@@ -116,61 +116,43 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt)
 	int currentEntity = -1;
 
 	staged.clear();
-	staged.reserve(pe.updated_entries());
+	staged.resize(pe.updated_entries());
 
 	int x = 0;
 	for (; x < pe.updated_entries(); x++)
 	{
-		StagedChange *newChange = new StagedChange;
-
 		currentEntity += 1 + sr.readStreamInt();
 
-		newChange->index = currentEntity;
-		// printIfAllowed("--entitymsg", std::c\out << "-------[Current Entity: " << currentEntity << ", bytes read: << " << i << "]" << std::endl);
+		staged[x].index = currentEntity;
 		if (sr.readBit() == 0)
 		{
 			if (sr.readBit())
 			{
-				newChange->type = 0;
-
-				newChange->data.parentService = PVSParser(sr, dt);
-
-				// printIfAllowed("--entitymsg", std::cout << "Create" << std::endl);
-				// printIfAllowed("--entitymsg", std::cout << newChange.data.parentService << std::endl);
-				readFromStream(sr, dt, newChange->data);
+				staged[x].type = 0;
+				staged[x].data.parentService = PVSParser(sr, dt);
+				readFromStream(sr, dt, staged[x].data);
 			}
 			else
 			{
-				newChange->type = 1;
-				newChange->data.parentService = props[currentEntity].parentService;
-
-				// printIfAllowed("--entitymsg", std::cout << "Update" << std::endl);
-				// printIfAllowed("--entitymsg", std::cout << newChange.data.parentService << std::endl);
-				readFromStream(sr, dt, newChange->data);
+				staged[x].type = 1;
+				staged[x].data.parentService = props[currentEntity].parentService;
+				readFromStream(sr, dt, staged[x].data);
 			}
 		}
 		else
 		{
-			newChange->type = 2;
-
-			// printIfAllowed("--entitymsg", std::cout << "Delete" << std::endl);
-			// printIfAllowed("--entitymsg", std::cout << props[currentEntity].parentService << std::endl);
-
+			staged[x].type = 2;
 			DataTable::ServiceClass nullified = DataTable::ServiceClass();
 			nullified.id = -1;
-
 			sr.readBit();
 		}
-
-		staged.push_back(newChange);
-
 		assert(!sr.isEof());
 	}
 	assert(x == (int)pe.updated_entries());
 	// assert(sr.isEof()); //this fails, dont know if its a big deal
 }
 
-std::vector<GameEntities::StagedChange *>	&GameEntities::getStagedChanges()
+std::vector<GameEntities::StagedChange>	&GameEntities::getStagedChanges()
 {
 	return staged;
 }
@@ -179,19 +161,19 @@ void		GameEntities::executeChanges(DemoFile &df)
 {
 	for (size_t i = 0; i < staged.size(); i++)
 	{
-		if (staged[i]->type == 0)
+		if (staged[i].type == 0)
 		{
-			props[staged[i]->index] = staged[i]->data;
-			if (staged[i]->data.parentService->nameDataTable == "DT_CSPlayer")
+			props[staged[i].index] = staged[i].data;
+			if (staged[i].data.parentService->nameDataTable == "DT_CSPlayer")
 			{
-				df.getPlayer(staged[i]->index - 1).packetRef = &(props[staged[i]->index]);
+				df.getPlayer(staged[i].index - 1).packetRef = &(props[staged[i].index]);
 			}
 		}
-		else if (staged[i]->type == 1)
+		else if (staged[i].type == 1)
 		{
-			Entity	&ref = props[staged[i]->index];
-			for (auto it = staged[i]->data.properties.begin(); \
-				it != staged[i]->data.properties.end(); it++)
+			Entity	&ref = props[staged[i].index];
+			for (auto it = staged[i].data.properties.begin(); \
+				it != staged[i].data.properties.end(); it++)
 			{
 				GameEntities::Property &p = ref.properties[it->first];
 				delete (char *)p.data;
@@ -199,17 +181,13 @@ void		GameEntities::executeChanges(DemoFile &df)
 			}
 			
 		}
-		else if (staged[i]->type == 2)
+		else if (staged[i].type == 2)
 		{
 			Entity nullified;
 
 			nullified.parentService = 0;
-			props[staged[i]->index] = nullified;
+			props[staged[i].index] = nullified;
 		}
-	}
-	for (size_t i = 0; i < staged.size(); i++)
-	{
-		delete staged[i];
 	}
 }
 
@@ -218,11 +196,6 @@ GameEntities::GameEntities() {}
 GameEntities::Property::~Property()
 {
 }
-
-
-/*
-	kanker
-*/
 
 GameEntities::StagedChange	&GameEntities::StagedChange::operator=(const GameEntities::StagedChange &s)
 {
