@@ -58,23 +58,18 @@ void DemoFile::handlePacketEntities(PacketEntities &e)
 	auto	startTime = std::chrono::high_resolution_clock::now();
 	(void)e;
 
-	entities.parse(e, dataTable);
+	entities.parse(e, dataTable, *this);
 	auto	endTime = std::chrono::high_resolution_clock::now();
 	auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
-	// std::clog << "[p] Time it took for packet parsing was " << diffdTime.count() << "us, len: " << e.entity_data().length() << std::endl;
 	totalparse += diffdTime.count();
 	startTime = std::chrono::high_resolution_clock::now();
 
-	std::vector<GameEntities::StagedChange> &ent = entities.getStagedChanges();
-
-	entities.executeChanges(*this);
 	if (eventHooks[svc_PacketEntities])
-		eventHooks[svc_PacketEntities](&ent);
+		eventHooks[svc_PacketEntities](0);
 
 	endTime = std::chrono::high_resolution_clock::now();
 	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 	totalset += diffdTime.count();
-	// std::clog << "[p] Time it took for packet executing was " << diffdTime.count() << "us, len: " << e.entity_data().length() << std::endl;
 }
 
 void DemoFile::handleUserMessage(UserMessage &e)

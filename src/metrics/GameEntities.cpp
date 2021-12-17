@@ -109,86 +109,43 @@ DataTable::ServiceClass	*PVSParser(StreamReader &sr, DataTable &dt)
 	return &dt.services[serverClassId];
 }
 
-void GameEntities::parse(PacketEntities &pe, DataTable &dt)
+void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 {
 	StreamReader sr(pe.entity_data());	
 	
 	int currentEntity = -1;
-
-	staged.clear();
-	staged.resize(pe.updated_entries());
 
 	int x = 0;
 	for (; x < pe.updated_entries(); x++)
 	{
 		currentEntity += 1 + sr.readStreamInt();
 
-		staged[x].index = currentEntity;
+		Entity	&toChange = props[currentEntity];
 		if (sr.readBit() == 0)
 		{
 			if (sr.readBit())
 			{
-				staged[x].type = 0;
-				staged[x].data.parentService = PVSParser(sr, dt);
-				readFromStream(sr, dt, staged[x].data);
+				toChange.parentService = PVSParser(sr, dt);
+				readFromStream(sr, dt, toChange);
+				if (toChange.parentService->nameDataTable == "DT_CSPlayer")
+				{
+					df.getPlayer(currentEntity - 1).packetRef = &(props[currentEntity]);
+				}
 			}
 			else
 			{
-				staged[x].type = 1;
-				staged[x].data.parentService = props[currentEntity].parentService;
-				readFromStream(sr, dt, staged[x].data);
+				readFromStream(sr, dt, toChange);
 			}
 		}
 		else
 		{
-			staged[x].type = 2;
-			DataTable::ServiceClass nullified = DataTable::ServiceClass();
-			nullified.id = -1;
+			toChange.parentService = 0;
 			sr.readBit();
 		}
 		assert(!sr.isEof());
 	}
 	assert(x == (int)pe.updated_entries());
 	// assert(sr.isEof()); //this fails, dont know if its a big deal
-}
-
-std::vector<GameEntities::StagedChange>	&GameEntities::getStagedChanges()
-{
-	return staged;
-}
-
-void		GameEntities::executeChanges(DemoFile &df)
-{
-	for (size_t i = 0; i < staged.size(); i++)
-	{
-		if (staged[i].type == 0)
-		{
-			props[staged[i].index] = staged[i].data;
-			if (staged[i].data.parentService->nameDataTable == "DT_CSPlayer")
-			{
-				df.getPlayer(staged[i].index - 1).packetRef = &(props[staged[i].index]);
-			}
-		}
-		else if (staged[i].type == 1)
-		{
-			Entity	&ref = props[staged[i].index];
-			for (auto it = staged[i].data.properties.begin(); \
-				it != staged[i].data.properties.end(); it++)
-			{
-				GameEntities::Property &p = ref.properties[it->first];
-				delete (char *)p.data;
-				p.data = it->second.data;
-			}
-			
-		}
-		else if (staged[i].type == 2)
-		{
-			Entity nullified;
-
-			nullified.parentService = 0;
-			props[staged[i].index] = nullified;
-		}
-	}
 }
 
 GameEntities::GameEntities() {}

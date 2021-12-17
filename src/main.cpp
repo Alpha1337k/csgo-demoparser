@@ -61,8 +61,7 @@ void	printPacketEntities(void *data)
 				PrintVariable(name, *(cast *)prop->data); \
 		}
 
-	static int c = 0;
-	std::vector<GameEntities::StagedChange *> *v = (std::vector<GameEntities::StagedChange *> *)data;
+	static size_t c = 0;
 
 	const std::unordered_map<int, Player> &players = demoref->getPlayers();
 	// for (auto i = players.begin(); i != players.end(); i++)
@@ -152,13 +151,13 @@ int main(int argc, char **argv, char **env)
 		return (-1);
 	}
 	auto	startEnd = std::chrono::high_resolution_clock::now();
-	printTime(startEnd, startTime);
+	// printTime(startEnd, startTime);
 
 	DemoFile demo(f);
 	demoref = &demo;
 
 	auto	preparseTime = std::chrono::high_resolution_clock::now();
-	printTime(preparseTime, startEnd);
+	// printTime(preparseTime, startEnd);
 
 	if (startupParameters["--only-parse"] == 0)
 	{
@@ -172,8 +171,8 @@ int main(int argc, char **argv, char **env)
 		demo.create_metrics();
 		auto	metricsTime = std::chrono::high_resolution_clock::now();
 		printTime(metricsTime, preparseTime);
-		std::cout << "parser took" << demo.totalparse << std::endl;
-		std::cout << "setter took" << demo.totalset << std::endl;
+		// std::cout << "parser took" << demo.totalparse << std::endl;
+		// std::cout << "setter took" << demo.totalset << std::endl;
 		// std::cout << "]" << std::endl;
 	}
 	google::protobuf::ShutdownProtobufLibrary();

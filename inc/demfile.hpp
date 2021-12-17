@@ -273,11 +273,10 @@ class GameEntities
 
 	private:
 		std::unordered_map<int, Entity>					props;
-		std::vector<StagedChange *>				staged;
 	public:
 		GameEntities();
-		void	parse(PacketEntities &pe, DataTable &dt);
-		std::vector<StagedChange *>	&getStagedChanges();
+		void	parse(PacketEntities &pe, DataTable &dt, DemoFile &df);
+		std::vector<StagedChange>	&getStagedChanges();
 		void	executeChanges(class DemoFile &df);
 };
 std::ostream &operator<<(std::ostream &o, const GameEntities::Entity &e);
@@ -335,6 +334,9 @@ private:
 	void handleUserMessage(UserMessage &e);
 	void handleDataTable(DataTable &dt);
 public:
+	size_t totalparse;
+	size_t totalset;
+
 	DemoFile(FileReader &f);
 	~DemoFile();
 	void	create_metrics();
@@ -351,7 +353,7 @@ public:
 	void	removeEventHook(int type);
 };
 
-MessageVector getProtoMesssages(FileReader &f, int size);
+void getProtoMesssages(FileReader &f, int size, MessageVector &msg);
 int readVarInt(char *ar, size_t *iter);
 int		readStringBits(const std::string &str, int count, int &i, char &bitsAvailable);
 int		readStringVarInt(const std::string &str, int &i, char &bitsAvailable);
