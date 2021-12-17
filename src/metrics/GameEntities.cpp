@@ -154,14 +154,6 @@ GameEntities::Property::~Property()
 {
 }
 
-GameEntities::StagedChange	&GameEntities::StagedChange::operator=(const GameEntities::StagedChange &s)
-{
-	type = s.type;
-	index = s.index;
-	data = s.data;
-
-	return (*this);
-}
 GameEntities::Entity		&GameEntities::Entity::operator=(const GameEntities::Entity &s)
 {
 	parentService = s.parentService;

@@ -260,23 +260,11 @@ class GameEntities
 			Entity			&operator=(const Entity &s);
 			void UpdateEntity(Entity &s);
 		};
-		struct StagedChange
-		{
-			// 0 create, 1 update, 2 delete
-			char	type;
-			int		index;
-			Entity	data;
-			StagedChange() {}
-			StagedChange(const StagedChange &s) {*this = s;}
-			StagedChange	&operator=(const StagedChange &s);
-		};
-
 	private:
 		std::unordered_map<int, Entity>					props;
 	public:
 		GameEntities();
 		void	parse(PacketEntities &pe, DataTable &dt, DemoFile &df);
-		std::vector<StagedChange>	&getStagedChanges();
 		void	executeChanges(class DemoFile &df);
 };
 std::ostream &operator<<(std::ostream &o, const GameEntities::Entity &e);
