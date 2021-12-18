@@ -27,7 +27,6 @@ void	ParsedStringTable::Update(const std::string &data, bool isUserInfo, int num
 	
 	(void)isUserInfo;
 
-	// perform integer log2() to set nEntryBits
 	int nTemp = origin.max_entries();
 	int nEntryBits = 0;
 	while (nTemp >>= 1) ++nEntryBits;

@@ -121,7 +121,7 @@ void DemoFile::handleUserMessage(UserMessage &e)
 		UserMessageSwitch(ProcessSpottedEntityUpdate);
 		UserMessageSwitch(ReloadEffect);
 		UserMessageSwitch(AdjustMoney);
-		//UserMessageSwitch(UpdateTeamMoney);
+		//UserMessageSwitch(UpdateTeamMoney); broken??
 		UserMessageSwitch(StopSpectatorMode);
 		UserMessageSwitch(KillCam);
 		UserMessageSwitch(DesiredTimescale);

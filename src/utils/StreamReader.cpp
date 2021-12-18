@@ -50,8 +50,6 @@ StreamReader::StreamReader(const std::string &d): data(d), idx(0), bitsAvailable
 		bitsAvailable = d.length() * 8;
 	else
 		bitsAvailable = 32;
-
-	// std::cout << "diff" << (int)diff << ", " << (int)bitsAvailable << std::endl;
 }
 
 void	StreamReader::loadBuffer()
@@ -63,12 +61,6 @@ void	StreamReader::loadBuffer()
 
 int		StreamReader::readBits(int len)
 {
-	// std::cout << "---data" << std::endl;
-	// std::cout << "\tBuffers:" << (int)buffer << std::endl;
-	// std::cout << "\tbits:" << (int)bitsAvailable << std::endl;
-	// std::cout << "\tidx:" << (int)idx << std::endl;
-	// std::cout << "---" << std::endl;
-	// std::cout << len;
 	if (bitsAvailable >= len)
 	{
 		int rv = buffer & s_nMaskTable[len];
@@ -77,7 +69,6 @@ int		StreamReader::readBits(int len)
 			buffer >>= len;
 		else
 			loadBuffer();
-		// std::cout << "-Rval: " << rv << std::endl;
 		return rv;
 	}
 	else
@@ -90,7 +81,6 @@ int		StreamReader::readBits(int len)
 		bitsAvailable = 32 - len;
 		buffer >>= len;
 
-		// std::cout << " Rval: " << rv << std::endl;
 		return rv;
 	}
 }
