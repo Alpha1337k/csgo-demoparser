@@ -20,19 +20,18 @@ DemoFile::DemoFile(FileReader &f): tick(0)
 
 DemoFile::~DemoFile()
 {
-#define DeleteItem(type) \
-	case svc_##type: \
-	{ \
-		delete (type *)frames[i].pckt.msg[x].second; \
-		break; \
+#define DeleteItem(type)								\
+	case svc_##type:									\
+	{													\
+		delete (type *)frames[i].pckt.msg[x].second;	\
+		break;											\
 	}
-#define DeleteNet(type) \
-	case net_##type: \
-	{ \
-		delete (type *)frames[i].pckt.msg[x].second; \
-		break; \
+#define DeleteNet(type)									\
+	case net_##type:									\
+	{													\
+		delete (type *)frames[i].pckt.msg[x].second;	\
+		break;											\
 	}
-	// std::cout << "Freeing" << std::endl;
 	for (size_t i = 0; i < frames.size(); i++)
 	{
 		for (size_t x = 0; x < frames[i].pckt.msg.size(); x++)

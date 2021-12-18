@@ -74,10 +74,10 @@ void DemoFile::handlePacketEntities(PacketEntities &e)
 
 void DemoFile::handleUserMessage(UserMessage &e)
 {
-#define UserMessageSwitch(type) \
-	case CS_UM_##type:	\
-	{					\
-		CCSUsrMsg_##type msg;		\
+#define UserMessageSwitch(type)														\
+	case CS_UM_##type:																\
+	{																				\
+		CCSUsrMsg_##type msg;														\
 		if (msg.ParseFromString(e.msg_data()))										\
 		{																			\
 			std::string debug = e.DebugString();									\
@@ -166,30 +166,29 @@ void DemoFile::handleDataTable(DataTable &dt)
 void	DemoFile::create_metrics()
 {
 	extern StartupParser startupParameters;
-#define HandleCase(type) \
-	case svc_##type: \
-	{			\
-		handle##type(*(type *)pd.second); \
-		break;	\
+#define HandleCase(type)						\
+	case svc_##type:							\
+	{											\
+		handle##type(*(type *)pd.second);		\
+		break;									\
 	}
-#define HandleOther(type) \
-	case svc_##type: \
-	{ \
-		if (eventHooks[svc_##type]) \
+#define HandleOther(type)						\
+	case svc_##type:							\
+	{											\
+		if (eventHooks[svc_##type])				\
 			eventHooks[svc_##type](&pd.second); \
-		break; \
+		break;									\
 	}
-#define HandleOtherNet(type) \
-	case net_##type: \
-	{ \
-		if (eventHooks[net_##type]) \
+#define HandleOtherNet(type)					\
+	case net_##type:							\
+	{											\
+		if (eventHooks[net_##type])				\
 			eventHooks[net_##type](&pd.second); \
-		break; \
+		break;									\
 	}
 	totalparse = 0;
 	totalset = 0;
 
-	// std::cout << "Frames: " << frames.size() << std::endl;
 	for (; tick < frames.size(); tick++)
 	{
 		auto	startTime = std::chrono::high_resolution_clock::now();
@@ -237,15 +236,11 @@ void	DemoFile::create_metrics()
 		auto	endTime = std::chrono::high_resolution_clock::now();
 		auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 		(void)diffdTime;
-		// std::clog << "Time it took for frame " << i << " was " << diffdTime.count() << "us, uspp: " << \
-		//			(diffdTime.count() == 0 ? 0 : (float)frames[i].pckt.msg.size() / (float)diffdTime.count() * 1000) \
-		//			<< std::endl; 
 	}
 #undef HandleCase
 #undef HandleOther
 #undef HandleOtherNet
 }
-
 
 const size_t	DemoFile::getCurrentTick()
 {

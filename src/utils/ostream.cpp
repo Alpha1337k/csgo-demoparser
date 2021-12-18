@@ -73,10 +73,10 @@ std::ostream &operator<<(std::ostream &o, const Packet &p)
 	// o << "viewAngles:       " << p.splits[1].viewAngles2 << std::endl;
 	// o << "localViewAngles:  " << p.splits[1].localViewAngles2 << std::endl;
 	o << "Messages: (" << p.msg.size() << ") [ \n";
-#define MessagePrinter(type) \
-	{	\
-	std::cout << "packet: " << #type << std::endl; \
-	break;	\
+#define MessagePrinter(type) 						\
+	{												\
+	std::cout << "packet: " << #type << std::endl;	\
+	break;											\
 	}
 	for (size_t i = 0; i < p.msg.size(); i++)
 	{

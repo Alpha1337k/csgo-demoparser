@@ -14,11 +14,11 @@ void	printServerInfo(void *data)
 
 void	printGameEvent(void *data)
 {
-#define SwitchPrint(val, toprint) \
-	case val: \
-	{			\
-		std::cout << eventKey.toprint(); \
-		break;	\
+#define SwitchPrint(val, toprint)			\
+	case val:								\
+	{										\
+		std::cout << eventKey.toprint();	\
+		break;								\
 	}
 
 	GameEvent &ge = *(GameEvent *)data;
@@ -54,21 +54,16 @@ void	printGameEvent(void *data)
 void	printPacketEntities(void *data)
 {
 #define PrintVariable(name, var) std::cout << ", \"" << name << "\": " << var;
-#define PrintExists(property, cast, name) \
+#define PrintExists(property, cast, name)									\
 		{	\
-			const GameEntities::Property *prop = pl.getProperty(property); \
-			if (prop != 0) \
-				PrintVariable(name, *(cast *)prop->data); \
+			const GameEntities::Property *prop = pl.getProperty(property);	\
+			if (prop != 0)													\
+				PrintVariable(name, *(cast *)prop->data);					\
 		}
 
 	static size_t c = 0;
 
 	const std::unordered_map<int, Player> &players = demoref->getPlayers();
-	// for (auto i = players.begin(); i != players.end(); i++)
-	// {
-	// 	std::cout << i->first << " " << i->second.md.userName << std::endl;
-	// }
-	// exit(1);
 	
 	if (c == 0)
 		std::cout << '[';
@@ -111,13 +106,13 @@ void	printCreateStringTable(void *data)
 
 void	printDataTable(void *d)
 {
-	// DataTable *data = (DataTable *)d;
+	DataTable *data = (DataTable *)d;
 
-	// for (size_t i = 0; i < data->services.size(); i++)
-	// {
-	// 	std::cout << data->services[i] << std::endl;
-	// }
-	// exit(-1);	
+	for (size_t i = 0; i < data->services.size(); i++)
+	{
+		std::cout << data->services[i] << std::endl;
+	}
+	exit(-1);	
 }
 
 void	printTime(std::chrono::system_clock::time_point p1, std::chrono::system_clock::time_point p2)
