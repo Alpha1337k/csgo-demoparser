@@ -35,14 +35,14 @@ int		readFieldIndex(StreamReader &sr, bool newWay, int oldindex)
 void	decodeProperty(StreamReader &sr, int &ind, const DataTable &dt, GameEntities::Entity &ent, const PropW *arProp = 0)
 {
 #define string std::string
-#define DecodeSwitch(i, typeV) \
-	case i: \
-	{ \
-		typeV rv = decode##typeV(sr, flatProp.prop); \
-		GameEntities::Property &prop = ent.properties[flatProp.path]; \
-		prop.type = decoded_##typeV; \
-		prop.data = new typeV(rv); \
-		break; \
+#define DecodeSwitch(i, typeV)											\
+	case i:																\
+	{																	\
+		typeV rv = decode##typeV(sr, flatProp.prop);					\
+		GameEntities::Property &prop = ent.properties[flatProp.path];	\
+		prop.type = decoded_##typeV;									\
+		prop.data = new typeV(rv);										\
+		break;															\
 	}
 	assert(ind < (int)ent.parentService->props.size());
 

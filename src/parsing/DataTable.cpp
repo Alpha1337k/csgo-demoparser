@@ -18,7 +18,6 @@ DataTable::DataTable(FileReader &f)
 		serviceClassBits++;
 	
 	ServiceClass sc;
-	// std::cout << "Count: " << serverClassesCount << std::endl;
 	for (short i = 0; i < serverClassesCount; i++)
 	{
 		sc.id = 0;

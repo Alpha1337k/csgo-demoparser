@@ -2,40 +2,36 @@
 
 void	getProtoMesssages(FileReader &f, int size, MessageVector &messages)
 {
-	extern StartupParser startupParameters;
-#define ParseStatement(type, extra) \
-	case svc_##type: \
-	{ \
-		type *svi = new type; \
-		if (svi->ParseFromArray(dataptr, length) == false) \
-		{ \
-			std::cerr << "Error: parsing failed: " << #type << std::endl; \
-			svi = 0; \
-			exit(1); \
-		} \
-		else if (parsemsg) \
-			std::cout << "Parsed "  << #type << ", length: " << length << std::endl; \
-		messages.push_back(std::make_pair(svc_##type, svi)); \
-		/* std::cout << "{" << svi->DebugString() << "}" << std::endl; */ \
-		extra \
-		break; \
+#define ParseStatement(type, extra)														\
+	case svc_##type:																	\
+	{ 																					\
+		type *svi = new type;															\
+		if (svi->ParseFromArray(dataptr, length) == false)								\
+		{ 																				\
+			std::cerr << "Error: parsing failed: " << #type << std::endl;				\
+			svi = 0;																	\
+			exit(1);																	\
+		}																				\
+		else if (parsemsg)																\
+			std::cout << "Parsed "  << #type << ", length: " << length << std::endl; 	\
+		messages.push_back(std::make_pair(svc_##type, svi));							\
+		extra;																			\
+		break;																			\
 	}
-
-#define	ParseNetStatement(type) \
-	case net_##type: \
-	{ \
-		type *net = new type; \
-		if (net->ParseFromArray(dataptr, length) == false) \
-		{ \
-			std::cerr << "Error: parsing failed: " << #type << std::endl; \
-			net = 0; \
-			exit(1); \
-		} \
-		else if (parsemsg) \
-			std::cout << "Parsed "  << #type << ", length: " << length << std::endl; \
-		messages.push_back(std::make_pair(net_##type, net)); \
-		/* std::cout << "{" << net->DebugString() << "}" << std::endl; */ \
-		break; \
+#define	ParseNetStatement(type) 														\
+	case net_##type: 																	\
+	{																					\
+		type *net = new type;															\
+		if (net->ParseFromArray(dataptr, length) == false) 								\
+		{																				\
+			std::cerr << "Error: parsing failed: " << #type << std::endl;				\
+			net = 0;																	\
+			exit(1);																	\
+		}																				\
+		else if (parsemsg)																\
+			std::cout << "Parsed "  << #type << ", length: " << length << std::endl;	\
+		messages.push_back(std::make_pair(net_##type, net));							\
+		break;																			\
 	}
 
 	size_t startpos = f.getOffset();
@@ -45,8 +41,6 @@ void	getProtoMesssages(FileReader &f, int size, MessageVector &messages)
 	{
 		unsigned int	messagetype = f.readInt();
 		unsigned int	length = f.readInt();
-
-		//std::cout << "Iter: " << iter << " messagetype:" << (int)messagetype << ", length: " << length << std::endl;
 
 		char *dataptr = f.getCurrentChar();
 		f.ForceIncrement(length);

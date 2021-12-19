@@ -14,10 +14,6 @@
 #include <chrono>
 #include <unordered_map>
 
-// #define sr.readBits(x) readStringBits(data, x, i, bitsAvailable)
-// #define StreamReader &sr const std::string &data, int &i, char &bitsAvailable
-// #define sr data, i, bitsAvailable
-
 #define printIfAllowed(query, toPrint)	\
 	{									\
 		if (startupParameters[#query])	\
