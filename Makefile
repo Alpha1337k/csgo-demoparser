@@ -1,6 +1,6 @@
 NAME=democheck
 CC=clang++
-FLAGS=-pthread -std=c++11 -O3 -march=native
+FLAGS=-pthread -std=c++2a -Ofast -march=native
 LINKFLAGS=-lprotobuf -lpthread
 DEBUG_FLAGS=-g -fsanitize=address
 LIBS=-I inc/ -I startup-parser/src -I protobuf/

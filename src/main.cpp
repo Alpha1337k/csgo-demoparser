@@ -53,12 +53,12 @@ void	printGameEvent(void *data)
 
 void	printPacketEntities(void *data)
 {
-#define PrintVariable(name, var) std::cout << ", \"" << name << "\": " << var;
+#define PrintVariable(name, var, type) std::cout << ", \"" << name << "\": " << std::get<type>(var);
 #define PrintExists(property, cast, name)									\
 		{	\
 			const GameEntities::Property *prop = pl.getProperty(property);	\
 			if (prop != 0)													\
-				PrintVariable(name, *(cast *)prop->data);					\
+				PrintVariable(name, prop->data, cast);						\
 		}
 
 	static size_t c = 0;

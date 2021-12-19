@@ -13,6 +13,7 @@
 #include <math.h>
 #include <chrono>
 #include <unordered_map>
+#include <variant>
 
 #define printIfAllowed(query, toPrint)	\
 	{									\
@@ -252,7 +253,7 @@ class GameEntities
 		struct Property
 		{
 			int type;
-			void	*data;
+			std::variant<int, float, std::string, Vector, Vector2> data;
 			Property		&operator=(const Property &s);
 			Property(): data(0) {}
 			~Property();

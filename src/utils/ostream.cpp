@@ -177,19 +177,19 @@ std::ostream &operator<<(std::ostream &o, const GameEntities::Entity &e)
 		switch (it->second.type)
 		{
 		case decoded_int:
-			o << " : " << *(int *)it->second.data << std::endl;
+			o << " : " << std::get<int>(it->second.data) << std::endl;
 			break;
 		case decoded_float:
-			o << " : " << *(float *)it->second.data << std::endl;
+			o << " : " << std::get<float>(it->second.data) << std::endl;
 			break;
 		case decoded_Vector:
-			o << " : " << *(Vector *)it->second.data << std::endl;
+			o << " : " << std::get<Vector>(it->second.data) << std::endl;
 			break;
 		case decoded_Vector2:
-			o << " : " << *(Vector2 *)it->second.data << std::endl;
+			o << " : " << std::get<Vector2>(it->second.data) << std::endl;
 			break;
 		case decoded_string:
-			o << " : " << *(std::string *)it->second.data << std::endl;
+			o << " : " << std::get<std::string>(it->second.data) << std::endl;
 			break;
 		default:
 			break;

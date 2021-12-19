@@ -40,7 +40,7 @@ void	decodeProperty(StreamReader &sr, int &ind, const DataTable &dt, GameEntitie
 	{																	\
 		GameEntities::Property &prop = ent.properties[flatProp.path];	\
 		prop.type = decoded_##typeV;									\
-		prop.data = new typeV(decode##typeV(sr, *flatProp.prop));		\
+		prop.data = decode##typeV(sr, *flatProp.prop);					\
 		break;															\
 	}
 	assert(ind < (int)ent.parentService->props.size());
