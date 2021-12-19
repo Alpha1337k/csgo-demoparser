@@ -121,9 +121,21 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 		currentEntity += 1 + sr.readStreamInt();
 
 		Entity	&toChange = props[currentEntity];
-		if (sr.readBit() == 0)
+		int type = sr.readBits(2);
+
+		switch (type)
 		{
-			if (sr.readBit())
+		case 0:		// update
+			{
+				readFromStream(sr, dt, toChange);
+				break;
+			}
+		case 1:		// delete
+			{
+				toChange.parentService = 0;
+				break;
+			}	
+		case 2:		// create
 			{
 				toChange.parentService = PVSParser(sr, dt);
 				readFromStream(sr, dt, toChange);
@@ -131,16 +143,8 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 				{
 					df.getPlayer(currentEntity - 1).packetRef = &(props[currentEntity]);
 				}
+				break;
 			}
-			else
-			{
-				readFromStream(sr, dt, toChange);
-			}
-		}
-		else
-		{
-			toChange.parentService = 0;
-			sr.readBit();
 		}
 		assert(!sr.isEof());
 	}
