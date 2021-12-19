@@ -38,10 +38,9 @@ void	decodeProperty(StreamReader &sr, int &ind, const DataTable &dt, GameEntitie
 #define DecodeSwitch(i, typeV)											\
 	case i:																\
 	{																	\
-		typeV rv = decode##typeV(sr, flatProp.prop);					\
 		GameEntities::Property &prop = ent.properties[flatProp.path];	\
 		prop.type = decoded_##typeV;									\
-		prop.data = new typeV(rv);										\
+		prop.data = new typeV(decode##typeV(sr, *flatProp.prop));		\
 		break;															\
 	}
 	assert(ind < (int)ent.parentService->props.size());
@@ -50,7 +49,7 @@ void	decodeProperty(StreamReader &sr, int &ind, const DataTable &dt, GameEntitie
 		arProp = &ent.parentService->props[ind];
 	const PropW &flatProp = *arProp;
 
-	switch (flatProp.prop.type())
+	switch (flatProp.prop->type())
 	{
 		DecodeSwitch(0, int);
 		DecodeSwitch(1, float);
@@ -59,14 +58,15 @@ void	decodeProperty(StreamReader &sr, int &ind, const DataTable &dt, GameEntitie
 		DecodeSwitch(4, string);
 		case 5:
 		{
-			int maxElem = flatProp.prop.num_elements();
+			int maxElem = flatProp.prop->num_elements();
 			int bitsToRead = 1;
 			while (maxElem >>= 1)
 				bitsToRead++;
 			int numElem = sr.readBits(bitsToRead);
+			PropW newProp = PropW(flatProp.targetElem, "");
 			for (int x = 0; x < numElem; x++)
 			{
-				PropW newProp = PropW(flatProp.targetElem, flatProp.path + '.' + std::to_string(x));
+				newProp.path = flatProp.path + '.' + std::to_string(x);
 				decodeProperty(sr, ind, dt, ent, &newProp);
 			}
 			break;
@@ -74,7 +74,7 @@ void	decodeProperty(StreamReader &sr, int &ind, const DataTable &dt, GameEntitie
 	
 	default:
 		{
-			ErrorReturnMessage("Error case not found! type: " + std::to_string(flatProp.prop.type()));
+			ErrorReturnMessage("Error case not found! type: " + std::to_string(flatProp.prop->type()));
 		}
 	}
 #undef string
@@ -130,11 +130,6 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 				readFromStream(sr, dt, toChange);
 				break;
 			}
-		case 1:		// delete
-			{
-				toChange.parentService = 0;
-				break;
-			}	
 		case 2:		// create
 			{
 				toChange.parentService = PVSParser(sr, dt);
@@ -143,6 +138,11 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 				{
 					df.getPlayer(currentEntity - 1).packetRef = &(props[currentEntity]);
 				}
+				break;
+			}
+		default:
+			{
+				toChange.parentService = 0;
 				break;
 			}
 		}

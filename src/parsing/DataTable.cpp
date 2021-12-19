@@ -165,10 +165,10 @@ void	DataTable::ServiceClass::sortProps()
 	for (size_t i = 0; i < props.size(); i++)
 	{
 		size_t x = 0;
-		for (; x < priorities.size() && priorities[x] != props[i].prop.priority(); x++);
+		for (; x < priorities.size() && priorities[x] != props[i].prop->priority(); x++);
 
 		if (x == priorities.size())
-			priorities.push_back(props[i].prop.priority());
+			priorities.push_back(props[i].prop->priority());
 	}
 	std::sort(priorities.begin(), priorities.end());
 
@@ -183,7 +183,7 @@ void	DataTable::ServiceClass::sortProps()
 			while (cur_prop < props.size())
 			{
 				PropW &p = props[cur_prop];
-				if (p.prop.priority() == prior || (prior == 64 && ((1 << 18) & p.prop.flags())))
+				if (p.prop->priority() == prior || (prior == 64 && ((1 << 18) & p.prop->flags())))
 				{
 					if (start != cur_prop)
 					{

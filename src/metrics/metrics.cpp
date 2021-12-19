@@ -56,7 +56,6 @@ void DemoFile::handleUpdateStringTable(UpdateStringTable &si)
 void DemoFile::handlePacketEntities(PacketEntities &e)
 {
 	auto	startTime = std::chrono::high_resolution_clock::now();
-	(void)e;
 
 	entities.parse(e, dataTable, *this);
 	auto	endTime = std::chrono::high_resolution_clock::now();
@@ -66,10 +65,6 @@ void DemoFile::handlePacketEntities(PacketEntities &e)
 
 	if (eventHooks[svc_PacketEntities])
 		eventHooks[svc_PacketEntities](0);
-
-	endTime = std::chrono::high_resolution_clock::now();
-	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
-	totalset += diffdTime.count();
 }
 
 void DemoFile::handleUserMessage(UserMessage &e)
@@ -187,7 +182,6 @@ void	DemoFile::create_metrics()
 		break;									\
 	}
 	totalparse = 0;
-	totalset = 0;
 
 	for (; tick < frames.size(); tick++)
 	{

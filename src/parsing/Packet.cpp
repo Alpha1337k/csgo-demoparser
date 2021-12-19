@@ -1,7 +1,7 @@
 #include <demo.hpp>
 
 Packet::Packet(FileReader &f)
-
+{
 	f.read(this, sizeof(*this) - sizeof(MessageVector));
 
 	int sequenceIn = 0, sequenceOut = 0;

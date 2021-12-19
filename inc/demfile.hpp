@@ -174,16 +174,25 @@ std::ostream &operator<<(std::ostream &o, const Frame &d);
 
 struct PropW
 {
-	SendTable_sendprop_t 	prop;
+	SendTable_sendprop_t 	*prop;
 	std::string				path;
 	SendTable_sendprop_t	targetElem;
 
 	PropW(const SendTable_sendprop_t &p, std::string pth, const SendTable_sendprop_t *target = 0)
 	{
+		prop = (SendTable_sendprop_t *)&p;
 		path = pth;
-		prop = p;
 		if (target)
 			targetElem = *target;
+	}
+	PropW(const PropW &p) {*this = p;}
+	PropW &operator=(const PropW &p)
+	{
+		prop = p.prop;
+		path = p.path;
+		targetElem = p.targetElem;
+
+		return *this;
 	}
 };
 std::ostream &operator<<(std::ostream &o, const PropW &p);
@@ -299,7 +308,6 @@ class DemoFile
 private:
 	DemHeader header;
 	ServerInfo *info;
-	std::string	signOnData;
 	std::vector<Frame> frames;
 	std::vector<GameEventList_descriptor_t> gEvents;
 	std::vector<ParsedStringTable>			parsedTables;
@@ -319,7 +327,6 @@ private:
 	void handleDataTable(DataTable &dt);
 public:
 	size_t totalparse;
-	size_t totalset;
 
 	DemoFile(FileReader &f);
 	~DemoFile();
