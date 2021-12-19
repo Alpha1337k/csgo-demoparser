@@ -86,11 +86,11 @@ void	printPacketEntities(void *data)
 		}
 		i++;
 		if (i != players.end())
-			std::cout << " }," << std::endl;
+			std::cout << " },\n";
 		else
-			std::cout << " }" << std::endl;
+			std::cout << " }\n";
 	}
-	std::cout << "]" << std::endl;
+	std::cout << "]\n";
 
 #undef PrintVariable
 }
@@ -119,7 +119,7 @@ void	printTime(std::chrono::system_clock::time_point p1, std::chrono::system_clo
 {
 	auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(p1 - p2);
 	(void)diffdTime;
-	std::cout << "It took " << diffdTime.count() / 1000 << "ms" << std::endl;
+	std::cerr << "It took " << diffdTime.count() / 1000 << "ms" << std::endl;
 }
 
 int main(int argc, char **argv, char **env)
@@ -146,13 +146,13 @@ int main(int argc, char **argv, char **env)
 		return (-1);
 	}
 	auto	startEnd = std::chrono::high_resolution_clock::now();
-	// printTime(startEnd, startTime);
+	printTime(startEnd, startTime);
 
 	DemoFile demo(f);
 	demoref = &demo;
 
 	auto	preparseTime = std::chrono::high_resolution_clock::now();
-	// printTime(preparseTime, startEnd);
+	printTime(preparseTime, startEnd);
 
 	if (startupParameters["--only-parse"] == 0)
 	{
