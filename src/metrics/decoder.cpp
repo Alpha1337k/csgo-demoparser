@@ -1,19 +1,5 @@
 #include <demo.hpp>
 
-const int SPROP_COORD = (1 << 1);
-const int SPROP_NOSCALE = (1 << 2);
-const int SPROP_NORMAL = (1 << 5);
-const int SPROP_COORD_MP = (1 << 12);
-const int SPROP_COORD_MP_LOWPRECISION = (1 << 13);
-const int SPROP_COORD_MP_INTEGRAL = (1 << 14);
-const int SPROP_CELL_COORD = (1 << 15);
-const int SPROP_CELL_COORD_LOWPRECISION = (1 << 16);
-const int SPROP_CELL_COORD_INTEGRAL = (1 << 17);
-
-const int COORD_FRACTIONAL_BITS = 5;
-const int COORD_DENOMINATOR = ( 1 << ( COORD_FRACTIONAL_BITS ) );
-const float COORD_RESOLUTION = ( 1.0f / ( COORD_DENOMINATOR ) );
-
 const int COORD_FRACTIONAL_BITS_MP_LOWPRECISION = 3;
 const float COORD_DENOMINATOR_LOWPRECISION = ( 1 << ( COORD_FRACTIONAL_BITS_MP_LOWPRECISION ) );
 const float COORD_RESOLUTION_LOWPRECISION = ( 1.0f / ( COORD_DENOMINATOR_LOWPRECISION ) );
@@ -22,7 +8,7 @@ int decodeint(StreamReader &sr, const SendTable_sendprop_t &prop)
 {
 	if (prop.flags() & ( 1 << 19))
 	{
-		assert(0 != 0);
+		assert(0);
 		return sr.readBits(4);
 	}
 	else
@@ -49,7 +35,7 @@ Vector decodeVector(StreamReader &sr, const SendTable_sendprop_t &prop)
 			rv.z = 0;
 
 		if (sr.readBit())
-			rv.z = -1;
+			rv.z *= -1;
 	}
 	return rv;
 }
@@ -105,7 +91,7 @@ float readfBits(StreamReader &sr)
 	return isNeg ? -rv : rv;
 }
 
-float readfBitsCoord(StreamReader &sr, bool isInt, bool isLowPrc)
+float readfBitsCoord(StreamReader &sr, int flags)
 {
 	int iVal, fVal;
 	float rv = 0;
@@ -124,13 +110,13 @@ float readfBitsCoord(StreamReader &sr, bool isInt, bool isLowPrc)
 		else
 			rv = (float)sr.readBits(14) + 1;
 	}
-	if (isInt == false)
+	if (flags != 2)
 	{
-		if (isLowPrc)
+		if (flags == 1)
 			fVal = sr.readBits(3);
 		else
 			fVal = sr.readBits(5);
-		rv = rv + ((float)fVal * (isLowPrc ? COORD_RESOLUTION_LOWPRECISION : COORD_RESOLUTION));
+		rv = rv + ((float)fVal * (flags == 1 ? COORD_RESOLUTION_LOWPRECISION : COORD_RESOLUTION));
 	}
 	return isNeg ? -rv : rv;
 }
@@ -176,25 +162,27 @@ float readfNormal(StreamReader &sr)
 
 float decodefloat(StreamReader &sr, const SendTable_sendprop_t &prop) 
 {
-	int flags = prop.flags();
-	if (flags & SPROP_COORD)
+	switch (prop.flags() & 258086)
+	{
+	case 2:
 		return readfBits(sr);
-	else if (flags & SPROP_COORD_MP)
-		return readfBitsCoord(sr, false, false);
-	else if (flags & SPROP_COORD_MP_LOWPRECISION)
-		return readfBitsCoord(sr, false, true);
-	else if (flags & SPROP_COORD_MP_INTEGRAL)
-		return readfBitsCoord(sr, true, false);
-	else if (flags & SPROP_NOSCALE)
+	case 4:
 		return readFloat(sr);
-	else if (flags & SPROP_NORMAL)
+	case 32:
 		return readfNormal(sr);
-	else if (flags & SPROP_CELL_COORD)
+	case 4096:
+		return readfBitsCoord(sr, 0);
+	case 8192:
+		return readfBitsCoord(sr, 1);
+	case 16384:
+		return readfBitsCoord(sr, 2);
+	case 32768:
 		return readfCellCoord(sr, prop, 0);
-	else if (flags & SPROP_CELL_COORD_LOWPRECISION)
+	case 65536:
 		return readfCellCoord(sr, prop, 1);
-	else if (flags & SPROP_CELL_COORD_INTEGRAL)
+	case 131072:
 		return readfCellCoord(sr, prop, 2);
-	else
+	default:
 		return readfIntep(sr, prop);
+	}
 }
