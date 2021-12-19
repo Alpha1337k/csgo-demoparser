@@ -176,23 +176,24 @@ float readfNormal(StreamReader &sr)
 
 float decodefloat(StreamReader &sr, const SendTable_sendprop_t &prop) 
 {
-	if (prop.flags() & SPROP_COORD)
+	int flags = prop.flags();
+	if (flags & SPROP_COORD)
 		return readfBits(sr);
-	else if (prop.flags() & SPROP_COORD_MP)
+	else if (flags & SPROP_COORD_MP)
 		return readfBitsCoord(sr, false, false);
-	else if (prop.flags() & SPROP_COORD_MP_LOWPRECISION)
+	else if (flags & SPROP_COORD_MP_LOWPRECISION)
 		return readfBitsCoord(sr, false, true);
-	else if (prop.flags() & SPROP_COORD_MP_INTEGRAL)
+	else if (flags & SPROP_COORD_MP_INTEGRAL)
 		return readfBitsCoord(sr, true, false);
-	else if (prop.flags() & SPROP_NOSCALE)
+	else if (flags & SPROP_NOSCALE)
 		return readFloat(sr);
-	else if (prop.flags() & SPROP_NORMAL)
+	else if (flags & SPROP_NORMAL)
 		return readfNormal(sr);
-	else if (prop.flags() & SPROP_CELL_COORD)
+	else if (flags & SPROP_CELL_COORD)
 		return readfCellCoord(sr, prop, 0);
-	else if (prop.flags() & SPROP_CELL_COORD_LOWPRECISION)
+	else if (flags & SPROP_CELL_COORD_LOWPRECISION)
 		return readfCellCoord(sr, prop, 1);
-	else if (prop.flags() & SPROP_CELL_COORD_INTEGRAL)
+	else if (flags & SPROP_CELL_COORD_INTEGRAL)
 		return readfCellCoord(sr, prop, 2);
 	else
 		return readfIntep(sr, prop);
