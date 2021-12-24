@@ -80,9 +80,10 @@ void	printPacketEntities(void *data)
 			PrintExists("m_iHealth", int, "health");
 			PrintExists("m_iAccount", int, "balance");
 			PrintExists("m_bHasFelmet", int, "hasHelmet");
-			PrintExists("localdata.m_vecOrigin", Vector2, "lVecOriginXY");
+			PrintExists("localdata.m_vecOrigin[0]", int, "lVecOriginZ");
 			PrintExists("csnonlocaldata.m_vecOrigin", Vector2, "nlVecOriginXY");
-
+			PrintExists("m_angEyeAngles[0]", float, "eyeAnglePitch");
+			PrintExists("m_angEyeAngles[1]", float, "eyeAngleYaw");
 		}
 		i++;
 		if (i != players.end())
@@ -172,5 +173,6 @@ int main(int argc, char **argv, char **env)
 	}
 	google::protobuf::ShutdownProtobufLibrary();
 	std::cerr << "Done!" << std::endl;
+	printdecTime();
 	return (0);
 }

@@ -55,13 +55,7 @@ void DemoFile::handleUpdateStringTable(UpdateStringTable &si)
 
 void DemoFile::handlePacketEntities(PacketEntities &e)
 {
-	auto	startTime = std::chrono::high_resolution_clock::now();
-
 	entities.parse(e, dataTable, *this);
-	auto	endTime = std::chrono::high_resolution_clock::now();
-	auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
-	totalparse += diffdTime.count();
-	startTime = std::chrono::high_resolution_clock::now();
 
 	if (eventHooks[svc_PacketEntities])
 		eventHooks[svc_PacketEntities](0);

@@ -32,6 +32,13 @@ int		readFieldIndex(StreamReader &sr, bool newWay, int oldindex)
 	return oldindex + 1 + rval;
 }
 
+size_t fulltime = 0;
+
+void printdecTime()
+{
+	std::cout << ' ' << fulltime << "us" << '\n';
+}
+
 void	decodeProperty(StreamReader &sr, int &ind, const DataTable &dt, GameEntities::Entity &ent, const PropW *arProp = 0)
 {
 #define string std::string
@@ -87,7 +94,7 @@ void	readFromStream(StreamReader &sr, const DataTable &dt, GameEntities::Entity 
 
 	std::vector<int> indicies;
 	int index = -1;
-	
+
 	indicies.reserve(20);
 	while ((index = readFieldIndex(sr, readNewWay, index)) != -1)
 		indicies.push_back(index);
@@ -96,6 +103,7 @@ void	readFromStream(StreamReader &sr, const DataTable &dt, GameEntities::Entity 
 	{
 		decodeProperty(sr, indicies[x], dt, ent);
 	}
+
 }
 
 DataTable::ServiceClass	*PVSParser(StreamReader &sr, DataTable &dt)
@@ -109,18 +117,20 @@ DataTable::ServiceClass	*PVSParser(StreamReader &sr, DataTable &dt)
 	return &dt.services[serverClassId];
 }
 
+size_t highest = 0;
+
 void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 {
-	StreamReader sr(pe.entity_data());	
-	
+	StreamReader sr(pe.entity_data());		
 	int currentEntity = -1;
 
-	int x = 0;
-	for (; x < pe.updated_entries(); x++)
+	for (int x = 0; x < pe.updated_entries(); x++)
 	{
 		currentEntity += 1 + sr.readStreamInt();
 
+		assert(currentEntity < 700); // error for static vector size. please report if spotted in the wild
 		Entity	&toChange = props[currentEntity];
+
 		int type = sr.readBits(2);
 
 		switch (type)
@@ -133,6 +143,7 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 		case 2:		// create
 			{
 				toChange.parentService = PVSParser(sr, dt);
+				toChange.properties.reserve(toChange.parentService->props.size());
 				readFromStream(sr, dt, toChange);
 				if (toChange.parentService->nameDataTable == "DT_CSPlayer")
 				{
@@ -146,13 +157,12 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 				break;
 			}
 		}
-		assert(!sr.isEof());
 	}
-	assert(x == (int)pe.updated_entries());
-	// assert(sr.isEof()); //this fails, dont know if its a big deal
 }
 
-GameEntities::GameEntities() {}
+GameEntities::GameEntities() {
+	props.resize(700);
+}
 
 GameEntities::Property::~Property()
 {
