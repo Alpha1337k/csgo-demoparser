@@ -15,7 +15,7 @@ Frame::Frame(FileReader &f, bool &finished)
 	{
 		case dem_signon:
 		case dem_packet:
-			pckt = Packet(f);
+			pckt.Load(f);
 			break;
 		case dem_stop:
 			finished = true;

@@ -156,6 +156,7 @@ struct Packet
 	Split_t splits[2];
 	MessageVector msg;
 	Packet(FileReader &f);
+	void	Load(FileReader &f);
 	Packet();
 };
 std::ostream &operator<<(std::ostream &o, const Packet &d);
@@ -267,7 +268,7 @@ class GameEntities
 			void UpdateEntity(Entity &s);
 		};
 	private:
-		std::unordered_map<int, Entity>					props;
+		std::vector<Entity>					props;
 	public:
 		GameEntities();
 		void	parse(PacketEntities &pe, DataTable &dt, DemoFile &df);
@@ -356,7 +357,6 @@ float decodefloat(StreamReader &sr, const SendTable_sendprop_t &prop);
 Vector decodeVector(StreamReader &sr, const SendTable_sendprop_t &prop);
 Vector2 decodeVector2(StreamReader &sr, const SendTable_sendprop_t &prop);
 std::string decodestring(StreamReader &sr, const SendTable_sendprop_t &prop);
-
 
 
 #endif
