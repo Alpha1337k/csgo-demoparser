@@ -2,30 +2,28 @@
 
 int		readFieldIndex(StreamReader &sr, bool newWay, int oldindex)
 {
-	if (newWay && sr.readBit())
+	int rval;
+	if (newWay)
 	{
-		return oldindex + 1;
+		if (sr.readBit())
+			return oldindex + 1;
+		else if (sr.readBit())
+			return oldindex + 1 + sr.readBits(3);
 	}
-	int rval = 0;
-	if (newWay && sr.readBit())
-		rval = sr.readBits(3);
-	else
+	rval = sr.readBits(7);
+	switch (rval & (32 | 64))
 	{
-		rval = sr.readBits(7);
-		switch (rval & (32 | 64))
-		{
-			case 32:
-				rval = (rval & ~96) | (sr.readBits(2) << 5);
-				break;
-			case 64:
-				rval = (rval & ~96) | (sr.readBits(4) << 5);
-				break;
-			case 96:
-				rval = (rval & ~96) | (sr.readBits(7) << 5);
-				break;
-			default:
-				break;
-		}
+		case 32:
+			rval = (rval & ~96) | (sr.readBits(2) << 5);
+			break;
+		case 64:
+			rval = (rval & ~96) | (sr.readBits(4) << 5);
+			break;
+		case 96:
+			rval = (rval & ~96) | (sr.readBits(7) << 5);
+			break;
+		default:
+			break;
 	}
 	if (rval == 0xFFF)
 		return -1;
