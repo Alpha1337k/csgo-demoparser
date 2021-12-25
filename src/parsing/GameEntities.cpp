@@ -43,8 +43,8 @@ using std::string;
 #define DecodeSwitch(i, typeV)													\
 	case i:																		\
 	{																			\
-		std::pair<string, GameEntities::Property> &prop = ent.properties[ind];	\
-		prop.first = flatProp.path;												\
+		std::pair<const string *, GameEntities::Property> &prop = ent.properties[ind];	\
+		prop.first = &flatProp.path;											\
 		prop.second.type = decoded_##typeV;										\
 		prop.second.data = decode##typeV(sr, *flatProp.prop);					\
 		break;																	\
@@ -55,7 +55,6 @@ using std::string;
 	if (!arProp)
 		arProp = &ent.parentService->props[ind];
 	const PropW &flatProp = *arProp;
-
 
 	switch (flatProp.prop->type())
 	{
@@ -75,7 +74,9 @@ using std::string;
 			GameEntities::Property toAdd;
 			GameEntities::Property &prop = ent.properties[ind].second;
 
+			ent.properties[ind].first = &newProp.path;
 			std::vector< GameEntities::Property > topush;
+			topush.reserve(numElem);
 			for (int x = 0; x < numElem; x++)
 			{
 				switch (newProp.prop->type())

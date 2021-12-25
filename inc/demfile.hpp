@@ -229,7 +229,7 @@ class GameEntities
 		struct Entity
 		{
 			DataTable::ServiceClass *parentService;
-			std::vector<std::pair<std::string, Property> >	properties;
+			std::vector<std::pair<const std::string *, Property> >	properties;
 
 			Entity			&operator=(const Entity &s);
 			void UpdateEntity(Entity &s);

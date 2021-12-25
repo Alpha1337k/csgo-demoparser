@@ -32,7 +32,7 @@ const GameEntities::Property *Player::getProperty(std::string name) const
 		return 0;
 	for (size_t i = 0; i < packetRef->properties.size(); i++)
 	{
-		if (name == packetRef->properties[i].first)
+		if (packetRef->properties[i].first && name == *packetRef->properties[i].first)
 			return &packetRef->properties[i].second;
 	}
 	return 0;
