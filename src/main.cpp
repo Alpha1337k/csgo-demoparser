@@ -116,11 +116,11 @@ void	printDataTable(void *d)
 	exit(-1);	
 }
 
-void	printTime(std::chrono::system_clock::time_point p1, std::chrono::system_clock::time_point p2)
+void	printTime(std::string name, std::chrono::system_clock::time_point p1, std::chrono::system_clock::time_point p2)
 {
 	auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(p1 - p2);
 	(void)diffdTime;
-	std::cerr << "It took " << diffdTime.count() / 1000 << "ms" << std::endl;
+	std::cerr << name << " took " << diffdTime.count() / 1000 << "ms" << std::endl;
 }
 
 int main(int argc, char **argv, char **env)
@@ -147,13 +147,13 @@ int main(int argc, char **argv, char **env)
 		return (-1);
 	}
 	auto	startEnd = std::chrono::high_resolution_clock::now();
-	printTime(startEnd, startTime);
+	printTime("Loading", startEnd, startTime);
 
 	DemoFile demo(f);
 	demoref = &demo;
 
 	auto	preparseTime = std::chrono::high_resolution_clock::now();
-	printTime(preparseTime, startEnd);
+	printTime("Preparsing", preparseTime, startEnd);
 
 	if (startupParameters["--only-parse"] == 0)
 	{
@@ -166,13 +166,12 @@ int main(int argc, char **argv, char **env)
 
 		demo.create_metrics();
 		auto	metricsTime = std::chrono::high_resolution_clock::now();
-		printTime(metricsTime, preparseTime);
+		printTime("Metrics", metricsTime, preparseTime);
 		// std::cout << "parser took" << demo.totalparse << std::endl;
 		// std::cout << "setter took" << demo.totalset << std::endl;
 		// std::cout << "]" << std::endl;
 	}
-	google::protobuf::ShutdownProtobufLibrary();
+	// google::protobuf::ShutdownProtobufLibrary();m
 	std::cerr << "Done!" << std::endl;
-	printdecTime();
 	return (0);
 }
