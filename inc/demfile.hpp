@@ -14,6 +14,8 @@
 #include <chrono>
 #include <unordered_map>
 #include <variant>
+#include <FileReader.hpp>
+#include <StreamReader.hpp>
 
 #define printIfAllowed(query, toPrint)	\
 	{									\
@@ -101,42 +103,6 @@ struct DemHeader
 
 };
 std::ostream &operator<<(std::ostream &o, const DemHeader &d);
-
-class FileReader
-{
-	private:
-		std::string data;
-		size_t		idx;
-	public:
-		FileReader(std::string path);
-		FileReader();
-		~FileReader();
-		int				load(std::string path);
-		int				loadFd(int fd);
-		size_t			read(void *buffer, size_t size);
-		bool			isEof();
-		char			*getCurrentChar();
-		void			ForceIncrement(size_t len);
-		int				readInt();
-		std::string		readString();
-		size_t			getOffset();
-};
-
-class	StreamReader
-{
-	public:
-		const std::string &data;
-		int			idx;
-		char		bitsAvailable;
-		unsigned int buffer;
-		void		loadBuffer();
-	public:
-		StreamReader(const std::string &d);
-		int			readBits(int len);
-		int		readBit();
-		int			readStreamInt();
-		bool		isEof();
-};
 
 struct Packet
 {
