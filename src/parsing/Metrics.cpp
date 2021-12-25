@@ -58,7 +58,7 @@ void DemoFile::handlePacketEntities(PacketEntities &e)
 	entities.parse(e, dataTable, *this);
 
 	if (eventHooks[svc_PacketEntities])
-		eventHooks[svc_PacketEntities](0);
+		eventHooks[svc_PacketEntities](&e);
 }
 
 void DemoFile::handleUserMessage(UserMessage &e)

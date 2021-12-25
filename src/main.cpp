@@ -9,7 +9,6 @@ void	printServerInfo(void *data)
 	ServerInfo *si = (ServerInfo *)data;
 
 	std::cout << si->DebugString() << std::endl;
-	
 }
 
 void	printGameEvent(void *data)
