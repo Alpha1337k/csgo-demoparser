@@ -30,12 +30,12 @@ const GameEntities::Property *Player::getProperty(std::string name) const
 {
 	if (!packetRef)
 		return 0;
-	std::unordered_map<std::string, GameEntities::Property>::iterator prop = packetRef->properties.find(name);
-
-	if (prop == packetRef->properties.end())
-		return 0;
-
-	return &prop->second;
+	for (size_t i = 0; i < packetRef->properties.size(); i++)
+	{
+		if (name == packetRef->properties[i].first)
+			return &packetRef->properties[i].second;
+	}
+	return 0;
 }
 
 Player	&Player::operator=(const Player &p)

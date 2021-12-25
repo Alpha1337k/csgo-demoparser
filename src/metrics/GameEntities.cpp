@@ -41,20 +41,23 @@ void printdecTime()
 
 void	decodeProperty(StreamReader &sr, int &ind, const DataTable &dt, GameEntities::Entity &ent, const PropW *arProp = 0)
 {
-#define string std::string
-#define DecodeSwitch(i, typeV)											\
-	case i:																\
-	{																	\
-		GameEntities::Property &prop = ent.properties[flatProp.path];	\
-		prop.type = decoded_##typeV;									\
-		prop.data = decode##typeV(sr, *flatProp.prop);					\
-		break;															\
+using std::string;
+#define DecodeSwitch(i, typeV)													\
+	case i:																		\
+	{																			\
+		std::pair<string, GameEntities::Property> &prop = ent.properties[ind];	\
+		prop.first = flatProp.path;												\
+		prop.second.type = decoded_##typeV;										\
+		prop.second.data = decode##typeV(sr, *flatProp.prop);					\
+		break;																	\
 	}
 	assert(ind < (int)ent.parentService->props.size());
+	assert(ind < ent.properties.size());
 
 	if (!arProp)
 		arProp = &ent.parentService->props[ind];
 	const PropW &flatProp = *arProp;
+
 
 	switch (flatProp.prop->type())
 	{
@@ -71,11 +74,42 @@ void	decodeProperty(StreamReader &sr, int &ind, const DataTable &dt, GameEntitie
 				bitsToRead++;
 			int numElem = sr.readBits(bitsToRead);
 			PropW newProp = PropW(flatProp.targetElem, "");
+			GameEntities::Property toAdd;
+			GameEntities::Property &prop = ent.properties[ind].second;
+
+			std::vector< GameEntities::Property > topush;
 			for (int x = 0; x < numElem; x++)
 			{
-				newProp.path = flatProp.path + '.' + std::to_string(x);
-				decodeProperty(sr, ind, dt, ent, &newProp);
+				switch (newProp.prop->type())
+				{
+				case 0:
+					toAdd.type = decoded_int;
+					toAdd.data = decodeint(sr, *newProp.prop);
+					break;
+				case 1:
+					toAdd.type = decoded_float;
+					toAdd.data = decodefloat(sr, *newProp.prop);
+					break;
+				case 2:
+					toAdd.type = decoded_Vector;
+					toAdd.data = decodeVector(sr, *newProp.prop);
+					break;
+				case 3:
+					toAdd.type = decoded_Vector2;
+					toAdd.data = decodeVector2(sr, *newProp.prop);
+					break;
+				case 4:
+					toAdd.type = decoded_string;
+					toAdd.data = decodestring(sr, *newProp.prop);
+					break;
+				default:
+					assert(0);
+					break;
+				}
+				topush.push_back(toAdd);
 			}
+			prop.type = decoded_array;
+			prop.data = topush;
 			break;
 		}
 	
@@ -143,7 +177,7 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 		case 2:		// create
 			{
 				toChange.parentService = PVSParser(sr, dt);
-				toChange.properties.reserve(toChange.parentService->props.size());
+				toChange.properties.resize(toChange.parentService->props.size());
 				readFromStream(sr, dt, toChange);
 				if (toChange.parentService->nameDataTable == "DT_CSPlayer")
 				{

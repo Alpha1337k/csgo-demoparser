@@ -59,7 +59,8 @@ enum DecodedTypes
 	decoded_float,
 	decoded_Vector,
 	decoded_Vector2,
-	decoded_string
+	decoded_string,
+	decoded_array
 };
 
 
@@ -254,7 +255,7 @@ class GameEntities
 		struct Property
 		{
 			int type;
-			std::variant<int, float, std::string, Vector, Vector2> data;
+			std::variant<int, float, std::string, Vector, Vector2, std::vector<Property> > data;
 			Property		&operator=(const Property &s);
 			Property(): data(0) {}
 			~Property();
@@ -262,7 +263,7 @@ class GameEntities
 		struct Entity
 		{
 			DataTable::ServiceClass *parentService;
-			std::unordered_map<std::string, Property>	properties;
+			std::vector<std::pair<std::string, Property> >	properties;
 
 			Entity			&operator=(const Entity &s);
 			void UpdateEntity(Entity &s);
@@ -357,6 +358,7 @@ float decodefloat(StreamReader &sr, const SendTable_sendprop_t &prop);
 Vector decodeVector(StreamReader &sr, const SendTable_sendprop_t &prop);
 Vector2 decodeVector2(StreamReader &sr, const SendTable_sendprop_t &prop);
 std::string decodestring(StreamReader &sr, const SendTable_sendprop_t &prop);
+void printdecTime();
 
 
 #endif
