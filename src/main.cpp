@@ -91,6 +91,18 @@ void	printPacketEntities(void *data)
 			std::cout << " }\n";
 	}
 	std::cout << "]\n";
+	// static int count = 0;
+	// count++;
+	// if (count > 1000)
+	// {
+	// 	auto data = demoref->getEntities();
+
+	// 	for (auto it = data.begin(); it != data.end(); it++)
+	// 	{
+	// 		std::cout << demoref->getEntity(it->second) << "\n";
+	// 	}
+	// 	std::cout << std::endl;
+	// }
 
 #undef PrintVariable
 }
@@ -170,7 +182,7 @@ int main(int argc, char **argv, char **env)
 		// std::cout << "setter took" << demo.totalset << std::endl;
 		// std::cout << "]" << std::endl;
 	}
-	// google::protobuf::ShutdownProtobufLibrary();m
+	google::protobuf::ShutdownProtobufLibrary();
 	std::cerr << "Done!" << std::endl;
 	return (0);
 }

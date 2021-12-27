@@ -44,8 +44,10 @@ using std::string;
 	case i:																		\
 	{																			\
 		std::pair<const string *, GameEntities::Property> &prop = ent.properties[ind];	\
-		prop.first = &flatProp.path;											\
-		prop.second.type = decoded_##typeV;										\
+		if (!prop.first) {														\
+			prop.first = &flatProp.path;										\
+			prop.second.type = decoded_##typeV;									\
+		}																		\
 		prop.second.data = decode##typeV(sr, *flatProp.prop);					\
 		break;																	\
 	}
@@ -70,7 +72,7 @@ using std::string;
 			while (maxElem >>= 1)
 				bitsToRead++;
 			int numElem = sr.readBits(bitsToRead);
-			PropW newProp = PropW(flatProp.targetElem, "");
+			PropW &newProp = ent.parentService->arProps[flatProp.targetElem];
 			GameEntities::Property toAdd;
 			GameEntities::Property &prop = ent.properties[ind].second;
 
@@ -178,6 +180,7 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 				toChange.parentService = PVSParser(sr, dt);
 				toChange.properties.resize(toChange.parentService->props.size());
 				readFromStream(sr, dt, toChange);
+				indexes.insert(std::make_pair(toChange.parentService->nameDataTable, currentEntity));
 				if (toChange.parentService->nameDataTable == "DT_CSPlayer")
 				{
 					df.getPlayer(currentEntity - 1).packetRef = &(props[currentEntity]);
@@ -186,6 +189,16 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 			}
 		default:
 			{
+				auto it = indexes.equal_range(toChange.parentService->nameDataTable);
+				for (; it.first != it.second; it.first++)
+				{
+					if (it.first->second == currentEntity)
+					{
+						indexes.erase(it.first);
+						break;
+					}
+				}
+				toChange.properties.clear();
 				toChange.parentService = 0;
 				break;
 			}

@@ -145,14 +145,13 @@ struct PropW
 {
 	SendTable_sendprop_t 	*prop;
 	std::string				path;
-	SendTable_sendprop_t	targetElem;
+	int						targetElem;
 
-	PropW(const SendTable_sendprop_t &p, std::string pth, const SendTable_sendprop_t *target = 0)
+	PropW(const SendTable_sendprop_t &p, std::string pth, int target = -1)
 	{
 		prop = (SendTable_sendprop_t *)&p;
 		path = pth;
-		if (target)
-			targetElem = *target;
+		targetElem = target;
 	}
 	PropW(const PropW &p) {*this = p;}
 	PropW &operator=(const PropW &p)
@@ -176,6 +175,7 @@ struct DataTable
 		std::string nameDataTable;
 		SendTable	*dataTable;
 		std::vector<PropW> props;
+		std::vector<PropW> arProps;
 
 
 		bool isPropExcluded(const DataTable &dt, const SendTable &st, const SendTable_sendprop_t &p);
@@ -235,8 +235,16 @@ class GameEntities
 			void UpdateEntity(Entity &s);
 		};
 	private:
-		std::vector<Entity>					props;
+		std::vector<Entity>							props;
+		std::unordered_multimap<std::string, int>	indexes;
+
 	public:
+		inline	std::pair	<std::unordered_multimap<std::string, int>::iterator, \
+							std::unordered_multimap<std::string, int>::iterator> \
+							getEntitiesByName(std::string name) {return indexes.equal_range(name);}
+		inline	const std::unordered_multimap<std::string, int>	getEntities() {return indexes;}
+		inline	const Entity &getEntity(int id) {return props[id];}
+
 		GameEntities();
 		void	parse(PacketEntities &pe, DataTable &dt, DemoFile &df);
 		void	executeChanges(class DemoFile &df);
@@ -303,6 +311,12 @@ public:
 	
 	void	addPlayer(Player &p, int idx);
 	const	std::unordered_map<int, Player> &getPlayers();
+	inline	std::pair	<std::unordered_multimap<std::string, int>::iterator, \
+						std::unordered_multimap<std::string, int>::iterator> \
+						getEntitiesByName(std::string name) {return entities.getEntitiesByName(name);}
+	inline	const std::unordered_multimap<std::string, int>	getEntities() {return entities.getEntities();}
+	inline	const GameEntities::Entity &getEntity(int id) {return entities.getEntity(id);}
+
 	Player &getPlayer(size_t idx);
 
 	const GameEventList_descriptor_t &getGameEvent(size_t idx);
