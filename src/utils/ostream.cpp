@@ -169,28 +169,37 @@ std::ostream &operator<<(std::ostream &o, const Frame &f)
 
 std::ostream &operator<<(std::ostream &o, const GameEntities::Entity &e)
 {
+	if (!e.parentService)
+		return o;
 	o << "Packet: " << e.parentService->nameDataTable << std::endl;
 
-	for (auto it = e.properties.begin(); it != e.properties.end(); it++)
+	for (size_t i = 0; i < e.properties.size(); i++)
 	{
-		std::cout << it->first;
-		switch (it->second.type)
+		const std::pair<const std::string *, GameEntities::Property> &it = e.properties[i];
+		if (!it.first)
+			continue;
+		std::cout << *it.first << std::endl;
+		switch (it.second.type)
 		{
 		case decoded_int:
-			o << " : " << std::get<int>(it->second.data) << std::endl;
+			o << " : " << std::get<int>(it.second.data) << '\n';
 			break;
 		case decoded_float:
-			o << " : " << std::get<float>(it->second.data) << std::endl;
+			o << " : " << std::get<float>(it.second.data) << '\n';
 			break;
 		case decoded_Vector:
-			o << " : " << std::get<Vector>(it->second.data) << std::endl;
+			o << " : " << std::get<Vector>(it.second.data) << '\n';
 			break;
 		case decoded_Vector2:
-			o << " : " << std::get<Vector2>(it->second.data) << std::endl;
+			o << " : " << std::get<Vector2>(it.second.data) << '\n';
 			break;
 		case decoded_string:
-			o << " : " << std::get<std::string>(it->second.data) << std::endl;
+			o << " : " << std::get<std::string>(it.second.data) << '\n';
 			break;
+		case decoded_array:
+		{
+			o << " : [Array] " << std::get<std::vector<GameEntities::Property>>(it.second.data).size() << '\n';
+		}
 		default:
 			break;
 		}
