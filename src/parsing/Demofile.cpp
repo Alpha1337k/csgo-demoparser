@@ -11,7 +11,7 @@ DemoFile::DemoFile(FileReader &f): tick(0)
 	// std::cout << header << std::endl;
 	bool isFinished = false;
 
-	frames.reserve(50000);
+	frames.reserve(header.frames + 100);
 	while (!isFinished)
 	{
 		frames.push_back(Frame(f, isFinished));
