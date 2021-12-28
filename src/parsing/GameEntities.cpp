@@ -1,33 +1,57 @@
 #include <demo.hpp>
 
-int		readFieldIndex(StreamReader &sr, bool newWay, int oldindex)
+void	readFieldIndex(StreamReader &sr, std::vector<int> &data)
 {
-	int rval;
-	if (newWay)
+	int oldindex = -1;
+	while (1)
 	{
-		if (sr.readBit())
-			return oldindex + 1;
-		else if (sr.readBit())
-			return oldindex + 1 + sr.readBits(3);
+		int flags = sr.readBits(2);
+		switch (flags)
+		{
+		case 3: //11
+		{
+			data.push_back(++oldindex);
+			data.push_back(++oldindex);
+			break;
+		}
+		case 2: //10
+		{
+			data.push_back((oldindex += 1 + sr.readBits(3)));
+			break;
+		}
+		case 1: //01
+		{
+			data.push_back(++oldindex);
+			if (sr.readBit() != 0)
+			{
+				data.push_back((oldindex += 1 + sr.readBits(3)));
+				break;
+			}
+		}
+		default: [[unlikely]]
+		{
+			flags = sr.readBits(7);
+			switch (flags & (32 | 64))
+			{
+				case 32:
+					flags = (flags & ~96) | (sr.readBits(2) << 5);
+					break;
+				case 64:
+					flags = (flags & ~96) | (sr.readBits(4) << 5);
+					break;
+				case 96:
+					flags = (flags & ~96) | (sr.readBits(7) << 5);
+					break;
+				default:
+					break;
+			}
+			if (flags == 0xFFF)
+				return;
+			data.push_back((oldindex += 1 + flags));
+		}
+		}
+
 	}
-	rval = sr.readBits(7);
-	switch (rval & (32 | 64))
-	{
-		case 32:
-			rval = (rval & ~96) | (sr.readBits(2) << 5);
-			break;
-		case 64:
-			rval = (rval & ~96) | (sr.readBits(4) << 5);
-			break;
-		case 96:
-			rval = (rval & ~96) | (sr.readBits(7) << 5);
-			break;
-		default:
-			break;
-	}
-	if (rval == 0xFFF)
-		return -1;
-	return oldindex + 1 + rval;
 }
 
 size_t fulltime = 0;
@@ -37,26 +61,77 @@ void printdecTime()
 	std::cout << ' ' << fulltime << "us" << '\n';
 }
 
-void	decodeProperty(StreamReader &sr, int &ind, const DataTable &dt, GameEntities::Entity &ent, const PropW *arProp = 0)
+inline void	DecodeArray(StreamReader &sr, const PropW &flatProp, GameEntities::Entity &ent, int &ind)
+{
+	int maxElem = flatProp.prop->num_elements();
+
+	int bitsToRead = 1;
+	while (maxElem >>= 1)
+		bitsToRead++;
+	int numElem = sr.readBits(bitsToRead);
+
+	PropW &newProp = ent.parentService->arProps[flatProp.targetElem];
+	GameEntities::Property toAdd;
+	GameEntities::Property &prop = ent.properties[ind].second;
+
+	if (ent.properties[ind].first != &newProp.path)
+	{
+		ent.properties[ind].first = &newProp.path;
+		prop.type = decoded_array;
+	}
+
+	std::vector< GameEntities::Property > topush;
+	topush.reserve(numElem);
+
+	toAdd.type = newProp.prop->type();
+	for (int x = 0; x < numElem; x++)
+	{
+		switch (newProp.prop->type())
+		{
+			case 0:
+				toAdd.data = decodeint(sr, *newProp.prop);
+				break;
+			case 1:
+				toAdd.data = decodefloat(sr, *newProp.prop);
+				break;
+			case 2:
+				toAdd.data = decodeVector(sr, *newProp.prop);
+				break;
+			case 3:
+				toAdd.data = decodeVector2(sr, *newProp.prop);
+				break;
+			case 4:
+				toAdd.data = decodestring(sr, *newProp.prop);
+				break;
+			default:
+				assert(0);
+				break;
+		}
+		topush.push_back(toAdd);
+	}
+	prop.data = topush;
+}
+
+void	decodeProperty(StreamReader &sr, int &ind, GameEntities::Entity &ent)
 {
 using std::string;
 #define DecodeSwitch(i, typeV)													\
 	case i:																		\
 	{																			\
-		std::pair<const string *, GameEntities::Property> &prop = ent.properties[ind];	\
-		if (!prop.first) {														\
-			prop.first = &flatProp.path;										\
-			prop.second.type = decoded_##typeV;									\
-		}																		\
 		prop.second.data = decode##typeV(sr, *flatProp.prop);					\
 		break;																	\
 	}
 	assert(ind < (int)ent.parentService->props.size());
 	assert(ind < ent.properties.size());
 
-	if (!arProp)
-		arProp = &ent.parentService->props[ind];
-	const PropW &flatProp = *arProp;
+	const PropW &flatProp = ent.parentService->props[ind];
+
+	std::pair<const string *, GameEntities::Property> &prop = ent.properties[ind];
+	if (!prop.first) [[unlikely]]
+	{
+		prop.first = &flatProp.path;
+		prop.second.type = flatProp.prop->type();
+	}
 
 	switch (flatProp.prop->type())
 	{
@@ -67,53 +142,9 @@ using std::string;
 		DecodeSwitch(4, string);
 		case 5:
 		{
-			int maxElem = flatProp.prop->num_elements();
-			int bitsToRead = 1;
-			while (maxElem >>= 1)
-				bitsToRead++;
-			int numElem = sr.readBits(bitsToRead);
-			PropW &newProp = ent.parentService->arProps[flatProp.targetElem];
-			GameEntities::Property toAdd;
-			GameEntities::Property &prop = ent.properties[ind].second;
-
-			ent.properties[ind].first = &newProp.path;
-			std::vector< GameEntities::Property > topush;
-			topush.reserve(numElem);
-			for (int x = 0; x < numElem; x++)
-			{
-				switch (newProp.prop->type())
-				{
-				case 0:
-					toAdd.type = decoded_int;
-					toAdd.data = decodeint(sr, *newProp.prop);
-					break;
-				case 1:
-					toAdd.type = decoded_float;
-					toAdd.data = decodefloat(sr, *newProp.prop);
-					break;
-				case 2:
-					toAdd.type = decoded_Vector;
-					toAdd.data = decodeVector(sr, *newProp.prop);
-					break;
-				case 3:
-					toAdd.type = decoded_Vector2;
-					toAdd.data = decodeVector2(sr, *newProp.prop);
-					break;
-				case 4:
-					toAdd.type = decoded_string;
-					toAdd.data = decodestring(sr, *newProp.prop);
-					break;
-				default:
-					assert(0);
-					break;
-				}
-				topush.push_back(toAdd);
-			}
-			prop.type = decoded_array;
-			prop.data = topush;
+			DecodeArray(sr, flatProp, ent, ind);
 			break;
 		}
-	
 	default:
 		{
 			ErrorReturnMessage("Error case not found! type: " + std::to_string(flatProp.prop->type()));
@@ -123,7 +154,7 @@ using std::string;
 #undef DecodeSwitch
 }
 
-void	readFromStream(StreamReader &sr, const DataTable &dt, GameEntities::Entity &ent)
+void	readFromStream(StreamReader &sr, GameEntities::Entity &ent)
 {
 	bool readNewWay = sr.readBit();
 
@@ -131,12 +162,11 @@ void	readFromStream(StreamReader &sr, const DataTable &dt, GameEntities::Entity 
 	int index = -1;
 
 	indicies.reserve(20);
-	while ((index = readFieldIndex(sr, readNewWay, index)) != -1)
-		indicies.push_back(index);
+	readFieldIndex(sr, indicies);
 
 	for (size_t x = 0; x < indicies.size(); x++)
 	{
-		decodeProperty(sr, indicies[x], dt, ent);
+		decodeProperty(sr, indicies[x], ent);
 	}
 
 }
@@ -172,14 +202,14 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 		{
 		case 0:		// update
 			{
-				readFromStream(sr, dt, toChange);
+				readFromStream(sr, toChange);
 				break;
 			}
 		case 2:		// create
 			{
 				toChange.parentService = PVSParser(sr, dt);
 				toChange.properties.resize(toChange.parentService->props.size());
-				readFromStream(sr, dt, toChange);
+				readFromStream(sr, toChange);
 				indexes.insert(std::make_pair(toChange.parentService->nameDataTable, currentEntity));
 				if (toChange.parentService->nameDataTable == "DT_CSPlayer")
 				{
