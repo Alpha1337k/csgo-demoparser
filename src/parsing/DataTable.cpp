@@ -116,46 +116,47 @@ void	DataTable::ServiceClass::iterateProps(DataTable &dt, const SendTable &send,
 			propPath = prop.var_name();
 		if (propPath.length() && path.length())
 			propPath = path + '.' + propPath;
-		
-		if (prop.type() == 6)
+
+		switch (prop.type())
 		{
-			SendTable *st = dt.findSendTable(prop.dt_name());
-			assert(st != 0);
-			if (prop.flags() & (1 << 11))
+		case 6:
 			{
-				iterateProps(dt, *st, store, propPath);
+				SendTable *st = dt.findSendTable(prop.dt_name());
+				assert(st != 0);
+				if (prop.flags() & (1 << 11))
+				{
+					iterateProps(dt, *st, store, propPath);
+				}
+				else
+				{
+					gatherProps(dt, *st, propPath);
+				}
+				break;
 			}
-			else
-			{
-				gatherProps(dt, *st, propPath);
-			}
-		}
-		else
-		{
-			if (prop.type() == 5)
+		case 5:
 			{
 				arProps.push_back(PropW(send.props(i - 1), propPath));
 				store.push_back(PropW(prop, propPath, arProps.size() - 1));
+				break;
 			}
-			else
+		[[likely]] default:
 			{
 				store.push_back(PropW(prop, propPath));
+				break;
 			}
 		}
 	}
-	
 }
-
 
 void	DataTable::ServiceClass::gatherProps(DataTable &dt, SendTable &send, std::string path)
 {
 	std::vector<PropW> tmp;
 
+	tmp.reserve(send.props_size());
 	iterateProps(dt, send, tmp, path);
-	for (size_t i = 0; i < tmp.size(); i++)
-	{
-		props.push_back(tmp[i]);
-	}
+
+	// props.reserve(props.size() + tmp.size()); // this slows the code down by 50ms ??????
+	props.insert(props.end(), tmp.begin(), tmp.end());
 }
 
 void	DataTable::ServiceClass::sortProps()
@@ -210,13 +211,10 @@ void	DataTable::ServiceClass::flattenProps(DataTable &dt, SendTable *send)
 	if (send == 0)
 		send = dataTable;
 	SendTable &st = *send;
-	std::string path = "";
 	dt.excludedProps.clear();
 	gatherExcludes(dt, st);
-	
 	gatherProps(dt, st);
 	sortProps();
-
 }
 
 DataTable::ServiceClass &DataTable::ServiceClass::operator=(const DataTable::ServiceClass &cs)

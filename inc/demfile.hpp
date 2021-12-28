@@ -147,7 +147,7 @@ struct PropW
 	std::string				path;
 	int						targetElem;
 
-	PropW(const SendTable_sendprop_t &p, std::string pth, int target = -1)
+	PropW(const SendTable_sendprop_t &p, std::string &pth, int target = -1)
 	{
 		prop = (SendTable_sendprop_t *)&p;
 		path = pth;

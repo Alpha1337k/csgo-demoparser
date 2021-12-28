@@ -78,7 +78,7 @@ public:
 		{
 			int rv = buffer & s_nMaskTable[len];
 			bitsAvailable -= len;
-			if (bitsAvailable)
+			if (bitsAvailable) [[likely]]
 				buffer >>= len;
 			else
 				loadBuffer();
@@ -103,7 +103,7 @@ public:
 		int rv = buffer & 1;
 
 		bitsAvailable--;
-		if (bitsAvailable == 0)
+		if (bitsAvailable == 0) [[unlikely]]
 		{
 			loadBuffer();
 		}
