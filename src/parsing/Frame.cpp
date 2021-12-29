@@ -1,6 +1,8 @@
 #include <demo.hpp>
 
-Frame::Frame(FileReader &f, bool &finished)
+
+
+Frame::Frame(FileReader &f, bool &finished, MessageVector &msg)
 {
 	cmd = 0;
 	tick = 0;
@@ -10,13 +12,19 @@ Frame::Frame(FileReader &f, bool &finished)
 	f.read(&playerslot, sizeof(playerslot));
 
 	assert( cmd >= 1 && cmd <= dem_lastcmd );
+	index = msg.size();
 
 	switch (cmd)
 	{
 		case dem_signon:
 		case dem_packet:
-			pckt.Load(f);
-			break;
+			{
+				f.ForceIncrement(160);
+				int chunkSize = 0;
+				f.read(&chunkSize, sizeof(chunkSize));
+				getProtoMesssages(f, chunkSize, msg);
+				break;
+			}
 		case dem_stop:
 			finished = true;
 			break;
@@ -26,7 +34,7 @@ Frame::Frame(FileReader &f, bool &finished)
 		case dem_datatables:
 		{
 			DataTable *d = new DataTable(f);
-			pckt.msg.push_back(std::make_pair(svc_DataTable, d));
+			msg.emplace_back(svc_DataTable, d);
 			break;
 		}
 		case dem_stringtables:
@@ -48,7 +56,6 @@ Frame::Frame(const Frame &f) {*this = f;}
 Frame	&Frame::operator=(const Frame &f)
 {
 	cmd = f.cmd;
-	pckt = f.pckt;
 	tick = f.tick;
 	playerslot = f.playerslot;
 

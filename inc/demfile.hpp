@@ -28,6 +28,7 @@
 #define ReturnMessage(msg) \
 	{ std::cout << msg << std::endl; return; }
 
+// maybe a deque is better, but a simple bench showed that vector is stil king
 #define MessageVector std::vector<std::pair<int, void *>>
 
 enum PacketTypes
@@ -104,38 +105,14 @@ struct DemHeader
 };
 std::ostream &operator<<(std::ostream &o, const DemHeader &d);
 
-struct Packet
-{
-	struct Split_t
-	{
-		int			flags;
-
-			// original origin/viewangles
-		Vector		viewOrigin;
-		Vector		viewAngles;
-		Vector		localViewAngles;
-
-			// Resampled origin/viewangles
-		Vector		viewOrigin2;
-		Vector		viewAngles2;
-		Vector		localViewAngles2;
-	};
-	Split_t splits[2];
-	MessageVector msg;
-	Packet(FileReader &f);
-	void	Load(FileReader &f);
-	Packet();
-};
-std::ostream &operator<<(std::ostream &o, const Packet &d);
-
 struct Frame
 {
 	unsigned char	cmd;
 	int				tick;
 	char			playerslot;
+	int 			index;
 
-	Packet			pckt;
-	Frame(FileReader &f, bool &finished);
+	Frame(FileReader &f, bool &finished, MessageVector &packets);
 	Frame(const Frame &f);
 	Frame &operator=(const Frame &f);
 };
@@ -285,7 +262,8 @@ class DemoFile
 private:
 	DemHeader header;
 	ServerInfo *info;
-	std::vector<Frame> frames;
+	std::vector<Frame>	frames;
+	MessageVector		packets;
 	std::vector<GameEventList_descriptor_t> gEvents;
 	std::vector<ParsedStringTable>			parsedTables;
 	std::unordered_map<int, Player>					players;

@@ -10,7 +10,7 @@ const float COORD_RESOLUTION_LOWPRECISION = ( 1.0f / ( COORD_DENOMINATOR_LOWPREC
 
 int decodeint(StreamReader &sr, const SendTable_sendprop_t &prop)
 {
-	if (prop.flags() & ( 1 << 19))
+	if (prop.flags() & ( 1 << 19 ))
 	{
 		assert(0);
 		return sr.readBits(4);
@@ -91,6 +91,8 @@ float readfBits(StreamReader &sr)
 			fVal = sr.readBits(5);
 		rv = iVal + ((float)fVal * COORD_RESOLUTION);
 	}
+	else
+		return 0;
 
 	return isNeg ? -rv : rv;
 }

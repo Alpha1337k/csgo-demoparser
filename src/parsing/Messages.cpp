@@ -14,7 +14,7 @@ void	getProtoMesssages(FileReader &f, int size, MessageVector &messages)
 		}																				\
 		else if (parsemsg)																\
 			std::cout << "Parsed "  << #type << ", length: " << length << std::endl; 	\
-		messages.push_back(std::make_pair(svc_##type, svi));							\
+		messages.emplace_back(svc_##type, svi);							\
 		extra;																			\
 		break;																			\
 	}
@@ -30,7 +30,7 @@ void	getProtoMesssages(FileReader &f, int size, MessageVector &messages)
 		}																				\
 		else if (parsemsg)																\
 			std::cout << "Parsed "  << #type << ", length: " << length << std::endl;	\
-		messages.push_back(std::make_pair(net_##type, net));							\
+		messages.emplace_back(net_##type, net);											\
 		break;																			\
 	}
 

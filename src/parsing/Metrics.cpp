@@ -177,53 +177,46 @@ void	DemoFile::create_metrics()
 	}
 	totalparse = 0;
 
-	for (; tick < frames.size(); tick++)
+	for (size_t x = 0; x < packets.size(); x++)
 	{
-		auto	startTime = std::chrono::high_resolution_clock::now();
-		for (size_t x = 0; x < frames[tick].pckt.msg.size(); x++)
+		std::pair<int, void *> &pd = packets[x];
+
+		switch (pd.first)
 		{
-			std::pair<int, void *> &pd = frames[tick].pckt.msg[x];
+			HandleCase(GameEventList);
+			HandleCase(GameEvent);
+			HandleCase(ServerInfo);
+			HandleCase(CreateStringTable);
+			HandleCase(UpdateStringTable);
+			HandleCase(UserMessage);
+			HandleCase(PacketEntities);
+			HandleCase(DataTable);
 
-			switch (pd.first)
-			{
-				HandleCase(GameEventList);
-				HandleCase(GameEvent);
-				HandleCase(ServerInfo);
-				HandleCase(CreateStringTable);
-				HandleCase(UpdateStringTable);
-				HandleCase(UserMessage);
-				HandleCase(PacketEntities);
-				HandleCase(DataTable);
+			HandleOtherNet(Disconnect);
+			HandleOtherNet(File);
+			HandleOtherNet(Tick);
+			HandleOtherNet(StringCmd);
+			HandleOtherNet(SetConVar);
+			HandleOtherNet(SignonState);
 
-				HandleOtherNet(Disconnect);
-				HandleOtherNet(File);
-				HandleOtherNet(Tick);
-				HandleOtherNet(StringCmd);
-				HandleOtherNet(SetConVar);
-				HandleOtherNet(SignonState);
+			HandleOther(ClassInfo);
+			HandleOther(SetPause);
+			HandleOther(VoiceInit);
+			HandleOther(VoiceData);
+			HandleOther(Print);
+			HandleOther(Sounds);
+			HandleOther(SetView);
+			HandleOther(FixAngle);
+			HandleOther(CrosshairAngle);
+			HandleOther(BSPDecal);
+			HandleOther(TempEntities);
+			HandleOther(Prefetch);
+			HandleOther(Menu);
+			HandleOther(GetCvarValue);
 
-				HandleOther(ClassInfo);
-				HandleOther(SetPause);
-				HandleOther(VoiceInit);
-				HandleOther(VoiceData);
-				HandleOther(Print);
-				HandleOther(Sounds);
-				HandleOther(SetView);
-				HandleOther(FixAngle);
-				HandleOther(CrosshairAngle);
-				HandleOther(BSPDecal);
-				HandleOther(TempEntities);
-				HandleOther(Prefetch);
-				HandleOther(Menu);
-				HandleOther(GetCvarValue);
-
-			default:
-				break;
-			}
+		default:
+			break;
 		}
-		auto	endTime = std::chrono::high_resolution_clock::now();
-		auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
-		(void)diffdTime;
 	}
 #undef HandleCase
 #undef HandleOther
