@@ -1,59 +1,5 @@
 #include <demo.hpp>
 
-void	readFieldIndex(StreamReader &sr, std::vector<int> &data)
-{
-	int oldindex = -1;
-	while (1)
-	{
-		int flags = sr.readBits(2);
-		switch (flags)
-		{
-		case 3: //11
-		{
-			data.push_back(++oldindex);
-			data.push_back(++oldindex);
-			break;
-		}
-		case 2: //10
-		{
-			data.push_back((oldindex += 1 + sr.readBits(3)));
-			break;
-		}
-		case 1: //01
-		{
-			data.push_back(++oldindex);
-			if (sr.readBit() != 0)
-			{
-				data.push_back((oldindex += 1 + sr.readBits(3)));
-				break;
-			}
-		}
-		default: [[unlikely]]
-		{
-			flags = sr.readBits(7);
-			switch (flags & (32 | 64))
-			{
-				case 32:
-					flags = (flags & ~96) | (sr.readBits(2) << 5);
-					break;
-				case 64:
-					flags = (flags & ~96) | (sr.readBits(4) << 5);
-					break;
-				case 96:
-					flags = (flags & ~96) | (sr.readBits(7) << 5);
-					break;
-				default:
-					break;
-			}
-			if (flags == 0xFFF)
-				return;
-			data.push_back((oldindex += 1 + flags));
-		}
-		}
-
-	}
-}
-
 size_t fulltime = 0;
 
 void printdecTime()
@@ -154,21 +100,75 @@ using std::string;
 #undef DecodeSwitch
 }
 
+void	readFieldIndex(StreamReader &sr, std::vector<int> &data)
+{
+	int oldindex = -1;
+	while (1)
+	{
+		int flags = sr.readBits(2);
+		switch (flags)
+		{
+		case 3: //11
+		{
+			data.push_back(++oldindex);
+			data.push_back(++oldindex);
+			break;
+		}
+		case 2: //10
+		{
+			data.push_back((oldindex += 1 + sr.readBits(3)));
+			break;
+		}
+		case 1: //01
+		{
+			data.push_back(++oldindex);
+			if (sr.readBit() != 0)
+			{
+				data.push_back((oldindex += 1 + sr.readBits(3)));
+				break;
+			}
+		}
+		default: [[unlikely]]
+		{
+			flags = sr.readBits(7);
+			switch (flags & (32 | 64))
+			{
+				case 32:
+					flags = (flags & ~96) | (sr.readBits(2) << 5);
+					break;
+				case 64:
+					flags = (flags & ~96) | (sr.readBits(4) << 5);
+					break;
+				case 96:
+					flags = (flags & ~96) | (sr.readBits(7) << 5);
+					break;
+				default:
+					break;
+			}
+			if (flags == 0xFFF)
+				return;
+			data.push_back((oldindex += 1 + flags));
+		}
+		}
+
+	}
+}
+
+std::vector<int> indicies;
+
 void	readFromStream(StreamReader &sr, GameEntities::Entity &ent)
 {
 	bool readNewWay = sr.readBit();
 
-	std::vector<int> indicies;
 	int index = -1;
 
-	indicies.reserve(20);
+	indicies.clear();
 	readFieldIndex(sr, indicies);
 
 	for (size_t x = 0; x < indicies.size(); x++)
 	{
 		decodeProperty(sr, indicies[x], ent);
 	}
-
 }
 
 DataTable::ServiceClass	*PVSParser(StreamReader &sr, DataTable &dt)
@@ -217,7 +217,7 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 				}
 				break;
 			}
-		default:
+		default:	// delete
 			{
 				auto it = indexes.equal_range(toChange.parentService->nameDataTable);
 				for (; it.first != it.second; it.first++)
