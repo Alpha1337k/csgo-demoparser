@@ -8,27 +8,27 @@ const int COORD_FRACTIONAL_BITS_MP_LOWPRECISION = 3;
 const float COORD_DENOMINATOR_LOWPRECISION = ( 1 << ( COORD_FRACTIONAL_BITS_MP_LOWPRECISION ) );
 const float COORD_RESOLUTION_LOWPRECISION = ( 1.0f / ( COORD_DENOMINATOR_LOWPRECISION ) );
 
-int decodeint(StreamReader &sr, const SendTable_sendprop_t &prop)
+int decodeint(StreamReader &sr, const GameEntities::Property &prop)
 {
-	if (prop.flags() & ( 1 << 19 ))
+	if (prop.flags & ( 1 << 19 ))
 	{
 		assert(0);
 		return sr.readBits(4);
 	}
 	else
 	{
-		return sr.readBits(prop.num_bits());
+		return sr.readBits(prop.num_bits);
 	}
 }
 
-Vector decodeVector(StreamReader &sr, const SendTable_sendprop_t &prop) 
+Vector decodeVector(StreamReader &sr, const GameEntities::Property &prop) 
 {
 	Vector rv;
 
 	rv.x = decodefloat(sr, prop);
 	rv.y = decodefloat(sr, prop);
 
-	if ((prop.flags() & (1 << 5)) == 0)
+	if ((prop.flags & (1 << 5)) == 0)
 		rv.z = decodefloat(sr, prop);
 	else
 	{
@@ -43,7 +43,7 @@ Vector decodeVector(StreamReader &sr, const SendTable_sendprop_t &prop)
 	}
 	return rv;
 }
-Vector2 decodeVector2(StreamReader &sr, const SendTable_sendprop_t &prop) 
+Vector2 decodeVector2(StreamReader &sr, const GameEntities::Property &prop) 
 {
 	Vector2 rv;
 
@@ -52,7 +52,7 @@ Vector2 decodeVector2(StreamReader &sr, const SendTable_sendprop_t &prop)
 
 	return rv;
 }
-std::string decodestring(StreamReader &sr, const SendTable_sendprop_t &prop)
+std::string decodestring(StreamReader &sr, const GameEntities::Property &prop)
 {
 
 	(void)prop;
@@ -134,24 +134,24 @@ float	readFloat(StreamReader &sr)
 	return *((float *)&fl);
 }
 
-float readfCellCoord(StreamReader &sr, const SendTable_sendprop_t &prop, char level)
+float readfCellCoord(StreamReader &sr, const GameEntities::Property &prop, char level)
 {
 	if (level == 2)
-		return sr.readBits(prop.num_bits());
-	int iVal = sr.readBits(prop.num_bits());
+		return sr.readBits(prop.num_bits);
+	int iVal = sr.readBits(prop.num_bits);
 	int fVal = sr.readBits(level == 1 ? 3 : 5);
 
 	return iVal + (fVal * (1 / (1 << (level == 1 ? 3 : 5))));
 }
 
-float readfIntep(StreamReader &sr, const SendTable_sendprop_t &prop)
+float readfIntep(StreamReader &sr, const GameEntities::Property &prop)
 {
 	float rv = 0;
 
-	int fl = sr.readBits(prop.num_bits());
+	int fl = sr.readBits(prop.num_bits);
 
-	rv = (float)fl / ((1 << prop.num_bits()) - 1);
-	rv = prop.low_value() + (prop.high_value() - prop.low_value()) * rv;
+	rv = (float)fl / ((1 << prop.num_bits) - 1);
+	rv = prop.low_value + (prop.high_value - prop.low_value) * rv;
 
 	return rv;
 }
@@ -166,9 +166,9 @@ float readfNormal(StreamReader &sr)
 	return sign == 1 ? -val : val;
 }
 
-float decodefloat(StreamReader &sr, const SendTable_sendprop_t &prop) 
+float decodefloat(StreamReader &sr, const GameEntities::Property &prop) 
 {
-	switch (prop.flags() & 258086)
+	switch (prop.flags & 258086)
 	{
 	case 2:
 		return readfBits(sr);

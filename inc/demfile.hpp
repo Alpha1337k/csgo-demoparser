@@ -198,9 +198,15 @@ class GameEntities
 		struct Property
 		{
 			int type;
+			int flags;
+			int num_bits;
+			float low_value;
+			float high_value;
+
 			std::variant<int, float, std::string, Vector, Vector2, std::vector<Property> > data;
+			Property(const Property &s) {*this = s;}
 			Property		&operator=(const Property &s);
-			Property(): data(0) {}
+			Property() {}
 			~Property();
 		};
 		struct Entity
@@ -208,6 +214,7 @@ class GameEntities
 			DataTable::ServiceClass *parentService;
 			std::vector<std::pair<const std::string *, Property> >	properties;
 
+			Entity(): parentService(0) {}
 			Entity			&operator=(const Entity &s);
 			void UpdateEntity(Entity &s);
 		};
@@ -311,11 +318,11 @@ int		readStringBits(const std::string &str, int count, int &i, char &bitsAvailab
 int		readStringVarInt(const std::string &str, int &i, char &bitsAvailable);
 
 /* decoders */
-int decodeint(StreamReader &sr, const SendTable_sendprop_t &prop);
-float decodefloat(StreamReader &sr, const SendTable_sendprop_t &prop);
-Vector decodeVector(StreamReader &sr, const SendTable_sendprop_t &prop);
-Vector2 decodeVector2(StreamReader &sr, const SendTable_sendprop_t &prop);
-std::string decodestring(StreamReader &sr, const SendTable_sendprop_t &prop);
+int decodeint(StreamReader &sr, const GameEntities::Property &prop);
+float decodefloat(StreamReader &sr, const GameEntities::Property &prop);
+Vector decodeVector(StreamReader &sr, const GameEntities::Property &prop);
+Vector2 decodeVector2(StreamReader &sr, const GameEntities::Property &prop);
+std::string decodestring(StreamReader &sr, const GameEntities::Property &prop);
 void printdecTime();
 
 

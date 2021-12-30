@@ -23,31 +23,35 @@ inline void	DecodeArray(StreamReader &sr, const PropW &flatProp, GameEntities::E
 	if (ent.properties[ind].first != &newProp.path)
 	{
 		ent.properties[ind].first = &newProp.path;
-		prop.type = decoded_array;
 	}
 
 	std::vector< GameEntities::Property > topush;
 	topush.reserve(numElem);
 
 	toAdd.type = newProp.prop->type();
+	toAdd.flags = newProp.prop->flags();
+	toAdd.num_bits = newProp.prop->num_bits();
+	toAdd.low_value = newProp.prop->low_value();
+	toAdd.high_value = newProp.prop->high_value();
+
 	for (int x = 0; x < numElem; x++)
 	{
 		switch (newProp.prop->type())
 		{
 			case 0:
-				toAdd.data = decodeint(sr, *newProp.prop);
+				toAdd.data = decodeint(sr, toAdd);
 				break;
 			case 1:
-				toAdd.data = decodefloat(sr, *newProp.prop);
+				toAdd.data = decodefloat(sr, toAdd);
 				break;
 			case 2:
-				toAdd.data = decodeVector(sr, *newProp.prop);
+				toAdd.data = decodeVector(sr, toAdd);
 				break;
 			case 3:
-				toAdd.data = decodeVector2(sr, *newProp.prop);
+				toAdd.data = decodeVector2(sr, toAdd);
 				break;
 			case 4:
-				toAdd.data = decodestring(sr, *newProp.prop);
+				toAdd.data = decodestring(sr, toAdd);
 				break;
 			default:
 				assert(0);
@@ -64,22 +68,26 @@ using std::string;
 #define DecodeSwitch(i, typeV)													\
 	case i:																		\
 	{																			\
-		prop.second.data = decode##typeV(sr, *flatProp.prop);					\
+		prop.second.data = decode##typeV(sr, prop.second);						\
 		break;																	\
 	}
 	assert(ind < (int)ent.parentService->props.size());
-	assert(ind < ent.properties.size());
-
-	const PropW &flatProp = ent.parentService->props[ind];
 
 	std::pair<const string *, GameEntities::Property> &prop = ent.properties[ind];
 	if (!prop.first) [[unlikely]]
 	{
+		const PropW &flatProp = ent.parentService->props[ind];
+	
 		prop.first = &flatProp.path;
 		prop.second.type = flatProp.prop->type();
+		prop.second.flags = flatProp.prop->flags();
+		prop.second.num_bits = flatProp.prop->num_bits();
+		prop.second.low_value = flatProp.prop->low_value();
+		prop.second.high_value = flatProp.prop->high_value();
+
 	}
 
-	switch (flatProp.prop->type())
+	switch (prop.second.type)
 	{
 		DecodeSwitch(0, int);
 		DecodeSwitch(1, float);
@@ -88,12 +96,12 @@ using std::string;
 		DecodeSwitch(4, string);
 		case 5:
 		{
-			DecodeArray(sr, flatProp, ent, ind);
+			DecodeArray(sr, ent.parentService->props[ind], ent, ind);
 			break;
 		}
 	default:
 		{
-			ErrorReturnMessage("Error case not found! type: " + std::to_string(flatProp.prop->type()));
+			assert (0);
 		}
 	}
 #undef string
@@ -207,6 +215,11 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 			}
 		case 2:		// create
 			{
+				if (toChange.parentService != 0)
+				{
+					// need to update index in lookup
+					toChange.properties.clear();
+				}
 				toChange.parentService = PVSParser(sr, dt);
 				toChange.properties.resize(toChange.parentService->props.size());
 				readFromStream(sr, toChange);
@@ -254,8 +267,13 @@ GameEntities::Entity		&GameEntities::Entity::operator=(const GameEntities::Entit
 
 GameEntities::Property		&GameEntities::Property::operator=(const GameEntities::Property &s)
 {
-	type = s.type;
 	data = s.data;
+
+	type = s.type;
+	flags  = s.flags;
+	num_bits = s.num_bits;
+	low_value = s.low_value;
+	high_value = s.high_value;
 
 	return (*this);
 }
