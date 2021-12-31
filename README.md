@@ -67,7 +67,7 @@ All the tests are run on `WSL2: Ubuntu 18.04`, and the project is stored on an `
 
 | Type                      | Read  | Preparse | Metrics | Total | Total no IO |
 |---------------------------|-------|----------|---------|-------|-------------|
-| Basic demo (≈82000 ticks) | 240ms | 105ms    | 360ms   | 705ms | 465ms       |
+| Basic demo (≈82000 ticks) | 240ms | 105ms    | 300ms   | 645ms | 405ms       |
 > Might need some more test cases. feel free!
 
 ---
