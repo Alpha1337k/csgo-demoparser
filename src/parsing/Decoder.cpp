@@ -74,26 +74,20 @@ std::string decodestring(StreamReader &sr, const GameEntities::Property &prop)
 
 float readfBits(StreamReader &sr)
 {
-	int iVal, fVal;
 	float rv = 0;
 
-	iVal = sr.readBit();
-	fVal = sr.readBit();
-	bool isNeg = false;
+    int flags = sr.readBits(2);
+	
+    if (flags == 0)
+        return 0;
+	bool isNeg = sr.readBit();
 
-	if (iVal || fVal)
-	{
-		isNeg = sr.readBit();
-
-		if (iVal)
-			iVal = sr.readBits(14) + 1;
-		if (fVal)
-			fVal = sr.readBits(5);
-		rv = iVal + ((float)fVal * COORD_RESOLUTION);
-	}
-	else
-		return 0;
-
+    if (flags == 1)
+        rv = sr.readBits(14) + 1;
+    else if (flags == 2)
+        rv = sr.readBits(5) * 0.0315;
+    else
+        rv = sr.readBits(14) + 1 + sr.readBits(5) * 0.0315;
 	return isNeg ? -rv : rv;
 }
 
@@ -161,7 +155,7 @@ float readfNormal(StreamReader &sr)
 	int sign = sr.readBit();
 	int	dt = sr.readBits(11);
 
-	float val = (float)dt * (1 / ((1 << 11) - 1));
+	float val = (float)dt * (1 / (float)((1 << 11) - 1));
 
 	return sign == 1 ? -val : val;
 }
