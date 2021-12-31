@@ -190,7 +190,17 @@ DataTable::ServiceClass	*PVSParser(StreamReader &sr, DataTable &dt)
 	return &dt.services[serverClassId];
 }
 
-size_t highest = 0;
+inline void	deleteFromIndex(std::unordered_multimap<std::string, int> &indexes, int &currentEntity, std::string &name)
+{
+	for (auto it = indexes.equal_range(name); it.first != it.second; it.first++)
+	{
+		if (it.first->second == currentEntity)
+		{
+			indexes.erase(it.first);
+			break;
+		}
+	}
+}
 
 void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 {
@@ -217,11 +227,13 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 			{
 				if (toChange.parentService != 0)
 				{
-					// need to update index in lookup
+					deleteFromIndex(indexes, currentEntity, toChange.parentService->nameDataTable);
 					toChange.properties.clear();
+					toChange.properties.resize(toChange.properties.capacity());
 				}
 				toChange.parentService = PVSParser(sr, dt);
-				toChange.properties.resize(toChange.parentService->props.size());
+				if (toChange.properties.size() < toChange.parentService->props.size())
+					toChange.properties.resize(toChange.parentService->props.size());
 				readFromStream(sr, toChange);
 				indexes.insert(std::make_pair(toChange.parentService->nameDataTable, currentEntity));
 				if (toChange.parentService->nameDataTable == "DT_CSPlayer")
@@ -232,15 +244,7 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 			}
 		default:	// delete
 			{
-				auto it = indexes.equal_range(toChange.parentService->nameDataTable);
-				for (; it.first != it.second; it.first++)
-				{
-					if (it.first->second == currentEntity)
-					{
-						indexes.erase(it.first);
-						break;
-					}
-				}
+				deleteFromIndex(indexes, currentEntity, toChange.parentService->nameDataTable);
 				toChange.properties.clear();
 				toChange.parentService = 0;
 				break;
