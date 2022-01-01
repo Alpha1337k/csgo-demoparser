@@ -281,3 +281,15 @@ GameEntities::Property		&GameEntities::Property::operator=(const GameEntities::P
 
 	return (*this);
 }
+
+const GameEntities::Property *GameEntities::Entity::getProperty(std::string name) const
+{
+	if (!parentService)
+		return 0;
+	for (size_t i = 0; i < properties.size(); i++)
+	{
+		if (properties[i].first && name == *properties[i].first)
+			return &properties[i].second;
+	}
+	return 0;
+}

@@ -113,6 +113,40 @@ std::ostream &operator<<(std::ostream &o, const Frame &f)
 	return (o);
 }
 
+std::ostream &operator<<(std::ostream &o, const GameEntities::Property &p)
+{
+	switch (p.type)
+	{
+		case decoded_int:
+			o << std::get<int>(p.data);
+			break;
+		case decoded_float:
+			o << std::get<float>(p.data);
+			break;
+		case decoded_Vector:
+			o << std::get<Vector>(p.data);
+			break;
+		case decoded_Vector2:
+			o << std::get<Vector2>(p.data);
+			break;
+		case decoded_string:
+			o << std::get<std::string>(p.data);
+			break;
+		case decoded_array:
+		{
+			const std::vector<GameEntities::Property> &data = std::get<std::vector<GameEntities::Property> >(p.data);
+			o << "[ ";
+			for (size_t i = 0; i < data.size(); i++)
+			{
+				o << data[i] << ",";
+			}
+			o << " ]";
+			
+		}
+	}
+	return o;
+}
+
 std::ostream &operator<<(std::ostream &o, const GameEntities::Entity &e)
 {
 	if (!e.parentService)
@@ -124,32 +158,7 @@ std::ostream &operator<<(std::ostream &o, const GameEntities::Entity &e)
 		const std::pair<const std::string *, GameEntities::Property> &it = e.properties[i];
 		if (!it.first)
 			continue;
-		std::cout << *it.first << std::endl;
-		switch (it.second.type)
-		{
-		case decoded_int:
-			o << " : " << std::get<int>(it.second.data) << '\n';
-			break;
-		case decoded_float:
-			o << " : " << std::get<float>(it.second.data) << '\n';
-			break;
-		case decoded_Vector:
-			o << " : " << std::get<Vector>(it.second.data) << '\n';
-			break;
-		case decoded_Vector2:
-			o << " : " << std::get<Vector2>(it.second.data) << '\n';
-			break;
-		case decoded_string:
-			o << " : " << std::get<std::string>(it.second.data) << '\n';
-			break;
-		case decoded_array:
-		{
-			o << " : [Array] " << std::get<std::vector<GameEntities::Property>>(it.second.data).size() << '\n';
-		}
-		default:
-			break;
-		}
+		o << *it.first << ": " << it.second << '\n';
 	}
-	std::cout << "}\n";
 	return (o);
 }

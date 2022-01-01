@@ -214,6 +214,7 @@ class GameEntities
 			DataTable::ServiceClass *parentService;
 			std::vector<std::pair<const std::string *, Property> >	properties;
 
+			const GameEntities::Property *getProperty(std::string name) const;
 			Entity(): parentService(0) {}
 			Entity			&operator=(const Entity &s);
 			void UpdateEntity(Entity &s);
@@ -233,6 +234,7 @@ class GameEntities
 		void	parse(PacketEntities &pe, DataTable &dt, DemoFile &df);
 		void	executeChanges(class DemoFile &df);
 };
+std::ostream &operator<<(std::ostream &o, const GameEntities::Property &p);
 std::ostream &operator<<(std::ostream &o, const GameEntities::Entity &e);
 
 
@@ -273,7 +275,7 @@ private:
 	MessageVector		packets;
 	std::vector<GameEventList_descriptor_t> gEvents;
 	std::vector<ParsedStringTable>			parsedTables;
-	std::unordered_map<int, Player>					players;
+	std::unordered_map<int, Player>			players;
 	DataTable							dataTable;
 	GameEntities						entities;
 	std::vector<void (*)(void *)>		eventHooks;

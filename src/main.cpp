@@ -53,9 +53,9 @@ void	printGameEvent(void *data)
 void	printPacketEntities(void *data)
 {
 #define PrintVariable(name, var, type) std::cout << ", \"" << name << "\": " << std::get<type>(var);
-#define PrintExists(property, cast, name)									\
+#define PrintExists(property, cast, name, target)									\
 		{	\
-			const GameEntities::Property *prop = pl.getProperty(property);	\
+			const GameEntities::Property *prop = target.getProperty(property);	\
 			if (prop != 0)													\
 				PrintVariable(name, prop->data, cast);						\
 		}
@@ -69,6 +69,7 @@ void	printPacketEntities(void *data)
 	else
 		std::cout << ",[";
 	c++;
+
 	for (auto i = players.begin(); i != players.end();)
 	{
 		const Player &pl = i->second;
@@ -76,13 +77,14 @@ void	printPacketEntities(void *data)
 		std::cout << "{ \"name\": \"" << pl.md.userName << '"';
 		if (pl.packetRef != 0)
 		{
-			PrintExists("m_iHealth", int, "health");
-			PrintExists("m_iAccount", int, "balance");
-			PrintExists("m_bHasFelmet", int, "hasHelmet");
-			PrintExists("localdata.m_vecOrigin[0]", int, "lVecOriginZ");
-			PrintExists("csnonlocaldata.m_vecOrigin", Vector2, "nlVecOriginXY");
-			PrintExists("m_angEyeAngles[0]", float, "eyeAnglePitch");
-			PrintExists("m_angEyeAngles[1]", float, "eyeAngleYaw");
+			PrintExists("m_iHealth", int, "health", pl);
+			PrintExists("m_iAccount", int, "balance", pl);
+			PrintExists("m_bHasFelmet", int, "hasHelmet", pl);
+			PrintExists("localdata.m_vecOrigin[0]", int, "lVecOriginZ", pl);
+			PrintExists("csnonlocaldata.m_vecOrigin", Vector2, "nlVecOriginXY", pl);
+			PrintExists("m_angEyeAngles[0]", float, "eyeAnglePitch", pl);
+			PrintExists("m_angEyeAngles[1]", float, "eyeAngleYaw", pl);
+			PrintExists("m_iTeamNum", int, "teamId", pl);
 		}
 		i++;
 		if (i != players.end())
@@ -127,7 +129,7 @@ void	printDataTable(void *d)
 	exit(-1);	
 }
 
-void	printTime(std::string name, std::chrono::system_clock::time_point p1, std::chrono::system_clock::time_point p2)
+void	printTime(std::string name, std::chrono::steady_clock::time_point p1, std::chrono::steady_clock::time_point p2)
 {
 	auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(p1 - p2);
 	(void)diffdTime;
