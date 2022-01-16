@@ -2,7 +2,7 @@
 
 
 
-Frame::Frame(FileReader &f, bool &finished, MessageVector &msg)
+Frame::Frame(FileReader &f, bool &finished, DemoFile &d)
 {
 	cmd = 0;
 	tick = 0;
@@ -12,7 +12,6 @@ Frame::Frame(FileReader &f, bool &finished, MessageVector &msg)
 	f.read(&playerslot, sizeof(playerslot));
 
 	assert( cmd >= 1 && cmd <= dem_lastcmd );
-	index = msg.size();
 
 	switch (cmd)
 	{
@@ -22,7 +21,7 @@ Frame::Frame(FileReader &f, bool &finished, MessageVector &msg)
 				f.ForceIncrement(160);
 				int chunkSize = 0;
 				f.read(&chunkSize, sizeof(chunkSize));
-				getProtoMesssages(f, chunkSize, msg);
+				getProtoMesssages(f, chunkSize, d);
 				break;
 			}
 		case dem_stop:
@@ -33,8 +32,9 @@ Frame::Frame(FileReader &f, bool &finished, MessageVector &msg)
 			break;
 		case dem_datatables:
 		{
-			DataTable *d = new DataTable(f);
-			msg.emplace_back(svc_DataTable, d);
+			DataTable &dt = d.getDataTable();
+			dt = DataTable(f, d);
+			d.handleDataTable();
 			break;
 		}
 		case dem_stringtables:

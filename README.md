@@ -65,9 +65,9 @@ Afaik this is the fastest parser available, and i will always keep performance i
 
 All the tests are run on `WSL2: Ubuntu 18.04`, and the project is stored on an `HDD`. That combo explains the slow read (i hope). CPU used is an `Intel Core I7 4820k`.
 
-| Type                      | Read  | Preparse | Metrics | Total | Total no IO |
-|---------------------------|-------|----------|---------|-------|-------------|
-| Basic demo (≈82000 ticks) | 240ms | 105ms    | 300ms   | 645ms | 405ms       |
+| Type                      | Time (No I/O) |
+|---------------------------|---------------|
+| Basic demo (≈82000 ticks) | 340ms         |
 > Might need some more test cases. feel free!
 
 ---

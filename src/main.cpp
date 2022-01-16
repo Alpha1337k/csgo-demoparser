@@ -129,7 +129,7 @@ void	printDataTable(void *d)
 	exit(-1);	
 }
 
-void	printTime(std::string name, std::chrono::steady_clock::time_point p1, std::chrono::steady_clock::time_point p2)
+void	printTime(std::string name, std::chrono::system_clock::time_point p1, std::chrono::system_clock::time_point p2)
 {
 	auto	diffdTime = std::chrono::duration_cast<std::chrono::microseconds>(p1 - p2);
 	(void)diffdTime;
@@ -162,28 +162,18 @@ int main(int argc, char **argv, char **env)
 	auto	startEnd = std::chrono::high_resolution_clock::now();
 	printTime("Loading", startEnd, startTime);
 
-	DemoFile demo(f);
+	DemoFile demo;
 	demoref = &demo;
 
-	auto	preparseTime = std::chrono::high_resolution_clock::now();
-	printTime("Preparsing", preparseTime, startEnd);
+	// demo.addEventHook(svc_PacketEntities, printPacketEntities);
 
-	if (startupParameters["--only-parse"] == 0)
-	{
-		// std::cout << "[";
-		// demo.addEventHook(svc_ServerInfo, printServerInfo);
-		// demo.addEventHook(svc_GameEvent, printGameEvent);
-		// demo.addEventHook(6, printDataTable);
-		// demo.addEventHook(svc_PacketEntities, printPacketEntities);
-		// demo.addEventHook(svc_CreateStringTable, printCreateStringTable);
+	// std::cout << "[";
 
-		demo.create_metrics();
-		auto	metricsTime = std::chrono::high_resolution_clock::now();
-		printTime("Metrics", metricsTime, preparseTime);
-		// std::cout << "parser took" << demo.totalparse << std::endl;
-		// std::cout << "setter took" << demo.totalset << std::endl;
-		// std::cout << "]" << std::endl;
-	}
+	demo.start_parse(f);
+	// std::cout << "]" << std::endl;
+	auto	parseTime = std::chrono::high_resolution_clock::now();
+	printTime("Parsing", parseTime, startEnd);
+
 	google::protobuf::ShutdownProtobufLibrary();
 	std::cerr << "Done!" << std::endl;
 	return (0);

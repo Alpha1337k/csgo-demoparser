@@ -1,12 +1,12 @@
 #include <demo.hpp>
 
-DataTable::DataTable(FileReader &f)
+DataTable::DataTable(FileReader &f, DemoFile &df)
 {
 	int size = 0;
 
 	f.read(&size, sizeof(size));
 
-	getProtoMesssages(f, -1, msg);
+	getProtoMesssages(f, -1, df);
 
 	short serverClassesCount = 0;
 	f.read(&serverClassesCount, sizeof(serverClassesCount));
@@ -33,13 +33,12 @@ DataTable::DataTable(FileReader &f)
 			sc.nameDataTable = f.readString();
 			services.push_back(sc);
 		}
-	}	
+	}
 }
 
 DataTable &DataTable::operator=(const DataTable &d)
 {
 	services = d.services;
-	msg = d.msg;
 	serviceClassBits = d.serviceClassBits;
 
 	return *this;
@@ -58,10 +57,8 @@ SendTable	*DataTable::findSendTable(std::string name)
 {
 	for (size_t i = 0; i < msg.size(); i++)
 	{
-		SendTable *st = (SendTable *)msg[i].second;
-
-		if (st->net_table_name() == name)
-			return st;
+		if (msg[i].net_table_name() == name)
+			return &msg[i];
 	}
 	return 0;
 }
@@ -155,7 +152,6 @@ void	DataTable::ServiceClass::gatherProps(DataTable &dt, SendTable &send, std::s
 	tmp.reserve(send.props_size());
 	iterateProps(dt, send, tmp, path);
 
-	// props.reserve(props.size() + tmp.size()); // this slows the code down by 50ms ??????
 	props.insert(props.end(), tmp.begin(), tmp.end());
 }
 

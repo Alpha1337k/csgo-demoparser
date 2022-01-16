@@ -112,7 +112,7 @@ struct Frame
 	char			playerslot;
 	int 			index;
 
-	Frame(FileReader &f, bool &finished, MessageVector &packets);
+	Frame(FileReader &f, bool &finished, class DemoFile &d);
 	Frame(const Frame &f);
 	Frame &operator=(const Frame &f);
 };
@@ -168,10 +168,10 @@ struct DataTable
 
 	std::vector<ServiceClass> services;
 	std::vector<SendTable_sendprop_t> excludedProps;
-	MessageVector msg;
+	std::vector<SendTable> msg;
 	char	serviceClassBits;
 
-	DataTable(FileReader &f);
+	DataTable(FileReader &f, class DemoFile &df);
 	DataTable();
 	DataTable &operator=(const DataTable &d);
 	void	shallowSwap(DataTable &d);
@@ -271,15 +271,12 @@ class DemoFile
 private:
 	DemHeader header;
 	ServerInfo *info;
-	std::vector<Frame>	frames;
-	MessageVector		packets;
 	std::vector<GameEventList_descriptor_t> gEvents;
 	std::vector<ParsedStringTable>			parsedTables;
 	std::unordered_map<int, Player>			players;
 	DataTable							dataTable;
 	GameEntities						entities;
 	std::vector<void (*)(void *)>		eventHooks;
-	size_t								tick;
 
 	void handleGameEventList(GameEventList &ge);
 	void handleGameEvent(GameEvent &ge);
@@ -288,14 +285,18 @@ private:
 	void handleUpdateStringTable(UpdateStringTable &si);
 	void handlePacketEntities(PacketEntities &e);
 	void handleUserMessage(UserMessage &e);
-	void handleDataTable(DataTable &dt);
+	void handleSendTable(SendTable &st);
 public:
 	size_t totalparse;
+	DataTable	&getDataTable() { return dataTable; }
+	void handleDataTable();
 
-	DemoFile(FileReader &f);
+	DemoFile();
 	~DemoFile();
-	void	create_metrics();
-	
+
+	void	start_parse(FileReader &f);
+	void	handle_packet(int type, void *data);
+
 	void	addPlayer(Player &p, int idx);
 	const	std::unordered_map<int, Player> &getPlayers();
 	inline	std::pair	<std::unordered_multimap<std::string, int>::iterator, \
@@ -314,7 +315,7 @@ public:
 	void	removeEventHook(int type);
 };
 
-void getProtoMesssages(FileReader &f, int size, MessageVector &msg);
+void getProtoMesssages(FileReader &f, int size, DemoFile &d);
 int readVarInt(char *ar, size_t *iter);
 int		readStringBits(const std::string &str, int count, int &i, char &bitsAvailable);
 int		readStringVarInt(const std::string &str, int &i, char &bitsAvailable);

@@ -140,90 +140,88 @@ void DemoFile::handleUserMessage(UserMessage &e)
 #undef UserMessageSwitch
 }
 
-void DemoFile::handleDataTable(DataTable &dt)
+void DemoFile::handleDataTable()
 {
-	for (size_t i = 0; i < dt.services.size(); i++)
+	for (size_t i = 0; i < dataTable.services.size(); i++)
 	{
-		dt.services[i].dataTable = dt.findSendTable(dt.services[i].nameDataTable);
-		dt.services[i].flattenProps(dt);
+		dataTable.services[i].dataTable = &dataTable.msg[dataTable.services[i].id];
+		dataTable.services[i].flattenProps(dataTable);
 	}
-	dataTable.shallowSwap(dt);
+
 	if (eventHooks[dem_datatables])
 		eventHooks[dem_datatables](&dataTable);
 }
 
-void	DemoFile::create_metrics()
+void DemoFile::handleSendTable(SendTable &st)
 {
-	extern StartupParser startupParameters;
+	dataTable.msg.push_back(st);
+	if (eventHooks[dem_datatables])
+		eventHooks[dem_datatables](&dataTable);
+}
+
+
+void	DemoFile::handle_packet(int type, void *data)
+{
 #define HandleCase(type)						\
 	case svc_##type:							\
 	{											\
-		handle##type(*(type *)pd.second);		\
+		handle##type(*(type *)data);			\
 		break;									\
 	}
 #define HandleOther(type)						\
 	case svc_##type:							\
 	{											\
 		if (eventHooks[svc_##type])				\
-			eventHooks[svc_##type](&pd.second); \
+			eventHooks[svc_##type](data);		\
 		break;									\
 	}
 #define HandleOtherNet(type)					\
 	case net_##type:							\
 	{											\
 		if (eventHooks[net_##type])				\
-			eventHooks[net_##type](&pd.second); \
+			eventHooks[net_##type](data); \
 		break;									\
 	}
-	totalparse = 0;
 
-	for (size_t x = 0; x < packets.size(); x++)
+	switch (type)
 	{
-		std::pair<int, void *> &pd = packets[x];
+		HandleCase(GameEventList);
+		HandleCase(GameEvent);
+		HandleCase(ServerInfo);
+		HandleCase(CreateStringTable);
+		HandleCase(UpdateStringTable);
+		HandleCase(UserMessage);
+		HandleCase(PacketEntities);
+		HandleCase(SendTable);
 
-		switch (pd.first)
-		{
-			HandleCase(GameEventList);
-			HandleCase(GameEvent);
-			HandleCase(ServerInfo);
-			HandleCase(CreateStringTable);
-			HandleCase(UpdateStringTable);
-			HandleCase(UserMessage);
-			HandleCase(PacketEntities);
-			HandleCase(DataTable);
+		HandleOtherNet(Disconnect);
+		HandleOtherNet(File);
+		HandleOtherNet(Tick);
+		HandleOtherNet(StringCmd);
+		HandleOtherNet(SetConVar);
+		HandleOtherNet(SignonState);
 
-			HandleOtherNet(Disconnect);
-			HandleOtherNet(File);
-			HandleOtherNet(Tick);
-			HandleOtherNet(StringCmd);
-			HandleOtherNet(SetConVar);
-			HandleOtherNet(SignonState);
+		HandleOther(ClassInfo);
+		HandleOther(SetPause);
+		HandleOther(VoiceInit);
+		HandleOther(VoiceData);
+		HandleOther(Print);
+		HandleOther(Sounds);
+		HandleOther(SetView);
+		HandleOther(FixAngle);
+		HandleOther(CrosshairAngle);
+		HandleOther(BSPDecal);
+		HandleOther(TempEntities);
+		HandleOther(Prefetch);
+		HandleOther(Menu);
+		HandleOther(GetCvarValue);
 
-			HandleOther(ClassInfo);
-			HandleOther(SetPause);
-			HandleOther(VoiceInit);
-			HandleOther(VoiceData);
-			HandleOther(Print);
-			HandleOther(Sounds);
-			HandleOther(SetView);
-			HandleOther(FixAngle);
-			HandleOther(CrosshairAngle);
-			HandleOther(BSPDecal);
-			HandleOther(TempEntities);
-			HandleOther(Prefetch);
-			HandleOther(Menu);
-			HandleOther(GetCvarValue);
-
-		default:
-			break;
-		}
+	default:
+		std::cerr << "Error: unknown" << type << std::endl;
+		break;
 	}
+
 #undef HandleCase
 #undef HandleOther
 #undef HandleOtherNet
-}
-
-const size_t	DemoFile::getCurrentTick()
-{
-	return tick;
 }
