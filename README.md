@@ -44,9 +44,9 @@ int main(int argc, char **argv)
 
 	FileReader f(startupParameters.last().first);
 
-	DemoFile demo(f);
+	DemoFile demo;
 	demo.addEventHook(svc_ServerInfo, printServerInfo);
-	demo.create_metrics();
+	demo.start_parse(f);
 }
 
 ```
