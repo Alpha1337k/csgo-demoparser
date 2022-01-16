@@ -71,7 +71,6 @@ using std::string;
 		prop.second.data = decode##typeV(sr, prop.second);						\
 		break;																	\
 	}
-	assert(ind < (int)ent.parentService->props.size());
 
 	std::pair<const string *, GameEntities::Property> &prop = ent.properties[ind];
 	if (!prop.first) [[unlikely]]
@@ -118,21 +117,21 @@ void	readFieldIndex(StreamReader &sr, std::vector<int> &data)
 		{
 		case 3: //11
 		{
-			data.push_back(++oldindex);
-			data.push_back(++oldindex);
+			data.emplace_back(++oldindex);
+			data.emplace_back(++oldindex);
 			break;
 		}
 		case 2: //10
 		{
-			data.push_back((oldindex += 1 + sr.readBits(3)));
+			data.emplace_back((oldindex += 1 + sr.readBits(3)));
 			break;
 		}
 		case 1: //01
 		{
-			data.push_back(++oldindex);
+			data.emplace_back(++oldindex);
 			if (sr.readBit() != 0)
 			{
-				data.push_back((oldindex += 1 + sr.readBits(3)));
+				data.emplace_back((oldindex += 1 + sr.readBits(3)));
 				break;
 			}
 		}
@@ -155,7 +154,7 @@ void	readFieldIndex(StreamReader &sr, std::vector<int> &data)
 			}
 			if (flags == 0xFFF)
 				return;
-			data.push_back((oldindex += 1 + flags));
+			data.emplace_back((oldindex += 1 + flags));
 		}
 		}
 
