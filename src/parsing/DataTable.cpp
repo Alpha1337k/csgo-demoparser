@@ -6,7 +6,7 @@ DataTable::DataTable(FileReader &f, DemoFile &df)
 
 	f.read(&size, sizeof(size));
 
-	getProtoMesssages(f, -1, df);
+	getProtoMesssages(f, size, df);
 
 	short serverClassesCount = 0;
 	f.read(&serverClassesCount, sizeof(serverClassesCount));

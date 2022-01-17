@@ -66,7 +66,7 @@ void	getProtoMesssages(FileReader &f, int size, DemoFile &d)
 	static GameEventList s_GameEventList = GameEventList();
 	static GetCvarValue s_GetCvarValue = GetCvarValue();
 
-	while (f.getOffset() - startpos < (size_t)size || size == -1)
+	while (f.getOffset() - startpos < (size_t)size)
 	{
 		unsigned int	messagetype = f.readInt();
 		unsigned int	length = f.readInt();
