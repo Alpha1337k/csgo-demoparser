@@ -16,6 +16,7 @@
 #include <variant>
 #include <FileReader.hpp>
 #include <StreamReader.hpp>
+#include <functional>
 
 #define printIfAllowed(query, toPrint)	\
 	{									\
@@ -276,7 +277,7 @@ private:
 	std::unordered_map<int, Player>			players;
 	DataTable							dataTable;
 	GameEntities						entities;
-	std::vector<void (*)(void *)>		eventHooks;
+	std::vector<std::function<void (void *)>>		eventHooks;
 
 	void handleGameEventList(GameEventList &ge);
 	void handleGameEvent(GameEvent &ge);
@@ -311,7 +312,7 @@ public:
 
 	const size_t	getCurrentTick();
 
-	void	addEventHook(int type, void (*f)(void *data));
+	void	addEventHook(int type, std::function<void (void *)> &f);
 	void	removeEventHook(int type);
 };
 

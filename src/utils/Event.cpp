@@ -1,6 +1,6 @@
 #include <demo.hpp>
 
-void	DemoFile::addEventHook(int type, void (*f)(void *data))
+void	DemoFile::addEventHook(int type, std::function<void (void *)> &f)
 {
 	eventHooks[type] = f;
 }
