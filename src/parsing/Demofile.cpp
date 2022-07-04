@@ -2,7 +2,7 @@
 
 DemoFile::DemoFile()
 {
-	eventHooks.resize(33, 0);
+	eventHooks.resize(50, 0);
 }
 
 void DemoFile::start_parse(FileReader &f)

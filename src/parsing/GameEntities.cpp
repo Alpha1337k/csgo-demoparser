@@ -210,7 +210,7 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 	{
 		currentEntity += 1 + sr.readStreamInt();
 
-		assert(currentEntity < 700); // error for static vector size. please report if spotted in the wild
+		assert(currentEntity < 1500); // error for static vector size. please report if spotted in the wild
 		Entity	&toChange = props[currentEntity];
 
 		int type = sr.readBits(2);
@@ -220,10 +220,12 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 		case 0:		// update
 			{
 				readFromStream(sr, toChange);
+				df.emitEvent(svc_UpdateEntity, &toChange);
 				break;
 			}
 		case 2:		// create
 			{
+
 				if (toChange.parentService != 0)
 				{
 					deleteFromIndex(indexes, currentEntity, toChange.parentService->nameDataTable);
@@ -239,10 +241,14 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 				{
 					df.getPlayer(currentEntity - 1).packetRef = &(props[currentEntity]);
 				}
+
+				df.emitEvent(svc_CreateEntity, &toChange);
 				break;
 			}
 		default:	// delete
 			{
+				df.emitEvent(svc_DeleteEntity, &toChange);
+
 				deleteFromIndex(indexes, currentEntity, toChange.parentService->nameDataTable);
 				toChange.properties.clear();
 				toChange.parentService = 0;
@@ -253,7 +259,7 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 }
 
 GameEntities::GameEntities() {
-	props.resize(700);
+	props.resize(1500);
 }
 
 GameEntities::Property::~Property()

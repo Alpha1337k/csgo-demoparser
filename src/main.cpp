@@ -50,63 +50,39 @@ void	printGameEvent(void *data)
 	std::cout << "}\n";	
 }
 
-void	printPacketEntities(void *data)
+// gets the updated packet
+// *d is an constant pointer, till deleted or end.
+// can read all the properties that are loaded in.
+// data->parentService->props holds all the possible props, at the same index as properties.
+void	updatePacket(void *d)
 {
-#define PrintVariable(name, var, type) std::cout << ", \"" << name << "\": " << std::get<type>(var);
-#define PrintExists(property, cast, name, target)									\
-		{	\
-			const GameEntities::Property *prop = target.getProperty(property);	\
-			if (prop != 0)													\
-				PrintVariable(name, prop->data, cast);						\
-		}
+	GameEntities::Entity *data = (GameEntities::Entity *)d;
 
-	static size_t c = 0;
-
-	const std::unordered_map<int, Player> &players = demoref->getPlayers();
 	
-	if (c == 0)
-		std::cout << '[';
-	else
-		std::cout << ",[";
-	c++;
-
-	for (auto i = players.begin(); i != players.end();)
-	{
-		const Player &pl = i->second;
-
-		std::cout << "{ \"name\": \"" << pl.md.userName << '"';
-		if (pl.packetRef != 0)
+	std::cout << "Update: " << data->parentService->name << std::endl;
+	if (data->parentService->name == "CWeaponM4A1") {
+		for (size_t i = 0; i < data->properties.size(); i++)
 		{
-			PrintExists("m_iHealth", int, "health", pl);
-			PrintExists("m_iAccount", int, "balance", pl);
-			PrintExists("m_bHasFelmet", int, "hasHelmet", pl);
-			PrintExists("localdata.m_vecOrigin[0]", int, "lVecOriginZ", pl);
-			PrintExists("csnonlocaldata.m_vecOrigin", Vector2, "nlVecOriginXY", pl);
-			PrintExists("m_angEyeAngles[0]", float, "eyeAnglePitch", pl);
-			PrintExists("m_angEyeAngles[1]", float, "eyeAngleYaw", pl);
-			PrintExists("m_iTeamNum", int, "teamId", pl);
+			if (!data->properties[i].first)
+				continue;
+			std::cout << *data->properties[i].first << std::endl;
+			std::cout << data->properties[i].second.type << std::endl;
 		}
-		i++;
-		if (i != players.end())
-			std::cout << " },\n";
-		else
-			std::cout << " }\n";
 	}
-	std::cout << "]\n";
-	// static int count = 0;
-	// count++;
-	// if (count > 1000)
-	// {
-	// 	auto data = demoref->getEntities();
+}
 
-	// 	for (auto it = data.begin(); it != data.end(); it++)
-	// 	{
-	// 		std::cout << demoref->getEntity(it->second) << "\n";
-	// 	}
-	// 	std::cout << std::endl;
-	// }
+void	createPacket(void *d)
+{
+	GameEntities::Entity *data = (GameEntities::Entity *)d;
 
-#undef PrintVariable
+	std::cout << "Create: " << data->parentService->name << std::endl;
+}
+
+void	deletePacket(void *d)
+{
+	GameEntities::Entity *data = (GameEntities::Entity *)d;
+
+	std::cout << "Delete: " << data->parentService->name << std::endl;
 }
 
 void	printCreateStringTable(void *data)
@@ -165,7 +141,15 @@ int main(int argc, char **argv, char **env)
 	DemoFile demo;
 	demoref = &demo;
 
-	// demo.addEventHook(svc_PacketEntities, printPacketEntities);
+	// std::function<void(void *)> eventFP = &printPacketEntities;
+	// std::function<void(void *)> eventDelete = &deletePacket;
+	// std::function<void(void *)> eventCreate = &createPacket;
+	// std::function<void(void *)> eventUpdate = &updatePacket;
+	// demo.addEventHook(svc_PacketEntities, eventFP);
+	// demo.addEventHook(svc_DeleteEntity, eventDelete);
+	// demo.addEventHook(svc_CreateEntity, eventCreate);
+	// demo.addEventHook(svc_UpdateEntity, eventUpdate);
+
 
 	// std::cout << "[";
 

@@ -70,7 +70,10 @@ enum DecodedTypes
 
 enum PreParsedPackages
 {
-	svc_DataTable = -1
+	svc_DataTable = -1,
+	svc_UpdateEntity = 49,
+	svc_CreateEntity = 48,
+	svc_DeleteEntity = 47,
 };
 
 struct Vector
@@ -314,6 +317,10 @@ public:
 
 	void	addEventHook(int type, std::function<void (void *)> &f);
 	void	removeEventHook(int type);
+	inline void emitEvent(int type, void *val) {
+		if (eventHooks[type]) 
+			eventHooks[type](val);
+	}
 };
 
 void getProtoMesssages(FileReader &f, int size, DemoFile &d);
