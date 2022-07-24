@@ -210,7 +210,8 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 	{
 		currentEntity += 1 + sr.readStreamInt();
 
-		assert(currentEntity < 1500); // error for static vector size. please report if spotted in the wild
+		if (currentEntity >= props.size())
+			props.resize((currentEntity + 2) * 2);
 		Entity	&toChange = props[currentEntity];
 
 		int type = sr.readBits(2);
@@ -259,7 +260,7 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 }
 
 GameEntities::GameEntities() {
-	props.resize(1500);
+	props.resize(512);
 }
 
 GameEntities::Property::~Property()

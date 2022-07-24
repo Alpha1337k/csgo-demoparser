@@ -2,6 +2,7 @@
 #define DEMFILE_HPP
 
 #include <vector>
+#include <deque>
 #include <stdio.h>
 #include <exception>
 #include <netmessages.pb.h>
@@ -220,11 +221,12 @@ class GameEntities
 
 			const GameEntities::Property *getProperty(std::string name) const;
 			Entity(): parentService(0) {}
+			Entity(const Entity &s): parentService(0) {*this = s;}
 			Entity			&operator=(const Entity &s);
 			void UpdateEntity(Entity &s);
 		};
 	private:
-		std::vector<Entity>							props;
+		std::deque<Entity>							props;
 		std::unordered_multimap<std::string, int>	indexes;
 
 	public:
@@ -232,7 +234,12 @@ class GameEntities
 							std::unordered_multimap<std::string, int>::iterator> \
 							getEntitiesByName(std::string name) {return indexes.equal_range(name);}
 		inline	const std::unordered_multimap<std::string, int>	getEntities() {return indexes;}
-		inline	const Entity &getEntity(int id) {return props[id];}
+		inline	const Entity *getEntity(int id)
+		{
+			if (id > props.size())
+				return 0;
+			return &props[id];
+		}
 
 		GameEntities();
 		void	parse(PacketEntities &pe, DataTable &dt, DemoFile &df);
@@ -307,7 +314,7 @@ public:
 						std::unordered_multimap<std::string, int>::iterator> \
 						getEntitiesByName(std::string name) {return entities.getEntitiesByName(name);}
 	inline	const std::unordered_multimap<std::string, int>	getEntities() {return entities.getEntities();}
-	inline	const GameEntities::Entity &getEntity(int id) {return entities.getEntity(id);}
+	inline	const GameEntities::Entity *getEntity(int id) {return entities.getEntity(id);}
 
 	Player &getPlayer(size_t idx);
 

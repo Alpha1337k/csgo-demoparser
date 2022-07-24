@@ -74,7 +74,7 @@ std::string decodestring(StreamReader &sr, const GameEntities::Property &prop)
 
 float readfBits(StreamReader &sr)
 {
-	float rv = 0;
+	float rv;
 
     int flags = sr.readBits(2);
 	
@@ -140,7 +140,7 @@ float readfCellCoord(StreamReader &sr, const GameEntities::Property &prop, char 
 
 float readfIntep(StreamReader &sr, const GameEntities::Property &prop)
 {
-	float rv = 0;
+	float rv;
 
 	int fl = sr.readBits(prop.num_bits);
 
