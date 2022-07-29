@@ -28,14 +28,28 @@ Player	&DemoFile::getPlayer(size_t idx)
 
 const GameEntities::Property *Player::getProperty(std::string name)
 {
-	if (!packetRef)
-		return 0;
-	for (size_t i = 0; i < packetRef->properties.size(); i++)
-	{
-		if (packetRef->properties[i].first && name == *packetRef->properties[i].first)
-			return &packetRef->properties[i].second;
-	}
-	return 0;
+    static std::unordered_map<std::string, int>propHm;
+
+    if (!packetRef)
+        return 0;
+
+    std::unordered_map<std::string, int>::iterator foundItem = propHm.find(name);
+
+    if (foundItem == propHm.end()){
+        for (int i = 0; i < packetRef->properties.size(); i++)
+        {
+            if (packetRef->properties[i].first && name == *packetRef->properties[i].first){
+                propHm.insert(std::make_pair(name, i));
+                return &packetRef->properties[i].second;
+            }
+        }
+    }else{
+        int inx = foundItem->second;
+        if (packetRef->properties[inx].first && name == *packetRef->properties[inx].first){
+            return &packetRef->properties[inx].second;
+        }
+    }
+    return 0;
 }
 
 Player	&Player::operator=(const Player &p)
