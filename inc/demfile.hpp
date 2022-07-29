@@ -269,10 +269,10 @@ struct Player {
 	Metadata	md;
 	GameEntities::Entity *packetRef;
 
-	const GameEntities::Property *getProperty(std::string name) const;
+	const GameEntities::Property *getProperty(std::string name);
 	Player(std::string &data);
-	Player() {}
-	Player(const Player &p) {*this = p;}
+	Player(): packetRef(0) {}
+	Player(const Player &p): packetRef(0) {*this = p;}
 	Player &operator=(const Player &p);
 };
 std::ostream &operator<<(std::ostream &o, const Player &p);
@@ -309,7 +309,7 @@ public:
 	void	handle_packet(int type, void *data);
 
 	void	addPlayer(Player &p, int idx);
-	const	std::unordered_map<int, Player> &getPlayers();
+	std::unordered_map<int, Player> &getPlayers();
 	inline	std::pair	<std::unordered_multimap<std::string, int>::iterator, \
 						std::unordered_multimap<std::string, int>::iterator> \
 						getEntitiesByName(std::string name) {return entities.getEntitiesByName(name);}

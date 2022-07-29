@@ -250,6 +250,11 @@ void GameEntities::parse(PacketEntities &pe, DataTable &dt, DemoFile &df)
 			{
 				df.emitEvent(svc_DeleteEntity, &toChange);
 
+				if (toChange.parentService->nameDataTable == "DT_CSPlayer")
+				{
+					df.getPlayer(currentEntity - 1).packetRef = 0;
+				}
+
 				deleteFromIndex(indexes, currentEntity, toChange.parentService->nameDataTable);
 				toChange.properties.clear();
 				toChange.parentService = 0;
