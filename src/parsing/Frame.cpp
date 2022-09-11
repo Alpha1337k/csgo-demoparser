@@ -19,6 +19,13 @@ Frame::Frame(FileReader &f, bool &finished, DemoFile &d)
 		case dem_packet:
 			{
 				f.ForceIncrement(160);
+
+				if (f.isEof()) {
+					std::cerr << "Warn: invalid packet exceeds file" << std::endl;
+					finished = true;
+					break;
+				}
+
 				int chunkSize = 0;
 				f.read(&chunkSize, sizeof(chunkSize));
 				getProtoMesssages(f, chunkSize, d);
@@ -44,8 +51,10 @@ Frame::Frame(FileReader &f, bool &finished, DemoFile &d)
 			assert(0);
 			break;
 		case dem_synctick:
+			break;
 		default:
 		{
+			assert(0);
 			break;
 		}
 	}
